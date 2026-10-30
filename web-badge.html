@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Badge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <script src="cjpegli.js"></script>
+  <style>
+    :root {
+      --color-bg: #f8f9fa;
+      --color-surface: #ffffff;
+      --color-text-main: #202124;
+      --color-text-muted: #5f6368;
+      --color-border: #dadce0;
+      --color-input-bg: #ffffff;
+      --color-crop-bg: #e8eaed;
+      --color-mask-border: rgba(0, 0, 0, 0.2);
+      --color-primary: #007bff;
+      --color-danger: #dc3545;
+      --state-hover: rgba(0, 0, 0, 0.05);
+      --state-active: rgba(0, 0, 0, 0.1);
+      --state-danger-hover: rgba(220, 53, 69, 0.1);
+      --modal-bg: rgba(255, 255, 255, 0.95);
+      --modal-btn: rgba(0, 0, 0, 0.05);
+      --modal-btn-hover: rgba(0, 0, 0, 0.1);
+      --modal-btn-active: rgba(0, 0, 0, 0.2);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --z-header: 10;
+      --z-nav: 20;
+      --z-modal: 100;
+      --z-modal-ui: 101;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #121212;
+        --color-surface: #1e1e1e;
+        --color-text-main: #ffffff;
+        --color-text-muted: #aaaaaa;
+        --color-border: #333333;
+        --color-input-bg: #333333;
+        --color-crop-bg: #222222;
+        --color-mask-border: rgba(255, 255, 255, 0.4);
+        --color-primary: #4da3ff;
+        --color-danger: #ff453a;
+        --state-hover: rgba(255, 255, 255, 0.1);
+        --state-active: rgba(255, 255, 255, 0.2);
+        --state-danger-hover: rgba(255, 69, 58, 0.15);
+        --modal-bg: rgba(0, 0, 0, 0.95);
+        --modal-btn: rgba(255, 255, 255, 0.15);
+        --modal-btn-hover: rgba(255, 255, 255, 0.25);
+        --modal-btn-active: rgba(255, 255, 255, 0.35);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      inline-size: 100%;
+      block-size: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: var(--color-bg);
+      color: var(--color-text-main);
+      font-family: system-ui, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .btn-icon {
+      inline-size: 44px;
+      block-size: 44px;
+      padding: 0;
+      border-radius: 50%;
+      color: var(--color-text-main);
+    }
+
+    .btn-icon:hover:not(:disabled) { background-color: var(--state-hover); }
+    .btn-icon:active:not(:disabled) { background-color: var(--state-active); }
+
+    .btn-icon.active-primary { color: var(--color-primary); }
+
+    .btn-text {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-surface);
+      color: var(--color-text-main);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .btn-text:hover:not(:disabled) { background-color: var(--state-hover); }
+    .btn-text:active:not(:disabled) { background-color: var(--state-active); }
+
+    select,
+    input[type="number"],
+    input[type="checkbox"] {
+      padding: 6px 4px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-input-bg);
+      color: var(--color-text-main);
+      font-size: 14px;
+      outline: none;
+    }
+
+    input[type="number"] { inline-size: 54px; }
+
+    input[type="checkbox"] {
+      inline-size: 16px;
+      block-size: 16px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .text-label {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      block-size: 100dvh;
+    }
+
+    .tab-nav {
+      display: flex;
+      z-index: var(--z-nav);
+      block-size: 48px;
+      border-block-end: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+    }
+
+    .btn-tab {
+      flex: 1;
+      border-block-end: 2px solid transparent;
+      color: var(--color-text-muted);
+    }
+
+    .btn-tab:hover { background-color: var(--state-hover); }
+    .btn-tab:active { background-color: var(--state-active); }
+
+    .btn-tab.active {
+      border-block-end-color: var(--color-text-main);
+      color: var(--color-text-main);
+    }
+
+    .view-panel {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .view-panel.active { display: flex; }
+
+    .header-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: var(--z-header);
+      block-size: 56px;
+      padding-inline: 16px;
+      border-block-end: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+    }
+
+    .badge-controls {
+      display: flex;
+      flex-direction: column;
+      block-size: 100%;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .command-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-inline-size: 300px;
+    }
+
+    .command-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .select-command {
+      inline-size: 100px;
+      padding: 8px;
+    }
+
+    .crop-container {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background-color: var(--color-crop-bg);
+      touch-action: none;
+    }
+
+    #img-source {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      opacity: 0;
+      pointer-events: none;
+      backface-visibility: hidden;
+      will-change: transform;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    #img-source.loaded { opacity: 1; }
+
+    .crop-mask {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      border: 1px dashed var(--color-mask-border);
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .thumbnail-list {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      block-size: 84px;
+      padding-inline: 12px;
+      overflow-inline: auto;
+      border-block-start: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      scrollbar-width: none;
+    }
+
+    .thumbnail-list::-webkit-scrollbar { display: none; }
+
+    .thumbnail-item {
+      flex-shrink: 0;
+      inline-size: 60px;
+      block-size: 60px;
+      border-radius: 4px;
+      box-shadow: var(--shadow-sm);
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s;
+      -webkit-user-drag: none;
+    }
+
+    .thumbnail-item:hover { transform: scale(1.05); }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      block-size: 44px;
+      padding-inline: 16px;
+      border-block-start: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      font-size: 14px;
+    }
+
+    .status-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .status-icon {
+      color: var(--color-text-muted);
+      font-size: 24px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: var(--z-modal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      background-color: var(--modal-bg);
+      outline: none;
+      touch-action: none;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-bar {
+      position: absolute;
+      inset-inline: 16px;
+      z-index: var(--z-modal-ui);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .modal-bar.top { inset-block-start: 16px; }
+    .modal-bar.bottom { inset-block-end: 16px; }
+
+    .modal-bar .center {
+      grid-column: 2;
+      pointer-events: auto;
+    }
+
+    .modal-bar .right {
+      grid-column: 3;
+      justify-self: end;
+      pointer-events: auto;
+    }
+
+    .modal-text {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-text.primary {
+      max-inline-size: 200px;
+      color: var(--color-text-main);
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .modal-text.secondary {
+      color: var(--color-text-muted);
+      font-size: 14px;
+    }
+
+    .btn-modal {
+      background: var(--modal-btn);
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-modal:hover:not(:disabled) { background: var(--modal-btn-hover); }
+
+    .btn-modal:active:not(:disabled),
+    .btn-modal.simulate-active {
+      background-color: var(--modal-btn-active);
+      transform: scale(0.9);
+    }
+
+    .btn-modal.danger { color: var(--color-danger); }
+    .btn-modal.danger:hover:not(:disabled) { background: var(--state-danger-hover); }
+
+    .modal-content {
+      display: grid;
+      grid-template-areas:
+        ". upload ."
+        "prev img next"
+        ". download ."
+        "prog prog prog";
+      align-items: center;
+      justify-items: center;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .modal-content > button { pointer-events: auto; }
+
+    #btn-upload { grid-area: upload; }
+    #btn-prev { grid-area: prev; }
+    #img-preview { grid-area: img; }
+    #btn-next { grid-area: next; }
+    #btn-download { grid-area: download; }
+
+    #img-preview {
+      max-inline-size: 90vw;
+      max-block-size: 55vh;
+      box-shadow: var(--shadow-sm);
+      object-fit: contain;
+      pointer-events: auto;
+      -webkit-user-drag: none;
+    }
+
+    .progress-container {
+      display: none;
+      grid-area: prog;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      inline-size: 80%;
+      max-inline-size: 300px;
+      pointer-events: none;
+    }
+
+    .progress-container.active { display: flex; }
+
+    progress {
+      inline-size: 100%;
+      block-size: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    progress::-webkit-progress-bar { background-color: var(--color-border); }
+    progress::-webkit-progress-value {
+      background-color: var(--color-primary);
+      transition: inline-size 0.1s linear;
+    }
+
+    .progress-text {
+      color: var(--color-text-main);
+      font-size: 13px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+  <nav class="tab-nav">
+    <button id="tab-badge" class="btn btn-tab active" title="Badge Control">
+      <span class="material-symbols-outlined">watch</span>
+    </button>
+    <button id="tab-image" class="btn btn-tab" title="Image Processing">
+      <span class="material-symbols-outlined">image</span>
+    </button>
+  </nav>
+
+  <div id="panel-badge" class="view-panel active">
+    <header class="header-toolbar">
+      <button id="btn-connect-ble" class="btn btn-icon" title="Connect/Disconnect Bluetooth">
+        <span id="icon-ble" class="material-symbols-outlined">bluetooth</span>
+      </button>
+
+      <div id="info-badge-header" class="status-group" style="display: none; font-size: 14px;" title="Badge Info">
+        <span id="text-badge-name" title="Badge Name"></span>
+        <span id="text-mac-address" style="color: var(--color-text-muted); font-size: 12px; font-weight: normal;" title="MAC Address"></span>
+      </div>
+
+      <div class="control-group" style="margin-inline-start: auto;">
+        <input type="checkbox" id="chk-debug" title="Enable Console Debug Logging">
+        <label for="chk-debug" class="text-label" title="Enable Console Debug Logging">Debug</label>
+      </div>
+    </header>
+
+    <main class="badge-controls">
+      <div class="command-panel">
+        <div class="command-row">
+            <button id="btn-set-lang" class="btn btn-text btn-badge-cmd" title="Set Badge Language" disabled>Language</button>
+            <select id="sel-lang" class="select-command" title="Select Language">
+              <option value="0x01">English</option>
+              <option value="0x08">日本語</option>
+            </select>
+        </div>
+        <button id="btn-call" class="btn btn-text btn-badge-cmd" title="Send Call Alert" disabled>Call</button>
+        <button id="btn-check-storage" class="btn btn-text btn-badge-cmd" title="Check Free Space on Badge" disabled>Check Free Space</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="panel-image" class="view-panel">
+    <header class="header-toolbar">
+      <button id="btn-open-file" class="btn btn-icon" title="Open Image File">
+        <span class="material-symbols-outlined">folder_open</span>
+      </button>
+      <input type="file" id="input-file" accept="image/*" hidden>
+
+      <button id="btn-process" class="btn btn-icon" title="Crop and Process Image" disabled>
+        <span class="material-symbols-outlined">crop</span>
+      </button>
+
+      <div class="control-group">
+        <label for="sel-resolution" class="btn btn-icon" title="Select Target Resolution">
+          <span class="material-symbols-outlined">aspect_ratio</span>
+        </label>
+        <select id="sel-resolution" title="Select Target Resolution">
+          <option value="240">240px</option>
+          <!--<option value="360">360px</option>-->
+        </select>
+      </div>
+
+      <div class="control-group">
+        <!--
+        <label for="input-filesize" class="btn btn-icon" title="Target File Size (KiB)">
+          <span class="material-symbols-outlined">compress</span>
+        </label>
+        <input type="number" id="input-filesize" min="1" max="39" step="1" value="20" title="Target File Size (KiB)">
+        <span class="text-label" title="Target File Size (KiB)">KiB</span>
+        -->
+        <label for="input-quality" class="btn btn-icon" title="JPEG Quality">
+          <span class="material-symbols-outlined">high_quality</span>
+        </label>
+        <input type="number" id="input-quality" min="1" max="100" step="1" value="90" title="JPEG Quality">
+      </div>
+    </header>
+
+    <main id="crop-area" class="crop-container" title="Drag to Pan, Scroll/Pinch to Zoom">
+      <img id="img-source" decoding="async">
+      <div id="crop-mask" class="crop-mask"></div>
+    </main>
+  </div>
+
+  <footer id="thumbnail-container" class="thumbnail-list"></footer>
+
+  <div class="status-bar">
+    <div class="status-group" title="Battery Level">
+      <span id="icon-battery" class="material-symbols-outlined status-icon">battery_full</span>
+      <span id="text-battery">--%</span>
+    </div>
+    <div class="status-group" title="Free Storage Space">
+      <span id="text-storage">-- KiB</span>
+      <span class="material-symbols-outlined status-icon">storage</span>
+    </div>
+  </div>
+</div>
+
+<div id="modal-preview" class="modal-overlay" tabindex="-1">
+  <div class="modal-bar top">
+    <div id="modal-filename" class="modal-text primary center" title="File Name"></div>
+    <button id="btn-close" class="btn btn-icon btn-modal right" title="Close Overlay">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <button id="btn-upload" class="btn btn-icon btn-modal" title="Upload to Badge">
+      <span class="material-symbols-outlined">upload</span>
+    </button>
+    <button id="btn-prev" class="btn btn-icon btn-modal" title="Previous Image">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+
+    <img id="img-preview" title="Preview">
+
+    <button id="btn-next" class="btn btn-icon btn-modal" title="Next Image">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+    <button id="btn-download" class="btn btn-icon btn-modal" title="Download JPEG">
+      <span class="material-symbols-outlined">download</span>
+    </button>
+
+    <div id="progress-container" class="progress-container" title="Upload Progress">
+      <progress id="progress-bar" max="100" value="0"></progress>
+      <span id="progress-text" class="progress-text">0 / 0</span>
+    </div>
+  </div>
+
+  <div class="modal-bar bottom">
+    <div id="modal-filesize" class="modal-text secondary center" title="File Size"></div>
+    <button id="btn-delete" class="btn btn-icon btn-modal danger right" title="Delete Image">
+      <span class="material-symbols-outlined">delete</span>
+    </button>
+  </div>
+</div>
+
+<script type="module">
+  const BLE_UUIDS = {
+    SERVICE: '7e400001-b5a3-f393-e0a9-e50e24dcca9d',
+    WRITE: '7e400002-b5a3-f393-e0a9-e50e24dcca9d',
+    NOTIFY: '7e400003-b5a3-f393-e0a9-e50e24dcca9d'
+  };
+
+  const BLE_FRAME = {
+    CMD: 0xCD,
+    ACK: 0xDC
+  };
+
+  const BLE_CMD = {
+    SYSTEM: 0x12,
+    DEVICE: 0x1A,
+    FILE: 0x1F,
+    CTRL: 0x20
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (num) => String(num).padStart(2, '0');
+
+  const elements = {
+    tabBadge: $('tab-badge'),
+    tabImage: $('tab-image'),
+
+    panelBadge: $('panel-badge'),
+    btnConnectBle: $('btn-connect-ble'),
+    iconBle: $('icon-ble'),
+    infoBadgeHeader: $('info-badge-header'),
+    textBadgeName: $('text-badge-name'),
+    textMacAddress: $('text-mac-address'),
+    chkDebug: $('chk-debug'),
+    btnSetLang: $('btn-set-lang'),
+    selLang: $('sel-lang'),
+    btnCall: $('btn-call'),
+    btnCheckStorage: $('btn-check-storage'),
+
+    panelImage: $('panel-image'),
+    btnOpenFile: $('btn-open-file'),
+    inputFile: $('input-file'),
+    btnProcess: $('btn-process'),
+    selResolution: $('sel-resolution'),
+    //inputFilesize: $('input-filesize'),
+    inputQuality: $('input-quality'),
+    cropArea: $('crop-area'),
+    imgSource: $('img-source'),
+    cropMask: $('crop-mask'),
+
+    thumbnailContainer: $('thumbnail-container'),
+
+    iconBattery: $('icon-battery'),
+    textBattery: $('text-battery'),
+    textStorage: $('text-storage'),
+
+    modalPreview: $('modal-preview'),
+    modalFilename: $('modal-filename'),
+    btnClose: $('btn-close'),
+    btnUpload: $('btn-upload'),
+    btnPrev: $('btn-prev'),
+    imgPreview: $('img-preview'),
+    btnNext: $('btn-next'),
+    btnDownload: $('btn-download'),
+    progressContainer: $('progress-container'),
+    progressBar: $('progress-bar'),
+    progressText: $('progress-text'),
+    modalFilesize: $('modal-filesize'),
+    btnDelete: $('btn-delete')
+  };
+
+  const state = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    initialScale: 1,
+    initialX: 0,
+    initialY: 0,
+
+    pointers: new Map(),
+    isPanning: false,
+    startX: 0,
+    startY: 0,
+    pinchDist: 0,
+
+    croppedImages: [],
+    previewIndex: -1
+  };
+
+  let bluetoothBadge = null;
+  let charWrite = null;
+  let charNotify = null;
+  const pendingRequests = {};
+  let pendingChunkReq = null;
+  let lastNotify = { time: 0, hex: "" };
+
+  let cjpegliPromise = null;
+  let rafId = null;
+
+  let modalTouchX = 0;
+  let modalTouchY = 0;
+
+  const logDebug = (msg) => {
+    if (elements.chkDebug.checked) {
+      console.log(`[${new Date().toISOString()}] ${msg}`);
+    }
+  };
+
+  const toHex = (buf) => {
+    const hex = Array.from(buf).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+    return hex.length > 96 ? hex.substring(0, 96) + '...' : hex;
+  };
+
+  const calcChecksum8 = (buf) => buf.reduce((sum, byte) => (sum + byte) >>> 0, 0);
+  const calcChecksum32 = (val) => ((val >>> 24) & 0xFF) + ((val >>> 16) & 0xFF) + ((val >>> 8) & 0xFF) + (val & 0xFF);
+
+  const simulateClick = (id) => {
+    const btn = $(id);
+    if (!btn || btn.style.visibility === 'hidden') return;
+
+    btn.classList.add('simulate-active');
+    setTimeout(() => btn.classList.remove('simulate-active'), 150);
+    btn.click();
+  };
+
+  const switchTab = (isBadge) => {
+    elements.tabBadge.classList.toggle('active', isBadge);
+    elements.tabImage.classList.toggle('active', !isBadge);
+    elements.panelBadge.classList.toggle('active', isBadge);
+    elements.panelImage.classList.toggle('active', !isBadge);
+  };
+
+  const updateModal = () => {
+    if (state.previewIndex < 0 || state.previewIndex >= state.croppedImages.length) return;
+
+    const item = state.croppedImages[state.previewIndex];
+    elements.imgPreview.src = item.url;
+    elements.modalFilename.textContent = item.filename;
+    elements.modalFilesize.textContent = `${item.sizeKiB} KiB`;
+
+    elements.btnPrev.style.visibility = state.previewIndex > 0 ? 'visible' : 'hidden';
+    elements.btnNext.style.visibility = state.previewIndex < state.croppedImages.length - 1 ? 'visible' : 'hidden';
+  };
+
+  const openModal = (index) => {
+    state.previewIndex = index;
+    updateModal();
+    elements.modalPreview.classList.add('active');
+    elements.modalPreview.focus();
+  };
+
+  const setBadgeControlState = (enabled) => {
+    document.querySelectorAll('.btn-badge-cmd').forEach(btn => btn.disabled = !enabled);
+    elements.btnConnectBle.classList.toggle('active-primary', enabled);
+    elements.iconBle.textContent = enabled ? 'bluetooth_connected' : 'bluetooth';
+    elements.infoBadgeHeader.style.display = enabled ? 'flex' : 'none';
+  };
+
+  const waitForPacket = (prefix, cls, sub, timeoutMs) => new Promise((resolve, reject) => {
+    const key = `${prefix}_${cls}_${sub}`;
+    const timer = setTimeout(() => {
+      delete pendingRequests[key];
+      reject(new Error(`${prefix.toUpperCase()} Timeout (${cls.toString(16)} ${sub?.toString(16)})`));
+    }, timeoutMs);
+
+    pendingRequests[key] = {
+      resolve: (data) => { clearTimeout(timer); delete pendingRequests[key]; resolve(data); },
+      reject: (err) => { clearTimeout(timer); delete pendingRequests[key]; reject(err); },
+      clear: () => { clearTimeout(timer); delete pendingRequests[key]; }
+    };
+  });
+
+  const waitForAck = (cls, sub) => waitForPacket('ack', cls, sub, 3000);
+  const waitForData = (cls, sub) => waitForPacket('data', cls, sub, 5000);
+
+  const waitForChunkCtrl = (expectedCode, timeoutMs = 10000) => new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      pendingChunkReq = null;
+      reject(new Error(`Chunk Timeout (Expected: ${expectedCode})`));
+    }, timeoutMs);
+
+    pendingChunkReq = {
+      expectedCode,
+      resolve: () => { clearTimeout(timer); pendingChunkReq = null; resolve(); },
+      reject: (err) => { clearTimeout(timer); pendingChunkReq = null; reject(err); }
+    };
+  });
+
+  const buildFrame = (cls, sub, payload = []) => {
+    if (sub === null) {
+      return new Uint8Array([BLE_FRAME.CMD, 0x00, 0x02, cls, 0x01]);
+    }
+
+    const len = 5 + payload.length;
+    const buf = new Uint8Array(len + 3);
+
+    buf[0] = BLE_FRAME.CMD;
+    buf[1] = (len >>> 8) & 0xFF;
+    buf[2] = len & 0xFF;
+    buf[3] = cls;
+    buf[4] = 0x01;
+    buf[5] = sub;
+    buf[6] = (payload.length >>> 8) & 0xFF;
+    buf[7] = payload.length & 0xFF;
+    buf.set(payload, 8);
+
+    return buf;
+  };
+
+  const writePacket = async (buf) => {
+    if (!charWrite) throw new Error("Bluetooth not connected");
+
+    logDebug(`[TX] ${toHex(buf)}`);
+    if (buf[0] === BLE_FRAME.CMD) {
+      lastNotify = { time: 0, hex: "" };
+    }
+
+    for (let i = 0; i < buf.length; i += 487) {
+      await charWrite.writeValueWithoutResponse(buf.slice(i, i + 487));
+    }
+  };
+
+  const sendAck = async (cls, sub, len) => {
+    const frame = new Uint8Array([BLE_FRAME.ACK, 0x00, 0x05, cls, sub, (len >>> 8) & 0xFF, len & 0xFF, 0x01]);
+    await writePacket(frame);
+  };
+
+  const sendCmd = async (cls, sub, payload = []) => {
+    const p = waitForAck(cls, sub);
+    await writePacket(buildFrame(cls, sub, payload));
+    await p;
+  };
+
+  const reqData = async (cls, sub, payload = []) => {
+    const pData = waitForData(cls, sub);
+    await writePacket(buildFrame(cls, sub, payload));
+
+    if (cls === BLE_CMD.CTRL) return await pData;
+
+    const pAck = waitForAck(cls, sub);
+    await Promise.race([pAck, pData]);
+    pendingRequests[`ack_${cls}_${sub}`]?.clear();
+
+    return await pData;
+  };
+
+  const handleAckEvent = (val) => {
+    const cls = val[3];
+    const sub = val[4];
+    const status = val[7];
+    const req = pendingRequests[`ack_${cls}_${sub}`];
+
+    if (!req) return;
+    status === 0x01 ? req.resolve() : req.reject(new Error(`ACK Error: ${status}`));
+  };
+
+  const handleDataEvent = async (val) => {
+    const frameLen = (val[1] << 8) | val[2];
+    const cls = val[3];
+    const sub = val[5];
+    const payloadLen = (val[6] << 8) | val[7];
+    const payload = val.slice(8, 8 + payloadLen);
+
+    await sendAck(cls, sub, frameLen + 3);
+    pendingRequests[`data_${cls}_${sub}`]?.resolve(payload);
+
+    if (cls === BLE_CMD.CTRL && sub === 0x04 && payload.length >= 8) {
+      const storageBytes = (payload[4] << 24) | (payload[5] << 16) | (payload[6] << 8) | payload[7];
+      elements.textStorage.textContent = `${(storageBytes / 1024).toFixed(0)} KiB`;
+      return;
+    }
+
+    if (cls === BLE_CMD.CTRL && sub === 0x01 && payload.length >= 4) {
+      const code = ((payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | payload[3]) >>> 0;
+      if (pendingChunkReq) {
+        if (code === pendingChunkReq.expectedCode) {
+          pendingChunkReq.resolve();
+        } else {
+          pendingChunkReq.reject(new Error(`Transfer Rejected: Code ${code}`));
+        }
+      }
+    }
+  };
+
+  const onBleNotification = async (e) => {
+    const val = new Uint8Array(e.target.value.buffer);
+    const hex = toHex(val);
+    const now = performance.now();
+
+    if (now - lastNotify.time < 150 && lastNotify.hex === hex) {
+      logDebug(`[RX] (Dup) ${hex}`);
+      return;
+    }
+
+    lastNotify = { time: now, hex };
+    logDebug(`[RX] ${hex}`);
+
+    const type = val[0];
+
+    if (type === BLE_FRAME.ACK) {
+      handleAckEvent(val);
+      return;
+    }
+
+    if (type === BLE_FRAME.CMD) {
+      await handleDataEvent(val);
+    }
+  };
+
+  const onBadgeDisconnected = () => {
+    logDebug("Badge disconnected.");
+    setBadgeControlState(false);
+    charWrite = null;
+    charNotify = null;
+
+    for (const k in pendingRequests) {
+      pendingRequests[k]?.reject(new Error("Badge disconnected"));
+    }
+
+    pendingChunkReq?.reject(new Error("Badge disconnected"));
+    pendingChunkReq = null;
+  };
+
+  const setupSecondaryNotifications = async (service) => {
+    try {
+      const secChar = await service.getCharacteristic('7e400004-b5a3-f393-e0a9-e50e24dcca9d');
+      await secChar.startNotifications();
+    } catch (e) {
+      logDebug("Secondary notifications unavailable.");
+    }
+  };
+
+  const setupBatteryService = async (server) => {
+    try {
+      const batSvc = await server.getPrimaryService('battery_service');
+      const batChar = await batSvc.getCharacteristic('battery_level');
+
+      const updateBat = (val) => {
+        elements.textBattery.textContent = `${val}%`;
+        elements.iconBattery.textContent = val > 85 ? 'battery_full'
+                                         : val > 50 ? 'battery_5_bar'
+                                         : val > 20 ? 'battery_2_bar'
+                                         : 'battery_0_bar';
+      };
+
+      const initialVal = await batChar.readValue();
+      updateBat(initialVal.getUint8(0));
+
+      await batChar.startNotifications();
+      batChar.addEventListener('characteristicvaluechanged', e => updateBat(e.target.value.getUint8(0)));
+    } catch (e) {
+      logDebug("Battery Service unavailable.");
+    }
+  };
+
+  const execInitSequence = async () => {
+    try {
+      const d = new Date();
+      const packed = ((Math.max(0, d.getFullYear() - 2000) & 0x3F) << 26)
+                   | (((d.getMonth() + 1) & 0x0F) << 22)
+                   | ((d.getDate() & 0x1F) << 17)
+                   | ((d.getHours() & 0x1F) << 12)
+                   | ((d.getMinutes() & 0x3F) << 6)
+                   | (d.getSeconds() & 0x3F);
+
+      await sendCmd(BLE_CMD.SYSTEM, 0x01, new Uint8Array([
+        (packed >>> 24) & 0xFF, (packed >>> 16) & 0xFF, (packed >>> 8) & 0xFF, packed & 0xFF
+      ]));
+
+      const mac = await reqData(BLE_CMD.DEVICE, 0x0A);
+      if (mac.length >= 6) {
+        elements.textMacAddress.textContent = `(${Array.from(mac).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join(':')})`;
+      }
+
+      const name = await reqData(BLE_CMD.DEVICE, 0x0C);
+      if (name.length >= 1) {
+        elements.textBadgeName.textContent = new TextDecoder().decode(name.slice(1));
+      }
+
+      await reqData(BLE_CMD.DEVICE, 0x1C);
+      await sendCmd(BLE_CMD.DEVICE, 0x10);
+      await reqData(BLE_CMD.CTRL, 0x02);
+      await reqData(BLE_CMD.CTRL, 0x04);
+
+      logDebug("Initialization sequence completed.");
+    } catch (e) {
+      logDebug(`Init Error: ${e.message}`);
+    }
+  };
+
+  const connectAndInitBadge = async () => {
+    logDebug("Requesting BLE badge...");
+    bluetoothBadge = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [BLE_UUIDS.SERVICE, 'battery_service']
+    });
+
+    bluetoothBadge.addEventListener('gattserverdisconnected', onBadgeDisconnected);
+
+    const server = await bluetoothBadge.gatt.connect();
+    const service = await server.getPrimaryService(BLE_UUIDS.SERVICE);
+
+    charWrite = await service.getCharacteristic(BLE_UUIDS.WRITE);
+    charNotify = await service.getCharacteristic(BLE_UUIDS.NOTIFY);
+
+    await charNotify.startNotifications();
+    charNotify.addEventListener('characteristicvaluechanged', onBleNotification);
+
+    setBadgeControlState(true);
+    logDebug("Connected. Starting initialization...");
+
+    await setupSecondaryNotifications(service);
+    await setupBatteryService(server);
+    await execInitSequence();
+  };
+
+  const createChunks = (buf, size) => {
+    const blocks = [];
+    let offset = 0;
+    let bid = 1;
+
+    while (offset < size) {
+      const len = Math.min(size - offset, bid === 1 ? 24996 : 25000);
+      blocks.push(buf.slice(offset, offset + len));
+      offset += len;
+      bid++;
+    }
+    return blocks;
+  };
+
+  const initiateFileTransfer = async (size) => {
+    const sid = Math.floor(Math.random() * 0xFFFFFFFF);
+    const dSize = size + 4;
+    const initPayload = new Uint8Array([
+      (sid>>>24)&0xFF, (sid>>>16)&0xFF, (sid>>>8)&0xFF, sid&0xFF,
+      0x02, 0x08, 0, 0, 0,
+      (dSize>>>24)&0xFF, (dSize>>>16)&0xFF, (dSize>>>8)&0xFF, dSize&0xFF,
+      0, 0, 0, 0
+    ]);
+
+    await writePacket(buildFrame(BLE_CMD.FILE, 0x02, initPayload));
+    await waitForChunkCtrl(1000);
+  };
+
+  const sendFileChunk = async (chunkIndex, blockData, totalSize, cs32, currentSum) => {
+    const isFirst = chunkIndex === 1;
+    const hEnd = isFirst ? 14 : 10;
+    const fLen = 5 + (hEnd - 8) + blockData.length + 4;
+    const frame = new Uint8Array(fLen + 3);
+
+    frame.set([
+      BLE_FRAME.CMD, (fLen>>>8)&0xFF, fLen&0xFF, BLE_CMD.FILE, 0x01, 0x01,
+      ((fLen-5)>>>8)&0xFF, (fLen-5)&0xFF, (chunkIndex>>>8)&0xFF, chunkIndex&0xFF
+    ]);
+
+    if (isFirst) {
+      frame.set([(totalSize>>>24)&0xFF, (totalSize>>>16)&0xFF, (totalSize>>>8)&0xFF, totalSize&0xFF], 10);
+    }
+
+    frame.set(blockData, hEnd);
+
+    const bCS = calcChecksum8(blockData);
+    const newSum = (currentSum + bCS) >>> 0;
+    const tVal = (isFirst ? (bCS + cs32 + 1) : (bCS + chunkIndex)) >>> 0;
+    const tIdx = hEnd + blockData.length;
+
+    frame.set([(tVal>>>24)&0xFF, (tVal>>>16)&0xFF, (tVal>>>8)&0xFF, tVal&0xFF], tIdx);
+
+    await writePacket(frame);
+    await waitForChunkCtrl(1000 + chunkIndex);
+    return newSum;
+  };
+
+  const finalizeFileTransfer = async (sum, cs32) => {
+    const vCS = (sum + cs32) >>> 0;
+    await writePacket(buildFrame(BLE_CMD.FILE, 0x03, new Uint8Array([(vCS>>>24)&0xFF, (vCS>>>16)&0xFF, (vCS>>>8)&0xFF, vCS&0xFF])));
+    await waitForChunkCtrl(0x0002);
+  };
+
+  const transferFileToBadge = async (blob, onProgress) => {
+    const buf = new Uint8Array(await blob.arrayBuffer());
+    const size = buf.length;
+
+    if (size > 600000) throw new Error("File too large");
+
+    const blocks = createChunks(buf, size);
+    if (onProgress) onProgress(0, blocks.length);
+
+    await initiateFileTransfer(size);
+
+    let sum = 0;
+    const cs32 = calcChecksum32(size);
+
+    for (let k = 1; k <= blocks.length; k++) {
+      sum = await sendFileChunk(k, blocks[k - 1], size, cs32, sum);
+      if (onProgress) onProgress(k, blocks.length);
+    }
+
+    await finalizeFileTransfer(sum, cs32);
+  };
+
+  const initCjpegli = () => cjpegliPromise ??= window.createCjpegli?.().catch(console.error);
+
+  const renderSourceImg = () => {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      elements.imgSource.style.transform = `translate(-50%, -50%) translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale})`;
+      rafId = null;
+    });
+  };
+
+  const renderThumbs = () => {
+    elements.thumbnailContainer.innerHTML = '';
+    state.croppedImages.forEach((img, i) => {
+      const el = document.createElement('img');
+      el.src = img.url;
+      el.className = 'thumbnail-item';
+      el.draggable = false;
+      el.title = 'View Image';
+      el.addEventListener('click', () => openModal(i));
+
+      elements.thumbnailContainer.appendChild(el);
+    });
+    elements.thumbnailContainer.scrollLeft = elements.thumbnailContainer.scrollWidth;
+  };
+
+  const generatePamImage = (res) => {
+    const cvs = document.createElement('canvas');
+    cvs.width = cvs.height = res;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, res, res);
+    ctx.beginPath();
+    ctx.arc(res/2, res/2, (res+16)/2, 0, Math.PI*2);
+    ctx.clip();
+
+    const dSize = res + 16;
+    const sArea = dSize / state.scale;
+    const sx = (elements.imgSource.naturalWidth/2) - (state.x/state.scale) - sArea/2;
+    const sy = (elements.imgSource.naturalHeight/2) - (state.y/state.scale) - sArea/2;
+
+    ctx.drawImage(elements.imgSource, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
+
+    const imgData = ctx.getImageData(0,0,res,res);
+    const hdr = new TextEncoder().encode(`P7\nWIDTH ${res}\nHEIGHT ${res}\nDEPTH 3\nMAXVAL 255\nTUPLTYPE RGB\nENDHDR\n`);
+    const pam = new Uint8Array(hdr.length + res*res*3);
+
+    pam.set(hdr);
+    let p = hdr.length;
+    for (let i = 0; i < imgData.data.length; i += 4) {
+      pam[p++] = imgData.data[i];
+      pam[p++] = imgData.data[i+1];
+      pam[p++] = imgData.data[i+2];
+    }
+
+    return pam;
+  };
+
+  const convertToJpegBlob = async (mod, pam, tSize) => {
+    mod.FS.writeFile('in.pam', pam);
+    let jpg = null;
+
+    try {
+      mod.callMain(['in.pam', 'out.jpg', '-p', '0', '--target_size', tSize, '--std_quant']);
+      jpg = mod.FS.readFile('out.jpg');
+    } catch(e) {
+      console.error(e);
+    } finally {
+      try { mod.FS.unlink('in.pam'); mod.FS.unlink('out.jpg'); } catch(e) {}
+    }
+
+    return jpg ? new Blob([jpg], { type: 'image/jpeg' }) : null;
+  };
+
+  const generateNativeJpegBlob = (res, quality) => {
+    return new Promise((resolve) => {
+      const cvs = document.createElement('canvas');
+      cvs.width = cvs.height = res;
+      const ctx = cvs.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, res, res);
+      ctx.beginPath();
+      ctx.arc(res/2, res/2, (res + 16) / 2, 0, Math.PI * 2);
+      ctx.clip();
+
+      const dSize = res + 16;
+      const sArea = dSize / state.scale;
+      const sx = (elements.imgSource.naturalWidth / 2) - (state.x / state.scale) - sArea / 2;
+      const sy = (elements.imgSource.naturalHeight / 2) - (state.y / state.scale) - sArea / 2;
+
+      ctx.drawImage(elements.imgSource, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
+
+      cvs.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+    });
+  };
+
+  const handlePointerDown = (e) => {
+    if (elements.btnProcess.disabled) return;
+    e.preventDefault();
+    document.activeElement?.blur();
+
+    state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (state.pointers.size === 1) {
+      state.isPanning = true;
+      state.startX = e.clientX;
+      state.startY = e.clientY;
+      state.initialX = state.x;
+      state.initialY = state.y;
+    } else if (state.pointers.size === 2) {
+      state.isPanning = false;
+      const pts = Array.from(state.pointers.values());
+      state.pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      state.initialScale = state.scale;
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (!state.pointers.has(e.pointerId)) return;
+
+    state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pts = Array.from(state.pointers.values());
+
+    if (pts.length === 1 && state.isPanning) {
+      state.x = state.initialX + (e.clientX - state.startX);
+      state.y = state.initialY + (e.clientY - state.startY);
+      renderSourceImg();
+    } else if (pts.length === 2 && state.pinchDist > 0) {
+      const r = (state.initialScale * (Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) / state.pinchDist)) / state.scale;
+      state.scale *= r;
+      state.x *= r;
+      state.y *= r;
+      renderSourceImg();
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    state.pointers.delete(e.pointerId);
+
+    if (state.pointers.size === 1) {
+      const pt = Array.from(state.pointers.values())[0];
+      state.startX = pt.x;
+      state.startY = pt.y;
+      state.initialX = state.x;
+      state.initialY = state.y;
+      state.isPanning = true;
+    } else {
+      state.isPanning = false;
+    }
+  };
+
+  const handleKeydown = (e) => {
+    if (elements.modalPreview.classList.contains('active')) {
+      const acts = {
+        Escape: 'btn-close', Esc: 'btn-close',
+        Delete: 'btn-delete', Backspace: 'btn-delete',
+        ArrowLeft: 'btn-prev', ArrowRight: 'btn-next',
+        ArrowUp: 'btn-upload', ArrowDown: 'btn-download'
+      };
+
+      if (acts[e.key]) {
+        simulateClick(acts[e.key]);
+        e.preventDefault();
+      }
+      return;
+    }
+
+    if (elements.btnProcess.disabled || ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) return;
+
+    const acts = {
+      ArrowUp: () => state.y -= 20,
+      ArrowDown: () => state.y += 20,
+      ArrowLeft: () => state.x -= 20,
+      ArrowRight: () => state.x += 20,
+      PageUp: () => { state.scale *= 1.1; state.x *= 1.1; state.y *= 1.1; },
+      PageDown: () => { state.scale /= 1.1; state.x /= 1.1; state.y /= 1.1; }
+    };
+
+    if (acts[e.key]) {
+      acts[e.key]();
+      e.preventDefault();
+      renderSourceImg();
+    }
+  };
+
+
+  document.addEventListener('keydown', handleKeydown);
+
+  elements.tabBadge.addEventListener('click', () => switchTab(true));
+  elements.tabImage.addEventListener('click', () => switchTab(false));
+
+  elements.btnConnectBle.addEventListener('click', async () => {
+    if (bluetoothBadge?.gatt.connected) {
+      bluetoothBadge.gatt.disconnect();
+      return;
+    }
+    try {
+      await connectAndInitBadge();
+    } catch (e) {
+      logDebug(`Connection Error: ${e.message}`);
+    }
+  });
+
+  elements.btnSetLang?.addEventListener('click', async () => {
+    try {
+      await sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]);
+      logDebug("Language applied.");
+    } catch(e) {}
+  });
+
+  elements.btnCall?.addEventListener('click', async () => {
+    try {
+      await sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]);
+      logDebug("Call alert sent.");
+    } catch(e) {}
+  });
+
+  elements.btnCheckStorage?.addEventListener('click', async () => {
+    try {
+      await reqData(BLE_CMD.CTRL, 0x04);
+      logDebug("Storage requested.");
+    } catch(e) {}
+  });
+
+  elements.btnOpenFile.addEventListener('click', () => elements.inputFile.click());
+
+  elements.inputFile.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    elements.btnProcess.disabled = true;
+    elements.imgSource.classList.remove('loaded');
+
+    if (elements.imgSource.src.startsWith('blob:')) {
+      URL.revokeObjectURL(elements.imgSource.src);
+    }
+
+    elements.imgSource.src = URL.createObjectURL(file);
+    elements.imgSource.onload = async () => {
+      const res = parseInt(elements.selResolution.value, 10);
+      state.scale = res / Math.min(elements.imgSource.naturalWidth, elements.imgSource.naturalHeight);
+      state.x = 0;
+      state.y = 0;
+
+      renderSourceImg();
+      elements.imgSource.classList.add('loaded');
+
+      await initCjpegli();
+      elements.btnProcess.disabled = false;
+    };
+
+    e.target.value = '';
+  });
+
+  elements.btnProcess.addEventListener('click', async () => {
+    if (elements.btnProcess.disabled) return;
+
+    elements.btnProcess.disabled = true;
+    try {
+      //const mod = await initCjpegli();
+      //if (!mod) return;
+
+      //const res = parseInt(elements.selResolution.value, 10);
+      //const targetSize = parseFloat(elements.inputFilesize.value) || 20;
+      //const tSize = Math.round(Math.max(1, targetSize) * 1024).toString();
+
+      //const pam = generatePamImage(res);
+      //const blob = await convertToJpegBlob(mod, pam, tSize);
+
+      const res = parseInt(elements.selResolution.value, 10);
+      const qualityVal = parseInt(elements.inputQuality.value, 10) || 85;
+      const quality = Math.max(1, Math.min(100, qualityVal)) / 100;
+
+      const blob = await generateNativeJpegBlob(res, quality);
+      if (!blob) return;
+
+      const d = new Date();
+      const ts = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+
+      state.croppedImages.push({
+        url: URL.createObjectURL(blob),
+        blob,
+        filename: `badge_${ts}.jpg`,
+        sizeKiB: (blob.size/1024).toFixed(1)
+      });
+
+      renderThumbs();
+    } finally {
+      elements.btnProcess.disabled = false;
+    }
+  });
+
+  elements.selResolution.addEventListener('change', () => {
+    const s = elements.selResolution.value;
+    elements.cropMask.style.inlineSize = `${s}px`;
+    elements.cropMask.style.blockSize = `${s}px`;
+  });
+
+  elements.cropArea.addEventListener('pointerdown', handlePointerDown);
+  elements.cropArea.addEventListener('pointermove', handlePointerMove);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
+
+  elements.cropArea.addEventListener('wheel', e => {
+    if (elements.btnProcess.disabled) return;
+    e.preventDefault();
+    const f = Math.exp(-e.deltaY * 0.005);
+    state.scale *= f;
+    state.x *= f;
+    state.y *= f;
+    renderSourceImg();
+  }, { passive: false });
+
+  elements.thumbnailContainer.addEventListener('wheel', e => {
+    e.preventDefault();
+    elements.thumbnailContainer.scrollLeft += e.deltaY + e.deltaX;
+  }, { passive: false });
+
+  elements.modalPreview.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse') {
+      modalTouchX = e.clientX;
+      modalTouchY = e.clientY;
+    }
+  });
+
+  elements.modalPreview.addEventListener('pointerup', e => {
+    if (e.pointerType === 'mouse' || state.previewIndex < 0) return;
+
+    const dx = e.clientX - modalTouchX;
+    const dy = e.clientY - modalTouchY;
+
+    if (Math.abs(dx) > 50 && Math.abs(dy) < 50) {
+      dx < 0 ? simulateClick('btn-next') : simulateClick('btn-prev');
+    }
+  });
+
+  elements.btnClose.addEventListener('click', () => elements.modalPreview.classList.remove('active'));
+  elements.btnPrev.addEventListener('click', () => { if (state.previewIndex > 0) openModal(state.previewIndex - 1); });
+  elements.btnNext.addEventListener('click', () => { if (state.previewIndex < state.croppedImages.length - 1) openModal(state.previewIndex + 1); });
+
+  elements.btnDelete.addEventListener('click', () => {
+    URL.revokeObjectURL(state.croppedImages.splice(state.previewIndex, 1)[0].url);
+    renderThumbs();
+
+    if (state.croppedImages.length === 0) {
+      elements.modalPreview.classList.remove('active');
+    } else {
+      openModal(Math.min(state.previewIndex, state.croppedImages.length - 1));
+    }
+  });
+
+  elements.btnDownload.addEventListener('click', () => {
+    const a = document.createElement('a');
+    const img = state.croppedImages[state.previewIndex];
+    a.href = img.url;
+    a.download = img.filename;
+    a.click();
+  });
+
+  elements.btnUpload.addEventListener('click', async () => {
+    if (!charWrite) {
+      logDebug("Error: Bluetooth badge not connected.");
+      elements.modalPreview.classList.remove('active');
+      switchTab(true);
+      return;
+    }
+
+    const img = state.croppedImages[state.previewIndex];
+    const btns = document.querySelectorAll('.btn-modal');
+
+    btns.forEach(b => b.disabled = true);
+    elements.progressContainer.classList.add('active');
+    elements.progressBar.value = 0;
+    elements.progressText.textContent = `0 / ?`;
+
+    try {
+      await transferFileToBadge(img.blob, (curr, tot) => {
+        elements.progressBar.max = tot;
+        elements.progressBar.value = curr;
+        elements.progressText.textContent = `${curr} / ${tot}`;
+      });
+
+      elements.modalPreview.classList.remove('active');
+      switchTab(true);
+      logDebug("Upload complete. Checking free space...");
+
+      await reqData(BLE_CMD.CTRL, 0x04);
+    } catch (e) {
+      logDebug(`Upload Error: ${e.message}`);
+    } finally {
+      btns.forEach(b => b.disabled = false);
+      elements.progressContainer.classList.remove('active');
+    }
+  });
+
+  initCjpegli();
+  elements.selResolution.dispatchEvent(new Event('change'));
+</script>
+</body>
+</html>
