@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e1e">
   <title>Web Badge</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
-  <script src="cjpegli.js"></script>
+  <!-- <script src="cjpegli.js"></script> -->
   <style>
     :root {
       --color-bg: #f8f9fa;
@@ -25,7 +28,11 @@
       --modal-btn: rgba(0, 0, 0, 0.05);
       --modal-btn-hover: rgba(0, 0, 0, 0.1);
       --modal-btn-active: rgba(0, 0, 0, 0.2);
+      --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.15);
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --trans-fast: 0.1s ease;
+      --trans-normal: 0.2s ease;
+      --z-range-base: 4;
       --z-header: 10;
       --z-nav: 20;
       --z-modal: 100;
@@ -51,11 +58,12 @@
         --modal-btn: rgba(255, 255, 255, 0.15);
         --modal-btn-hover: rgba(255, 255, 255, 0.25);
         --modal-btn-active: rgba(255, 255, 255, 0.35);
+        --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.4);
         --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
       }
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
@@ -64,82 +72,26 @@
       inline-size: 100%;
       block-size: 100%;
       margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: var(--color-bg);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
       color: var(--color-text-main);
       font-family: system-ui, sans-serif;
+      background-color: var(--color-bg);
+      overflow: hidden;
+      overscroll-behavior: none;
       user-select: none;
-      -webkit-user-select: none;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    :is(.btn, select, input, .modal-overlay):focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
     }
 
-    .btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
+    .push-right {
+      margin-inline-start: auto;
     }
 
-    .btn-icon {
-      inline-size: 44px;
-      block-size: 44px;
-      padding: 0;
-      border-radius: 50%;
-      color: var(--color-text-main);
-    }
-
-    .btn-icon:hover:not(:disabled) { background-color: var(--state-hover); }
-    .btn-icon:active:not(:disabled) { background-color: var(--state-active); }
-
-    .btn-icon.active-primary { color: var(--color-primary); }
-
-    .btn-text {
-      flex: 1;
-      padding: 10px 16px;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      background-color: var(--color-surface);
-      color: var(--color-text-main);
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .btn-text:hover:not(:disabled) { background-color: var(--state-hover); }
-    .btn-text:active:not(:disabled) { background-color: var(--state-active); }
-
-    select,
-    input[type="number"],
-    input[type="checkbox"] {
-      padding: 6px 4px;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      background-color: var(--color-input-bg);
-      color: var(--color-text-main);
-      font-size: 14px;
-      outline: none;
-    }
-
-    input[type="number"] { inline-size: 54px; }
-
-    input[type="checkbox"] {
-      inline-size: 16px;
-      block-size: 16px;
-      margin: 0;
-      cursor: pointer;
-    }
-
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .hidden-control {
+      display: none !important;
     }
 
     .text-label {
@@ -156,25 +108,11 @@
     }
 
     .tab-nav {
-      display: flex;
       z-index: var(--z-nav);
+      display: flex;
       block-size: 48px;
-      border-block-end: 1px solid var(--color-border);
       background-color: var(--color-surface);
-    }
-
-    .btn-tab {
-      flex: 1;
-      border-block-end: 2px solid transparent;
-      color: var(--color-text-muted);
-    }
-
-    .btn-tab:hover { background-color: var(--state-hover); }
-    .btn-tab:active { background-color: var(--state-active); }
-
-    .btn-tab.active {
-      border-block-end-color: var(--color-text-main);
-      color: var(--color-text-main);
+      border-block-end: 1px solid var(--color-border);
     }
 
     .view-panel {
@@ -182,27 +120,144 @@
       flex: 1;
       flex-direction: column;
       overflow: hidden;
+
+      &.active {
+        display: flex;
+      }
     }
 
-    .view-panel.active { display: flex; }
-
     .header-toolbar {
+      z-index: var(--z-header);
       display: flex;
       align-items: center;
       gap: 12px;
-      z-index: var(--z-header);
-      block-size: 56px;
       padding-inline: 16px;
-      border-block-end: 1px solid var(--color-border);
+      block-size: 56px;
       background-color: var(--color-surface);
+      border-block-end: 1px solid var(--color-border);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      transition: background-color var(--trans-normal), color var(--trans-normal), transform var(--trans-fast);
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      &:not(:disabled, .btn-modal) {
+        &:hover {
+          background-color: var(--state-hover);
+        }
+        &:active {
+          background-color: var(--state-active);
+        }
+      }
+    }
+
+    .btn-icon {
+      inline-size: 44px;
+      block-size: 44px;
+      color: var(--color-text-main);
+      border-radius: 50%;
+
+      &.active-primary {
+        color: var(--color-primary);
+      }
+
+      &.sm {
+        inline-size: 36px;
+        block-size: 36px;
+      }
+    }
+
+    .btn-text {
+      flex: 1;
+      padding: 10px 16px;
+      color: var(--color-text-main);
+      font-size: 14px;
+      font-weight: 500;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+    }
+
+    .btn-tab {
+      flex: 1;
+      color: var(--color-text-muted);
+      border-block-end: 2px solid transparent;
+
+      &.active {
+        color: var(--color-text-main);
+        border-block-end-color: var(--color-text-main);
+      }
+    }
+
+    :is(select, input[type="number"], input[type="checkbox"]) {
+      padding: 6px 4px;
+      color: var(--color-text-main);
+      font-size: 14px;
+      background-color: var(--color-input-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type="number"] {
+      inline-size: 54px;
+
+      &.input-time {
+        inline-size: 68px;
+      }
+    }
+
+    input[type="checkbox"] {
+      inline-size: 16px;
+      block-size: 16px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      &.video-playback-row {
+        gap: 12px;
+        margin-block-end: 4px;
+      }
+
+      &.video-params-row {
+        justify-content: space-between;
+      }
     }
 
     .badge-controls {
       display: flex;
       flex-direction: column;
-      block-size: 100%;
       padding: 16px;
+      block-size: 100%;
+      background-color: var(--color-surface);
       overflow: hidden;
+    }
+
+    #info-badge-header {
+      display: none;
+      font-size: 14px;
+    }
+
+    #text-mac-address {
+      color: var(--color-text-muted);
+      font-size: 12px;
+      font-weight: normal;
     }
 
     .command-panel {
@@ -219,55 +274,139 @@
     }
 
     .select-command {
-      inline-size: 100px;
       padding: 8px;
+      inline-size: 100px;
     }
 
     .crop-container {
       position: relative;
+      display: flex;
       flex: 1;
-      overflow: hidden;
       background-color: var(--color-crop-bg);
+      overflow: hidden;
       touch-action: none;
     }
 
-    #img-source {
+    :is(#img-source, #video-source, .crop-mask) {
       position: absolute;
       inset-block-start: 50%;
       inset-inline-start: 50%;
-      opacity: 0;
       pointer-events: none;
-      backface-visibility: hidden;
-      will-change: transform;
-      transition: opacity 0.2s ease-in-out;
+      transform: translate(-50%, -50%);
     }
 
-    #img-source.loaded { opacity: 1; }
+    :is(#img-source, #video-source) {
+      opacity: 0;
+      backface-visibility: hidden;
+      will-change: transform;
+      transition: opacity var(--trans-normal);
+
+      &.loaded {
+        opacity: 1;
+      }
+    }
 
     .crop-mask {
-      position: absolute;
-      inset-block-start: 50%;
-      inset-inline-start: 50%;
       border: 1px dashed var(--color-mask-border);
       border-radius: 50%;
       box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-controls {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 16px;
+      background-color: var(--color-surface);
+      border-block-end: 1px solid var(--color-border);
+
+      &.active {
+        display: flex;
+      }
+    }
+
+    .range-slider-container {
+      position: relative;
+      display: flex;
+      flex: 1;
+      align-items: center;
+      block-size: 24px;
+    }
+
+    :is(.range-track, .range-track-highlight) {
+      position: absolute;
+      block-size: 6px;
+      border-radius: 3px;
+    }
+
+    .range-track {
+      inline-size: 100%;
+      background-color: var(--color-border);
+    }
+
+    .range-track-highlight {
+      background-color: var(--color-primary);
       pointer-events: none;
-      transform: translate(-50%, -50%);
+    }
+
+    .range-current-pos {
+      position: absolute;
+      z-index: calc(var(--z-range-base) + 1);
+      inline-size: 14px;
+      block-size: 14px;
+      background-color: var(--color-danger);
+      border: 2px solid var(--color-surface);
+      border-radius: 50%;
+      box-shadow: var(--shadow-xs);
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+
+    input[type="range"].dual-slider {
+      position: absolute;
+      inline-size: 100%;
+      margin: 0;
+      background-color: transparent;
+      appearance: none;
+      pointer-events: none;
+
+      &::-webkit-slider-thumb {
+        position: relative;
+        z-index: var(--z-range-base);
+        inline-size: 12px;
+        block-size: 20px;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        box-shadow: var(--shadow-xs), inset 0 0 0 2px var(--color-primary);
+        appearance: none;
+        cursor: ew-resize;
+        pointer-events: auto;
+        transition: box-shadow var(--trans-fast), transform var(--trans-fast);
+      }
+
+      &:active::-webkit-slider-thumb {
+        z-index: calc(var(--z-range-base) + 2);
+        box-shadow: var(--shadow-sm), inset 0 0 0 3px var(--color-primary);
+        transform: scale(1.05);
+      }
     }
 
     .thumbnail-list {
       display: flex;
       align-items: center;
       gap: 12px;
-      block-size: 84px;
       padding-inline: 12px;
-      overflow-inline: auto;
-      border-block-start: 1px solid var(--color-border);
+      block-size: 84px;
       background-color: var(--color-surface);
+      border-block-start: 1px solid var(--color-border);
+      overflow-inline: auto;
       scrollbar-width: none;
-    }
 
-    .thumbnail-list::-webkit-scrollbar { display: none; }
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
 
     .thumbnail-item {
       flex-shrink: 0;
@@ -277,21 +416,23 @@
       box-shadow: var(--shadow-sm);
       object-fit: cover;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform var(--trans-normal);
       -webkit-user-drag: none;
-    }
 
-    .thumbnail-item:hover { transform: scale(1.05); }
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
 
     .status-bar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      block-size: 44px;
+      justify-content: space-between;
       padding-inline: 16px;
-      border-block-start: 1px solid var(--color-border);
-      background-color: var(--color-surface);
+      block-size: 44px;
       font-size: 14px;
+      background-color: var(--color-surface);
+      border-block-start: 1px solid var(--color-border);
     }
 
     .status-group {
@@ -313,17 +454,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      visibility: hidden;
-      opacity: 0;
       background-color: var(--modal-bg);
+      opacity: 0;
+      visibility: hidden;
       outline: none;
       touch-action: none;
       transition: opacity 0.3s, visibility 0.3s;
-    }
 
-    .modal-overlay.active {
-      visibility: visible;
-      opacity: 1;
+      &.active {
+        opacity: 1;
+        visibility: visible;
+      }
     }
 
     .modal-bar {
@@ -334,57 +475,69 @@
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       pointer-events: none;
-    }
 
-    .modal-bar.top { inset-block-start: 16px; }
-    .modal-bar.bottom { inset-block-end: 16px; }
+      &.top {
+        inset-block-start: 16px;
+      }
 
-    .modal-bar .center {
-      grid-column: 2;
-      pointer-events: auto;
-    }
+      &.bottom {
+        inset-block-end: 16px;
+      }
 
-    .modal-bar .right {
-      grid-column: 3;
-      justify-self: end;
-      pointer-events: auto;
+      .center {
+        grid-column: 2;
+        pointer-events: auto;
+      }
+
+      .right {
+        grid-column: 3;
+        justify-self: end;
+        pointer-events: auto;
+      }
     }
 
     .modal-text {
       text-align: center;
       font-variant-numeric: tabular-nums;
-    }
 
-    .modal-text.primary {
-      max-inline-size: 200px;
-      color: var(--color-text-main);
-      font-size: 16px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      &.primary {
+        max-inline-size: 200px;
+        color: var(--color-text-main);
+        font-size: 16px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-    .modal-text.secondary {
-      color: var(--color-text-muted);
-      font-size: 14px;
+      &.secondary {
+        color: var(--color-text-muted);
+        font-size: 14px;
+      }
     }
 
     .btn-modal {
-      background: var(--modal-btn);
+      background-color: var(--modal-btn);
       backdrop-filter: blur(4px);
+
+      &:hover:not(:disabled) {
+        background-color: var(--modal-btn-hover);
+      }
+
+      &:active:not(:disabled),
+      &.simulate-active {
+        background-color: var(--modal-btn-active);
+        transform: scale(0.9);
+      }
+
+      &.danger {
+        color: var(--color-danger);
+
+        &:hover:not(:disabled) {
+          background-color: var(--state-danger-hover);
+        }
+      }
     }
-
-    .btn-modal:hover:not(:disabled) { background: var(--modal-btn-hover); }
-
-    .btn-modal:active:not(:disabled),
-    .btn-modal.simulate-active {
-      background-color: var(--modal-btn-active);
-      transform: scale(0.9);
-    }
-
-    .btn-modal.danger { color: var(--color-danger); }
-    .btn-modal.danger:hover:not(:disabled) { background: var(--state-danger-hover); }
 
     .modal-content {
       display: grid;
@@ -397,17 +550,19 @@
       justify-items: center;
       gap: 16px;
       pointer-events: none;
-    }
 
-    .modal-content > button { pointer-events: auto; }
+      > button {
+        pointer-events: auto;
+      }
+    }
 
     #btn-upload { grid-area: upload; }
     #btn-prev { grid-area: prev; }
-    #img-preview { grid-area: img; }
     #btn-next { grid-area: next; }
     #btn-download { grid-area: download; }
 
     #img-preview {
+      grid-area: img;
       max-inline-size: 90vw;
       max-block-size: 55vh;
       box-shadow: var(--shadow-sm);
@@ -425,23 +580,28 @@
       inline-size: 80%;
       max-inline-size: 300px;
       pointer-events: none;
-    }
 
-    .progress-container.active { display: flex; }
+      &.active {
+        display: flex;
+      }
+    }
 
     progress {
       inline-size: 100%;
       block-size: 6px;
+      background-color: transparent;
       border-radius: 3px;
-      overflow: hidden;
       appearance: none;
-      -webkit-appearance: none;
-    }
+      overflow: hidden;
 
-    progress::-webkit-progress-bar { background-color: var(--color-border); }
-    progress::-webkit-progress-value {
-      background-color: var(--color-primary);
-      transition: inline-size 0.1s linear;
+      &::-webkit-progress-bar {
+        background-color: var(--color-border);
+      }
+
+      &::-webkit-progress-value {
+        background-color: var(--color-primary);
+        transition: inline-size 0.1s linear;
+      }
     }
 
     .progress-text {
@@ -459,8 +619,8 @@
     <button id="tab-badge" class="btn btn-tab active" title="Badge Control">
       <span class="material-symbols-outlined">watch</span>
     </button>
-    <button id="tab-image" class="btn btn-tab" title="Image Processing">
-      <span class="material-symbols-outlined">image</span>
+    <button id="tab-media" class="btn btn-tab" title="Media Processing">
+      <span class="material-symbols-outlined">photo_library</span>
     </button>
   </nav>
 
@@ -470,15 +630,14 @@
         <span id="icon-ble" class="material-symbols-outlined">bluetooth</span>
       </button>
 
-      <div id="info-badge-header" class="status-group" style="display: none; font-size: 14px;" title="Badge Info">
+      <div id="info-badge-header" class="status-group" title="Badge Info">
         <span id="text-badge-name" title="Badge Name"></span>
-        <span id="text-mac-address" style="color: var(--color-text-muted); font-size: 12px; font-weight: normal;" title="MAC Address"></span>
+        <span id="text-mac-address" title="MAC Address"></span>
       </div>
 
-      <div class="control-group" style="margin-inline-start: auto;">
-        <input type="checkbox" id="chk-debug" title="Enable Console Debug Logging">
-        <label for="chk-debug" class="text-label" title="Enable Console Debug Logging">Debug</label>
-      </div>
+      <button id="btn-debug" class="btn btn-icon push-right" title="Toggle Console Debug Logging">
+        <span class="material-symbols-outlined">bug_report</span>
+      </button>
     </header>
 
     <main class="badge-controls">
@@ -496,14 +655,14 @@
     </main>
   </div>
 
-  <div id="panel-image" class="view-panel">
+  <div id="panel-media" class="view-panel">
     <header class="header-toolbar">
-      <button id="btn-open-file" class="btn btn-icon" title="Open Image File">
+      <button id="btn-open-file" class="btn btn-icon" title="Open Media File">
         <span class="material-symbols-outlined">folder_open</span>
       </button>
-      <input type="file" id="input-file" accept="image/*" hidden>
+      <input type="file" id="input-file" accept="image/*,video/*" hidden>
 
-      <button id="btn-process" class="btn btn-icon" title="Crop and Process Image" disabled>
+      <button id="btn-process" class="btn btn-icon" title="Crop and Process Media" disabled>
         <span class="material-symbols-outlined">crop</span>
       </button>
 
@@ -517,14 +676,15 @@
         </select>
       </div>
 
-      <div class="control-group">
-        <!--
+      <div class="control-group hidden-control" id="grp-filesize">
         <label for="input-filesize" class="btn btn-icon" title="Target File Size (KiB)">
           <span class="material-symbols-outlined">compress</span>
         </label>
         <input type="number" id="input-filesize" min="1" max="39" step="1" value="20" title="Target File Size (KiB)">
         <span class="text-label" title="Target File Size (KiB)">KiB</span>
-        -->
+      </div>
+
+      <div class="control-group" id="grp-quality">
         <label for="input-quality" class="btn btn-icon" title="JPEG Quality">
           <span class="material-symbols-outlined">high_quality</span>
         </label>
@@ -534,8 +694,38 @@
 
     <main id="crop-area" class="crop-container" title="Drag to Pan, Scroll/Pinch to Zoom">
       <img id="img-source" decoding="async">
+      <video id="video-source" playsinline muted></video>
       <div id="crop-mask" class="crop-mask"></div>
     </main>
+
+    <div id="video-controls" class="video-controls">
+      <div class="control-group video-playback-row">
+        <button id="btn-play" class="btn btn-icon sm">
+          <span id="icon-play" class="material-symbols-outlined">play_arrow</span>
+        </button>
+        <div class="range-slider-container" id="seek-container">
+          <div class="range-track"></div>
+          <div class="range-track-highlight" id="seek-highlight"></div>
+          <div class="range-current-pos" id="seek-current-pos"></div>
+          <input type="range" id="seek-start" class="dual-slider" min="0" max="100" step="0.001" value="0">
+          <input type="range" id="seek-end" class="dual-slider" min="0" max="100" step="0.001" value="100">
+        </div>
+      </div>
+      <div class="control-group video-params-row">
+        <div class="control-group">
+          <span class="text-label" title="Start Time (s)">Start(s)</span>
+          <input type="number" id="input-start" class="input-time" min="0" step="0.001" value="0">
+        </div>
+        <div class="control-group">
+          <span class="text-label" title="Duration (s)">Duration(s)</span>
+          <input type="number" id="input-duration" class="input-time" min="0.001" step="0.001" value="3.000">
+        </div>
+        <div class="control-group">
+          <span class="text-label" title="Frames Per Second">FPS</span>
+          <input type="number" id="input-fps" min="1" max="30" step="1" value="3">
+        </div>
+      </div>
+    </div>
   </div>
 
   <footer id="thumbnail-container" class="thumbnail-list"></footer>
@@ -544,6 +734,10 @@
     <div class="status-group" title="Battery Level">
       <span id="icon-battery" class="material-symbols-outlined status-icon">battery_full</span>
       <span id="text-battery">--%</span>
+    </div>
+    <div class="status-group" title="Screen Size">
+      <span class="material-symbols-outlined status-icon">aspect_ratio</span>
+      <span id="text-screen-size">--x--</span>
     </div>
     <div class="status-group" title="Free Storage Space">
       <span id="text-storage">-- KiB</span>
@@ -615,37 +809,46 @@
 
   const elements = {
     tabBadge: $('tab-badge'),
-    tabImage: $('tab-image'),
-
+    tabMedia: $('tab-media'),
     panelBadge: $('panel-badge'),
     btnConnectBle: $('btn-connect-ble'),
     iconBle: $('icon-ble'),
     infoBadgeHeader: $('info-badge-header'),
     textBadgeName: $('text-badge-name'),
     textMacAddress: $('text-mac-address'),
-    chkDebug: $('chk-debug'),
+    btnDebug: $('btn-debug'),
     btnSetLang: $('btn-set-lang'),
     selLang: $('sel-lang'),
     btnCall: $('btn-call'),
     btnCheckStorage: $('btn-check-storage'),
-
-    panelImage: $('panel-image'),
+    panelMedia: $('panel-media'),
     btnOpenFile: $('btn-open-file'),
     inputFile: $('input-file'),
     btnProcess: $('btn-process'),
     selResolution: $('sel-resolution'),
-    //inputFilesize: $('input-filesize'),
+    inputFilesize: $('input-filesize'),
+    grpFilesize: $('grp-filesize'),
     inputQuality: $('input-quality'),
+    grpQuality: $('grp-quality'),
     cropArea: $('crop-area'),
     imgSource: $('img-source'),
+    videoSource: $('video-source'),
     cropMask: $('crop-mask'),
-
+    videoControls: $('video-controls'),
+    btnPlay: $('btn-play'),
+    iconPlay: $('icon-play'),
+    seekStart: $('seek-start'),
+    seekEnd: $('seek-end'),
+    seekHighlight: $('seek-highlight'),
+    seekCurrentPos: $('seek-current-pos'),
+    inputStart: $('input-start'),
+    inputDuration: $('input-duration'),
+    inputFps: $('input-fps'),
     thumbnailContainer: $('thumbnail-container'),
-
     iconBattery: $('icon-battery'),
     textBattery: $('text-battery'),
+    textScreenSize: $('text-screen-size'),
     textStorage: $('text-storage'),
-
     modalPreview: $('modal-preview'),
     modalFilename: $('modal-filename'),
     btnClose: $('btn-close'),
@@ -662,21 +865,23 @@
   };
 
   const state = {
+    isDebug: false,
+    isVideo: false,
     scale: 1,
     x: 0,
     y: 0,
     initialScale: 1,
     initialX: 0,
     initialY: 0,
-
     pointers: new Map(),
     isPanning: false,
     startX: 0,
     startY: 0,
     pinchDist: 0,
-
     croppedImages: [],
-    previewIndex: -1
+    previewIndex: -1,
+    badgeWidth: 0,
+    badgeHeight: 0
   };
 
   let bluetoothBadge = null;
@@ -684,18 +889,14 @@
   let charNotify = null;
   const pendingRequests = {};
   let pendingChunkReq = null;
-  let lastNotify = { time: 0, hex: "" };
-
   let cjpegliPromise = null;
   let rafId = null;
-
   let modalTouchX = 0;
   let modalTouchY = 0;
 
   const logDebug = (msg) => {
-    if (elements.chkDebug.checked) {
-      console.log(`[${new Date().toISOString()}] ${msg}`);
-    }
+    if (!state.isDebug) return;
+    console.log(`[${new Date().toISOString()}] ${msg}`);
   };
 
   const toHex = (buf) => {
@@ -704,6 +905,7 @@
   };
 
   const calcChecksum8 = (buf) => buf.reduce((sum, byte) => (sum + byte) >>> 0, 0);
+
   const calcChecksum32 = (val) => ((val >>> 24) & 0xFF) + ((val >>> 16) & 0xFF) + ((val >>> 8) & 0xFF) + (val & 0xFF);
 
   const simulateClick = (id) => {
@@ -717,9 +919,9 @@
 
   const switchTab = (isBadge) => {
     elements.tabBadge.classList.toggle('active', isBadge);
-    elements.tabImage.classList.toggle('active', !isBadge);
+    elements.tabMedia.classList.toggle('active', !isBadge);
     elements.panelBadge.classList.toggle('active', isBadge);
-    elements.panelImage.classList.toggle('active', !isBadge);
+    elements.panelMedia.classList.toggle('active', !isBadge);
   };
 
   const updateModal = () => {
@@ -729,7 +931,6 @@
     elements.imgPreview.src = item.url;
     elements.modalFilename.textContent = item.filename;
     elements.modalFilesize.textContent = `${item.sizeKiB} KiB`;
-
     elements.btnPrev.style.visibility = state.previewIndex > 0 ? 'visible' : 'hidden';
     elements.btnNext.style.visibility = state.previewIndex < state.croppedImages.length - 1 ? 'visible' : 'hidden';
   };
@@ -756,9 +957,20 @@
     }, timeoutMs);
 
     pendingRequests[key] = {
-      resolve: (data) => { clearTimeout(timer); delete pendingRequests[key]; resolve(data); },
-      reject: (err) => { clearTimeout(timer); delete pendingRequests[key]; reject(err); },
-      clear: () => { clearTimeout(timer); delete pendingRequests[key]; }
+      resolve: (data) => {
+        clearTimeout(timer);
+        delete pendingRequests[key];
+        resolve(data);
+      },
+      reject: (err) => {
+        clearTimeout(timer);
+        delete pendingRequests[key];
+        reject(err);
+      },
+      clear: () => {
+        clearTimeout(timer);
+        delete pendingRequests[key];
+      }
     };
   });
 
@@ -773,8 +985,16 @@
 
     pendingChunkReq = {
       expectedCode,
-      resolve: () => { clearTimeout(timer); pendingChunkReq = null; resolve(); },
-      reject: (err) => { clearTimeout(timer); pendingChunkReq = null; reject(err); }
+      resolve: () => {
+        clearTimeout(timer);
+        pendingChunkReq = null;
+        resolve();
+      },
+      reject: (err) => {
+        clearTimeout(timer);
+        pendingChunkReq = null;
+        reject(err);
+      }
     };
   });
 
@@ -801,12 +1021,7 @@
 
   const writePacket = async (buf) => {
     if (!charWrite) throw new Error("Bluetooth not connected");
-
     logDebug(`[TX] ${toHex(buf)}`);
-    if (buf[0] === BLE_FRAME.CMD) {
-      lastNotify = { time: 0, hex: "" };
-    }
-
     for (let i = 0; i < buf.length; i += 487) {
       await charWrite.writeValueWithoutResponse(buf.slice(i, i + 487));
     }
@@ -827,7 +1042,9 @@
     const pData = waitForData(cls, sub);
     await writePacket(buildFrame(cls, sub, payload));
 
-    if (cls === BLE_CMD.CTRL) return await pData;
+    if (cls === BLE_CMD.CTRL) {
+      return await pData;
+    }
 
     const pAck = waitForAck(cls, sub);
     await Promise.race([pAck, pData]);
@@ -843,7 +1060,12 @@
     const req = pendingRequests[`ack_${cls}_${sub}`];
 
     if (!req) return;
-    status === 0x01 ? req.resolve() : req.reject(new Error(`ACK Error: ${status}`));
+
+    if (status === 0x01) {
+      req.resolve();
+    } else {
+      req.reject(new Error(`ACK Error: ${status}`));
+    }
   };
 
   const handleDataEvent = async (val) => {
@@ -862,14 +1084,12 @@
       return;
     }
 
-    if (cls === BLE_CMD.CTRL && sub === 0x01 && payload.length >= 4) {
+    if (cls === BLE_CMD.CTRL && sub === 0x01 && payload.length >= 4 && pendingChunkReq) {
       const code = ((payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | payload[3]) >>> 0;
-      if (pendingChunkReq) {
-        if (code === pendingChunkReq.expectedCode) {
-          pendingChunkReq.resolve();
-        } else {
-          pendingChunkReq.reject(new Error(`Transfer Rejected: Code ${code}`));
-        }
+      if (code === pendingChunkReq.expectedCode) {
+        pendingChunkReq.resolve();
+      } else {
+        pendingChunkReq.reject(new Error(`Transfer Rejected: Code ${code}`));
       }
     }
   };
@@ -877,23 +1097,12 @@
   const onBleNotification = async (e) => {
     const val = new Uint8Array(e.target.value.buffer);
     const hex = toHex(val);
-    const now = performance.now();
-
-    if (now - lastNotify.time < 150 && lastNotify.hex === hex) {
-      logDebug(`[RX] (Dup) ${hex}`);
-      return;
-    }
-
-    lastNotify = { time: now, hex };
     logDebug(`[RX] ${hex}`);
-
     const type = val[0];
-
     if (type === BLE_FRAME.ACK) {
       handleAckEvent(val);
       return;
     }
-
     if (type === BLE_FRAME.CMD) {
       await handleDataEvent(val);
     }
@@ -905,12 +1114,24 @@
     charWrite = null;
     charNotify = null;
 
+    state.badgeWidth = 0;
+    state.badgeHeight = 0;
+
+    elements.textBadgeName.textContent = '';
+    elements.textMacAddress.textContent = '';
+    elements.iconBattery.textContent = 'battery_full';
+    elements.textBattery.textContent = '--%';
+    elements.textScreenSize.textContent = '--x--';
+    elements.textStorage.textContent = '-- KiB';
+
     for (const k in pendingRequests) {
       pendingRequests[k]?.reject(new Error("Badge disconnected"));
     }
 
-    pendingChunkReq?.reject(new Error("Badge disconnected"));
-    pendingChunkReq = null;
+    if (pendingChunkReq) {
+      pendingChunkReq.reject(new Error("Badge disconnected"));
+      pendingChunkReq = null;
+    }
   };
 
   const setupSecondaryNotifications = async (service) => {
@@ -929,10 +1150,8 @@
 
       const updateBat = (val) => {
         elements.textBattery.textContent = `${val}%`;
-        elements.iconBattery.textContent = val > 85 ? 'battery_full'
-                                         : val > 50 ? 'battery_5_bar'
-                                         : val > 20 ? 'battery_2_bar'
-                                         : 'battery_0_bar';
+        const step = Math.min(6, Math.floor(val / 15));
+        elements.iconBattery.textContent = val >= 95 ? 'battery_full' : `battery_${step}_bar`;
       };
 
       const initialVal = await batChar.readValue();
@@ -956,7 +1175,10 @@
                    | (d.getSeconds() & 0x3F);
 
       await sendCmd(BLE_CMD.SYSTEM, 0x01, new Uint8Array([
-        (packed >>> 24) & 0xFF, (packed >>> 16) & 0xFF, (packed >>> 8) & 0xFF, packed & 0xFF
+        (packed >>> 24) & 0xFF,
+        (packed >>> 16) & 0xFF,
+        (packed >>> 8) & 0xFF,
+        packed & 0xFF
       ]));
 
       const mac = await reqData(BLE_CMD.DEVICE, 0x0A);
@@ -971,7 +1193,14 @@
 
       await reqData(BLE_CMD.DEVICE, 0x1C);
       await sendCmd(BLE_CMD.DEVICE, 0x10);
-      await reqData(BLE_CMD.CTRL, 0x02);
+
+      const ctrlDevInfo = await reqData(BLE_CMD.CTRL, 0x02);
+      if (ctrlDevInfo.length >= 6 && ctrlDevInfo[0] === 0x01) {
+        state.badgeWidth = (ctrlDevInfo[2] << 8) | ctrlDevInfo[3];
+        state.badgeHeight = (ctrlDevInfo[4] << 8) | ctrlDevInfo[5];
+        elements.textScreenSize.textContent = `${state.badgeWidth}x${state.badgeHeight}`;
+      }
+
       await reqData(BLE_CMD.CTRL, 0x04);
 
       logDebug("Initialization sequence completed.");
@@ -1017,6 +1246,7 @@
       offset += len;
       bid++;
     }
+
     return blocks;
   };
 
@@ -1024,9 +1254,9 @@
     const sid = Math.floor(Math.random() * 0xFFFFFFFF);
     const dSize = size + 4;
     const initPayload = new Uint8Array([
-      (sid>>>24)&0xFF, (sid>>>16)&0xFF, (sid>>>8)&0xFF, sid&0xFF,
+      (sid >>> 24) & 0xFF, (sid >>> 16) & 0xFF, (sid >>> 8) & 0xFF, sid & 0xFF,
       0x02, 0x08, 0, 0, 0,
-      (dSize>>>24)&0xFF, (dSize>>>16)&0xFF, (dSize>>>8)&0xFF, dSize&0xFF,
+      (dSize >>> 24) & 0xFF, (dSize >>> 16) & 0xFF, (dSize >>> 8) & 0xFF, dSize & 0xFF,
       0, 0, 0, 0
     ]);
 
@@ -1041,12 +1271,20 @@
     const frame = new Uint8Array(fLen + 3);
 
     frame.set([
-      BLE_FRAME.CMD, (fLen>>>8)&0xFF, fLen&0xFF, BLE_CMD.FILE, 0x01, 0x01,
-      ((fLen-5)>>>8)&0xFF, (fLen-5)&0xFF, (chunkIndex>>>8)&0xFF, chunkIndex&0xFF
+      BLE_FRAME.CMD,
+      (fLen >>> 8) & 0xFF,
+      fLen & 0xFF,
+      BLE_CMD.FILE,
+      0x01,
+      0x01,
+      ((fLen - 5) >>> 8) & 0xFF,
+      (fLen - 5) & 0xFF,
+      (chunkIndex >>> 8) & 0xFF,
+      chunkIndex & 0xFF
     ]);
 
     if (isFirst) {
-      frame.set([(totalSize>>>24)&0xFF, (totalSize>>>16)&0xFF, (totalSize>>>8)&0xFF, totalSize&0xFF], 10);
+      frame.set([(totalSize >>> 24) & 0xFF, (totalSize >>> 16) & 0xFF, (totalSize >>> 8) & 0xFF, totalSize & 0xFF], 10);
     }
 
     frame.set(blockData, hEnd);
@@ -1056,16 +1294,17 @@
     const tVal = (isFirst ? (bCS + cs32 + 1) : (bCS + chunkIndex)) >>> 0;
     const tIdx = hEnd + blockData.length;
 
-    frame.set([(tVal>>>24)&0xFF, (tVal>>>16)&0xFF, (tVal>>>8)&0xFF, tVal&0xFF], tIdx);
+    frame.set([(tVal >>> 24) & 0xFF, (tVal >>> 16) & 0xFF, (tVal >>> 8) & 0xFF, tVal & 0xFF], tIdx);
 
     await writePacket(frame);
     await waitForChunkCtrl(1000 + chunkIndex);
+
     return newSum;
   };
 
   const finalizeFileTransfer = async (sum, cs32) => {
     const vCS = (sum + cs32) >>> 0;
-    await writePacket(buildFrame(BLE_CMD.FILE, 0x03, new Uint8Array([(vCS>>>24)&0xFF, (vCS>>>16)&0xFF, (vCS>>>8)&0xFF, vCS&0xFF])));
+    await writePacket(buildFrame(BLE_CMD.FILE, 0x03, new Uint8Array([(vCS >>> 24) & 0xFF, (vCS >>> 16) & 0xFF, (vCS >>> 8) & 0xFF, vCS & 0xFF])));
     await waitForChunkCtrl(0x0002);
   };
 
@@ -1073,10 +1312,14 @@
     const buf = new Uint8Array(await blob.arrayBuffer());
     const size = buf.length;
 
-    if (size > 600000) throw new Error("File too large");
+    if (size > 600000) {
+      throw new Error("File too large");
+    }
 
     const blocks = createChunks(buf, size);
-    if (onProgress) onProgress(0, blocks.length);
+    if (onProgress) {
+      onProgress(0, blocks.length);
+    }
 
     await initiateFileTransfer(size);
 
@@ -1085,69 +1328,83 @@
 
     for (let k = 1; k <= blocks.length; k++) {
       sum = await sendFileChunk(k, blocks[k - 1], size, cs32, sum);
-      if (onProgress) onProgress(k, blocks.length);
+      if (onProgress) {
+        onProgress(k, blocks.length);
+      }
     }
 
     await finalizeFileTransfer(sum, cs32);
   };
 
-  const initCjpegli = () => cjpegliPromise ??= window.createCjpegli?.().catch(console.error);
+  const updateQualityUI = () => {
+    const hasCjpegli = !!window.createCjpegli;
+    elements.grpFilesize.classList.toggle('hidden-control', !hasCjpegli);
+    elements.grpQuality.classList.toggle('hidden-control', hasCjpegli);
+  };
 
-  const renderSourceImg = () => {
+  const initCjpegli = async () => {
+    if (window.createCjpegli) {
+      cjpegliPromise ??= window.createCjpegli();
+      try {
+        return await cjpegliPromise;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    }
+    return null;
+  };
+
+  const renderSourceMedia = () => {
     if (rafId) return;
+
     rafId = requestAnimationFrame(() => {
-      elements.imgSource.style.transform = `translate(-50%, -50%) translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale})`;
+      const el = state.isVideo ? elements.videoSource : elements.imgSource;
+      el.style.transform = `translate(-50%, -50%) translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale})`;
       rafId = null;
     });
   };
 
   const renderThumbs = () => {
     elements.thumbnailContainer.innerHTML = '';
+
     state.croppedImages.forEach((img, i) => {
       const el = document.createElement('img');
       el.src = img.url;
       el.className = 'thumbnail-item';
       el.draggable = false;
-      el.title = 'View Image';
+      el.title = 'Preview';
       el.addEventListener('click', () => openModal(i));
-
       elements.thumbnailContainer.appendChild(el);
     });
+
     elements.thumbnailContainer.scrollLeft = elements.thumbnailContainer.scrollWidth;
   };
 
-  const generatePamImage = (res) => {
-    const cvs = document.createElement('canvas');
-    cvs.width = cvs.height = res;
-    const ctx = cvs.getContext('2d');
-    ctx.imageSmoothingQuality = 'high';
+  const drawToCanvas = async (source, res) => {
+    const bmp = await createImageBitmap(source);
 
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, res, res);
-    ctx.beginPath();
-    ctx.arc(res/2, res/2, (res+16)/2, 0, Math.PI*2);
-    ctx.clip();
+    try {
+      const cvs = new OffscreenCanvas(res, res);
+      const ctx = cvs.getContext('2d', { willReadFrequently: true });
+      ctx.imageSmoothingQuality = 'high';
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, res, res);
 
-    const dSize = res + 16;
-    const sArea = dSize / state.scale;
-    const sx = (elements.imgSource.naturalWidth/2) - (state.x/state.scale) - sArea/2;
-    const sy = (elements.imgSource.naturalHeight/2) - (state.y/state.scale) - sArea/2;
+      ctx.beginPath();
+      ctx.arc(res / 2, res / 2, (res + 16) / 2, 0, Math.PI * 2);
+      ctx.clip();
 
-    ctx.drawImage(elements.imgSource, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
+      const dSize = res + 16;
+      const sArea = dSize / state.scale;
+      const sx = (bmp.width / 2) - (state.x / state.scale) - sArea / 2;
+      const sy = (bmp.height / 2) - (state.y / state.scale) - sArea / 2;
 
-    const imgData = ctx.getImageData(0,0,res,res);
-    const hdr = new TextEncoder().encode(`P7\nWIDTH ${res}\nHEIGHT ${res}\nDEPTH 3\nMAXVAL 255\nTUPLTYPE RGB\nENDHDR\n`);
-    const pam = new Uint8Array(hdr.length + res*res*3);
-
-    pam.set(hdr);
-    let p = hdr.length;
-    for (let i = 0; i < imgData.data.length; i += 4) {
-      pam[p++] = imgData.data[i];
-      pam[p++] = imgData.data[i+1];
-      pam[p++] = imgData.data[i+2];
+      ctx.drawImage(bmp, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
+      return { cvs, ctx };
+    } finally {
+      bmp.close();
     }
-
-    return pam;
   };
 
   const convertToJpegBlob = async (mod, pam, tSize) => {
@@ -1160,41 +1417,92 @@
     } catch(e) {
       console.error(e);
     } finally {
-      try { mod.FS.unlink('in.pam'); mod.FS.unlink('out.jpg'); } catch(e) {}
+      try {
+        mod.FS.unlink('in.pam');
+        mod.FS.unlink('out.jpg');
+      } catch(e) {}
     }
 
     return jpg ? new Blob([jpg], { type: 'image/jpeg' }) : null;
   };
 
-  const generateNativeJpegBlob = (res, quality) => {
-    return new Promise((resolve) => {
-      const cvs = document.createElement('canvas');
-      cvs.width = cvs.height = res;
-      const ctx = cvs.getContext('2d');
-      ctx.imageSmoothingQuality = 'high';
+  const generatePamImageAsync = async (source, res) => {
+    const { ctx } = await drawToCanvas(source, res);
+    const imgData = ctx.getImageData(0, 0, res, res);
+    const hdr = new TextEncoder().encode(`P7\nWIDTH ${res}\nHEIGHT ${res}\nDEPTH 3\nMAXVAL 255\nTUPLTYPE RGB\nENDHDR\n`);
+    const pam = new Uint8Array(hdr.length + res * res * 3);
 
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, res, res);
-      ctx.beginPath();
-      ctx.arc(res/2, res/2, (res + 16) / 2, 0, Math.PI * 2);
-      ctx.clip();
+    pam.set(hdr);
+    let p = hdr.length;
 
-      const dSize = res + 16;
-      const sArea = dSize / state.scale;
-      const sx = (elements.imgSource.naturalWidth / 2) - (state.x / state.scale) - sArea / 2;
-      const sy = (elements.imgSource.naturalHeight / 2) - (state.y / state.scale) - sArea / 2;
+    for (let i = 0; i < imgData.data.length; i += 4) {
+      pam[p++] = imgData.data[i];
+      pam[p++] = imgData.data[i+1];
+      pam[p++] = imgData.data[i+2];
+    }
 
-      ctx.drawImage(elements.imgSource, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
+    return pam;
+  };
 
-      cvs.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+  const generateNativeJpegBlob = async (source, res, quality) => {
+    const { cvs } = await drawToCanvas(source, res);
+    return await cvs.convertToBlob({ type: 'image/jpeg', quality });
+  };
+
+  const processFrameCjpegli = async (mod, source, res, targetSizeKb) => {
+    const tSize = Math.round(Math.max(1, targetSizeKb) * 1024).toString();
+    const pam = await generatePamImageAsync(source, res);
+    return await convertToJpegBlob(mod, pam, tSize);
+  };
+
+  const addCroppedImage = (blob, res) => {
+    const d = new Date();
+    const ms = String(d.getMilliseconds()).padStart(3, '0');
+    const ts = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${ms}`;
+
+    state.croppedImages.push({
+      url: URL.createObjectURL(blob),
+      blob,
+      filename: `badge_${ts}.jpg`,
+      sizeKiB: (blob.size/1024).toFixed(1),
+      res
     });
+
+    renderThumbs();
+  };
+
+  const updateRangeUI = () => {
+    if (!state.isVideo || !elements.videoSource.duration) return;
+
+    const dur = elements.videoSource.duration;
+    let st = parseFloat(elements.seekStart.value);
+    let ed = parseFloat(elements.seekEnd.value);
+
+    if (st > ed) {
+      if (document.activeElement === elements.seekStart) {
+        elements.seekEnd.value = st;
+        ed = st;
+      } else {
+        elements.seekStart.value = ed;
+        st = ed;
+      }
+    }
+
+    const startPct = (st / dur) * 100;
+    const endPct = (ed / dur) * 100;
+
+    elements.seekHighlight.style.insetInlineStart = `${startPct}%`;
+    elements.seekHighlight.style.inlineSize = `${endPct - startPct}%`;
+    elements.inputStart.value = st.toFixed(3);
+    elements.inputDuration.value = (ed - st).toFixed(3);
   };
 
   const handlePointerDown = (e) => {
     if (elements.btnProcess.disabled) return;
+
     e.preventDefault();
     document.activeElement?.blur();
-
+    elements.cropArea.setPointerCapture(e.pointerId);
     state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     if (state.pointers.size === 1) {
@@ -1220,13 +1528,13 @@
     if (pts.length === 1 && state.isPanning) {
       state.x = state.initialX + (e.clientX - state.startX);
       state.y = state.initialY + (e.clientY - state.startY);
-      renderSourceImg();
+      renderSourceMedia();
     } else if (pts.length === 2 && state.pinchDist > 0) {
       const r = (state.initialScale * (Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) / state.pinchDist)) / state.scale;
       state.scale *= r;
       state.x *= r;
       state.y *= r;
-      renderSourceImg();
+      renderSourceMedia();
     }
   };
 
@@ -1248,10 +1556,14 @@
   const handleKeydown = (e) => {
     if (elements.modalPreview.classList.contains('active')) {
       const acts = {
-        Escape: 'btn-close', Esc: 'btn-close',
-        Delete: 'btn-delete', Backspace: 'btn-delete',
-        ArrowLeft: 'btn-prev', ArrowRight: 'btn-next',
-        ArrowUp: 'btn-upload', ArrowDown: 'btn-download'
+        Escape: 'btn-close',
+        Esc: 'btn-close',
+        Delete: 'btn-delete',
+        Backspace: 'btn-delete',
+        ArrowLeft: 'btn-prev',
+        ArrowRight: 'btn-next',
+        ArrowUp: 'btn-upload',
+        ArrowDown: 'btn-download'
       };
 
       if (acts[e.key]) {
@@ -1264,232 +1576,459 @@
     if (elements.btnProcess.disabled || ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) return;
 
     const acts = {
-      ArrowUp: () => state.y -= 20,
-      ArrowDown: () => state.y += 20,
-      ArrowLeft: () => state.x -= 20,
-      ArrowRight: () => state.x += 20,
-      PageUp: () => { state.scale *= 1.1; state.x *= 1.1; state.y *= 1.1; },
-      PageDown: () => { state.scale /= 1.1; state.x /= 1.1; state.y /= 1.1; }
+      ArrowUp: () => {
+        state.y -= 20;
+      },
+      ArrowDown: () => {
+        state.y += 20;
+      },
+      ArrowLeft: () => {
+        state.x -= 20;
+      },
+      ArrowRight: () => {
+        state.x += 20;
+      },
+      PageUp: () => {
+        state.scale *= 1.1;
+        state.x *= 1.1;
+        state.y *= 1.1;
+      },
+      PageDown: () => {
+        state.scale /= 1.1;
+        state.x /= 1.1;
+        state.y /= 1.1;
+      }
     };
 
     if (acts[e.key]) {
       acts[e.key]();
       e.preventDefault();
-      renderSourceImg();
+      renderSourceMedia();
     }
   };
 
+  const initApp = () => {
+    document.addEventListener('keydown', handleKeydown);
+    elements.tabBadge.addEventListener('click', () => switchTab(true));
+    elements.tabMedia.addEventListener('click', () => switchTab(false));
 
-  document.addEventListener('keydown', handleKeydown);
+    elements.btnConnectBle.addEventListener('click', async () => {
+      if (bluetoothBadge?.gatt.connected) {
+        bluetoothBadge.gatt.disconnect();
+        return;
+      }
+      try {
+        await connectAndInitBadge();
+      } catch (e) {
+        logDebug(`Connection Error: ${e.message}`);
+      }
+    });
 
-  elements.tabBadge.addEventListener('click', () => switchTab(true));
-  elements.tabImage.addEventListener('click', () => switchTab(false));
+    elements.btnDebug.addEventListener('click', () => {
+      state.isDebug = !state.isDebug;
+      elements.btnDebug.classList.toggle('active-primary', state.isDebug);
+    });
 
-  elements.btnConnectBle.addEventListener('click', async () => {
-    if (bluetoothBadge?.gatt.connected) {
-      bluetoothBadge.gatt.disconnect();
-      return;
-    }
-    try {
-      await connectAndInitBadge();
-    } catch (e) {
-      logDebug(`Connection Error: ${e.message}`);
-    }
-  });
-
-  elements.btnSetLang?.addEventListener('click', async () => {
-    try {
-      await sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]);
-      logDebug("Language applied.");
-    } catch(e) {}
-  });
-
-  elements.btnCall?.addEventListener('click', async () => {
-    try {
-      await sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]);
-      logDebug("Call alert sent.");
-    } catch(e) {}
-  });
-
-  elements.btnCheckStorage?.addEventListener('click', async () => {
-    try {
-      await reqData(BLE_CMD.CTRL, 0x04);
-      logDebug("Storage requested.");
-    } catch(e) {}
-  });
-
-  elements.btnOpenFile.addEventListener('click', () => elements.inputFile.click());
-
-  elements.inputFile.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    elements.btnProcess.disabled = true;
-    elements.imgSource.classList.remove('loaded');
-
-    if (elements.imgSource.src.startsWith('blob:')) {
-      URL.revokeObjectURL(elements.imgSource.src);
+    if (elements.btnSetLang) {
+      elements.btnSetLang.addEventListener('click', async () => {
+        try {
+          await sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]);
+          logDebug("Language applied.");
+        } catch(e) {}
+      });
     }
 
-    elements.imgSource.src = URL.createObjectURL(file);
-    elements.imgSource.onload = async () => {
-      const res = parseInt(elements.selResolution.value, 10);
-      state.scale = res / Math.min(elements.imgSource.naturalWidth, elements.imgSource.naturalHeight);
+    if (elements.btnCall) {
+      elements.btnCall.addEventListener('click', async () => {
+        try {
+          await sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]);
+          logDebug("Call alert sent.");
+        } catch(e) {}
+      });
+    }
+
+    if (elements.btnCheckStorage) {
+      elements.btnCheckStorage.addEventListener('click', async () => {
+        try {
+          await reqData(BLE_CMD.CTRL, 0x04);
+          logDebug("Storage requested.");
+        } catch(e) {}
+      });
+    }
+
+    elements.btnOpenFile.addEventListener('click', () => elements.inputFile.click());
+
+    elements.inputFile.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.type.includes('svg')) {
+        alert("SVG files are not supported.");
+        e.target.value = '';
+        return;
+      }
+
+      elements.btnProcess.disabled = true;
+      elements.imgSource.classList.remove('loaded');
+      elements.videoSource.classList.remove('loaded');
+
+      if (elements.imgSource.src.startsWith('blob:')) {
+        URL.revokeObjectURL(elements.imgSource.src);
+        elements.imgSource.removeAttribute('src');
+      }
+      if (elements.videoSource.src.startsWith('blob:')) {
+        URL.revokeObjectURL(elements.videoSource.src);
+        elements.videoSource.removeAttribute('src');
+      }
+
+      state.isVideo = file.type.startsWith('video/');
+      state.scale = 1;
       state.x = 0;
       state.y = 0;
+      state.initialScale = 1;
+      state.initialX = 0;
+      state.initialY = 0;
+      state.pointers.clear();
+      state.isPanning = false;
+      state.startX = 0;
+      state.startY = 0;
+      state.pinchDist = 0;
 
-      renderSourceImg();
-      elements.imgSource.classList.add('loaded');
+      const url = URL.createObjectURL(file);
 
-      await initCjpegli();
-      elements.btnProcess.disabled = false;
-    };
+      elements.imgSource.style.display = state.isVideo ? 'none' : 'block';
+      elements.videoSource.style.display = state.isVideo ? 'block' : 'none';
+      elements.videoControls.classList.toggle('active', state.isVideo);
 
-    e.target.value = '';
-  });
+      if (state.isVideo) {
+        elements.videoSource.src = url;
+        elements.videoSource.onloadedmetadata = async () => {
+          const res = parseInt(elements.selResolution.value, 10);
+          state.scale = Math.min(1, res / Math.min(elements.videoSource.videoWidth, elements.videoSource.videoHeight));
+          state.x = 0;
+          state.y = 0;
 
-  elements.btnProcess.addEventListener('click', async () => {
-    if (elements.btnProcess.disabled) return;
+          const dur = elements.videoSource.duration;
 
-    elements.btnProcess.disabled = true;
-    try {
-      //const mod = await initCjpegli();
-      //if (!mod) return;
+          elements.videoSource.currentTime = 0;
+          elements.iconPlay.textContent = 'play_arrow';
+          elements.seekStart.max = dur;
+          elements.seekStart.value = 0;
+          elements.seekEnd.max = dur;
+          elements.seekEnd.value = dur;
+          elements.seekCurrentPos.style.insetInlineStart = '0%';
+          elements.inputStart.value = "0.000";
+          elements.inputDuration.value = dur.toFixed(3);
 
-      //const res = parseInt(elements.selResolution.value, 10);
-      //const targetSize = parseFloat(elements.inputFilesize.value) || 20;
-      //const tSize = Math.round(Math.max(1, targetSize) * 1024).toString();
+          updateRangeUI();
+          renderSourceMedia();
 
-      //const pam = generatePamImage(res);
-      //const blob = await convertToJpegBlob(mod, pam, tSize);
+          elements.videoSource.classList.add('loaded');
+          await initCjpegli();
+          elements.btnProcess.disabled = false;
+        };
+      } else {
+        elements.imgSource.src = url;
+        elements.imgSource.onload = async () => {
+          const res = parseInt(elements.selResolution.value, 10);
+          const nw = elements.imgSource.naturalWidth || res;
+          const nh = elements.imgSource.naturalHeight || res;
+          state.scale = Math.min(1, res / Math.min(nw, nh));
+          state.x = 0;
+          state.y = 0;
 
-      const res = parseInt(elements.selResolution.value, 10);
-      const qualityVal = parseInt(elements.inputQuality.value, 10) || 85;
-      const quality = Math.max(1, Math.min(100, qualityVal)) / 100;
+          renderSourceMedia();
+          elements.imgSource.classList.add('loaded');
 
-      const blob = await generateNativeJpegBlob(res, quality);
-      if (!blob) return;
+          await initCjpegli();
+          elements.btnProcess.disabled = false;
+        };
+      }
+      e.target.value = '';
+    });
 
-      const d = new Date();
-      const ts = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+    elements.btnProcess.addEventListener('click', async () => {
+      if (elements.btnProcess.disabled) return;
 
-      state.croppedImages.push({
-        url: URL.createObjectURL(blob),
-        blob,
-        filename: `badge_${ts}.jpg`,
-        sizeKiB: (blob.size/1024).toFixed(1)
-      });
+      elements.btnProcess.disabled = true;
 
+      try {
+        const mod = window.createCjpegli ? await initCjpegli() : null;
+        const targetSize = parseFloat(elements.inputFilesize.value) || 20;
+        const res = parseInt(elements.selResolution.value, 10);
+        const qualityVal = parseInt(elements.inputQuality.value, 10) || 90;
+        const quality = Math.max(1, Math.min(100, qualityVal)) / 100;
+
+        const processSingleFrame = async (source) => {
+          if (mod) {
+            return await processFrameCjpegli(mod, source, res, targetSize);
+          } else {
+            return await generateNativeJpegBlob(source, res, quality);
+          }
+        };
+
+        if (state.isVideo) {
+          const wasPlaying = !elements.videoSource.paused;
+          const originalTime = elements.videoSource.currentTime;
+          elements.videoSource.pause();
+
+          const st = parseFloat(elements.inputStart.value) || 0;
+          const dur = parseFloat(elements.inputDuration.value) || 3;
+          const rawFps = parseInt(elements.inputFps.value, 10) || 3;
+          const fps = Math.min(30, Math.max(1, rawFps));
+          const frames = Math.floor(dur * fps);
+          const step = 1 / fps;
+
+          for (let i = 0; i <= frames; i++) {
+            const t = st + i * step;
+            if (t > elements.videoSource.duration || t > st + dur) break;
+
+            if (elements.videoSource.currentTime !== t) {
+              elements.videoSource.currentTime = t;
+              await new Promise(resolve => {
+                const timer = setTimeout(resolve, 500);
+                const onSeeked = () => {
+                  clearTimeout(timer);
+                  resolve();
+                };
+                elements.videoSource.addEventListener('seeked', onSeeked, { once: true });
+              });
+            }
+
+            const blob = await processSingleFrame(elements.videoSource);
+            if (blob) {
+              addCroppedImage(blob, res);
+            }
+          }
+
+          if (elements.videoSource.currentTime !== originalTime) {
+            elements.videoSource.currentTime = originalTime;
+            await new Promise(resolve => {
+              const timer = setTimeout(resolve, 500);
+              const onSeeked = () => {
+                clearTimeout(timer);
+                resolve();
+              };
+              elements.videoSource.addEventListener('seeked', onSeeked, { once: true });
+            });
+          }
+
+          if (wasPlaying) {
+            elements.videoSource.play();
+          }
+        } else {
+          const blob = await processSingleFrame(elements.imgSource);
+          if (blob) {
+            addCroppedImage(blob, res);
+          }
+        }
+      } finally {
+        elements.btnProcess.disabled = false;
+      }
+    });
+
+    elements.selResolution.addEventListener('change', () => {
+      const s = elements.selResolution.value;
+      elements.cropMask.style.inlineSize = `${s}px`;
+      elements.cropMask.style.blockSize = `${s}px`;
+    });
+
+    elements.cropArea.addEventListener('pointerdown', handlePointerDown);
+    elements.cropArea.addEventListener('pointermove', handlePointerMove);
+
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => {
+      elements.cropArea.addEventListener(ev, handlePointerUp);
+    });
+
+    elements.cropArea.addEventListener('wheel', e => {
+      if (elements.btnProcess.disabled) return;
+
+      e.preventDefault();
+      const f = Math.exp(-e.deltaY * 0.005);
+      state.scale *= f;
+      state.x *= f;
+      state.y *= f;
+
+      renderSourceMedia();
+    }, { passive: false });
+
+    elements.thumbnailContainer.addEventListener('wheel', e => {
+      e.preventDefault();
+      elements.thumbnailContainer.scrollLeft += e.deltaY + e.deltaX;
+    }, { passive: false });
+
+    elements.modalPreview.addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse') {
+        modalTouchX = e.clientX;
+        modalTouchY = e.clientY;
+      }
+    });
+
+    elements.modalPreview.addEventListener('pointerup', e => {
+      if (e.pointerType === 'mouse' || state.previewIndex < 0) return;
+
+      const dx = e.clientX - modalTouchX;
+      const dy = e.clientY - modalTouchY;
+
+      if (Math.abs(dx) > 50 && Math.abs(dy) < 50) {
+        if (dx < 0) {
+          simulateClick('btn-next');
+        } else {
+          simulateClick('btn-prev');
+        }
+      }
+    });
+
+    elements.btnClose.addEventListener('click', () => {
+      elements.modalPreview.classList.remove('active');
+    });
+
+    elements.btnPrev.addEventListener('click', () => {
+      if (state.previewIndex > 0) {
+        openModal(state.previewIndex - 1);
+      }
+    });
+
+    elements.btnNext.addEventListener('click', () => {
+      if (state.previewIndex < state.croppedImages.length - 1) {
+        openModal(state.previewIndex + 1);
+      }
+    });
+
+    elements.btnDelete.addEventListener('click', () => {
+      URL.revokeObjectURL(state.croppedImages.splice(state.previewIndex, 1)[0].url);
       renderThumbs();
-    } finally {
-      elements.btnProcess.disabled = false;
-    }
-  });
 
-  elements.selResolution.addEventListener('change', () => {
-    const s = elements.selResolution.value;
-    elements.cropMask.style.inlineSize = `${s}px`;
-    elements.cropMask.style.blockSize = `${s}px`;
-  });
+      if (state.croppedImages.length === 0) {
+        elements.modalPreview.classList.remove('active');
+        state.previewIndex = -1;
+      } else {
+        openModal(Math.min(state.previewIndex, state.croppedImages.length - 1));
+      }
+    });
 
-  elements.cropArea.addEventListener('pointerdown', handlePointerDown);
-  elements.cropArea.addEventListener('pointermove', handlePointerMove);
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
+    elements.btnDownload.addEventListener('click', () => {
+      const a = document.createElement('a');
+      const img = state.croppedImages[state.previewIndex];
+      a.href = img.url;
+      a.download = img.filename;
+      a.click();
+    });
 
-  elements.cropArea.addEventListener('wheel', e => {
-    if (elements.btnProcess.disabled) return;
-    e.preventDefault();
-    const f = Math.exp(-e.deltaY * 0.005);
-    state.scale *= f;
-    state.x *= f;
-    state.y *= f;
-    renderSourceImg();
-  }, { passive: false });
+    elements.btnUpload.addEventListener('click', async () => {
+      if (!charWrite) {
+        logDebug("Error: Bluetooth badge not connected.");
+        elements.modalPreview.classList.remove('active');
+        switchTab(true);
+        return;
+      }
 
-  elements.thumbnailContainer.addEventListener('wheel', e => {
-    e.preventDefault();
-    elements.thumbnailContainer.scrollLeft += e.deltaY + e.deltaX;
-  }, { passive: false });
+      if (!state.badgeWidth) {
+        alert("Badge screen size is unknown. Cannot upload.");
+        return;
+      }
 
-  elements.modalPreview.addEventListener('pointerdown', e => {
-    if (e.pointerType !== 'mouse') {
-      modalTouchX = e.clientX;
-      modalTouchY = e.clientY;
-    }
-  });
+      const img = state.croppedImages[state.previewIndex];
 
-  elements.modalPreview.addEventListener('pointerup', e => {
-    if (e.pointerType === 'mouse' || state.previewIndex < 0) return;
+      if (img.res !== state.badgeWidth) {
+        alert(`Image resolution (${img.res}px) does not match the badge screen size (${state.badgeWidth}px). Please crop again with the correct resolution.`);
+        return;
+      }
 
-    const dx = e.clientX - modalTouchX;
-    const dy = e.clientY - modalTouchY;
+      const btns = document.querySelectorAll('.btn-modal');
+      btns.forEach(b => b.disabled = true);
+      elements.progressContainer.classList.add('active');
+      elements.progressBar.value = 0;
+      elements.progressText.textContent = `0 / ?`;
 
-    if (Math.abs(dx) > 50 && Math.abs(dy) < 50) {
-      dx < 0 ? simulateClick('btn-next') : simulateClick('btn-prev');
-    }
-  });
+      try {
+        await transferFileToBadge(img.blob, (curr, tot) => {
+          elements.progressBar.max = tot;
+          elements.progressBar.value = curr;
+          elements.progressText.textContent = `${curr} / ${tot}`;
+        });
 
-  elements.btnClose.addEventListener('click', () => elements.modalPreview.classList.remove('active'));
-  elements.btnPrev.addEventListener('click', () => { if (state.previewIndex > 0) openModal(state.previewIndex - 1); });
-  elements.btnNext.addEventListener('click', () => { if (state.previewIndex < state.croppedImages.length - 1) openModal(state.previewIndex + 1); });
+        logDebug("Upload complete. Checking free space...");
+        await reqData(BLE_CMD.CTRL, 0x04);
+      } catch (e) {
+        logDebug(`Upload Error: ${e.message}`);
+      } finally {
+        btns.forEach(b => b.disabled = false);
+        setTimeout(() => {
+          elements.progressContainer.classList.remove('active');
+        }, 500);
+      }
+    });
 
-  elements.btnDelete.addEventListener('click', () => {
-    URL.revokeObjectURL(state.croppedImages.splice(state.previewIndex, 1)[0].url);
-    renderThumbs();
+    elements.seekStart.addEventListener('input', () => {
+      updateRangeUI();
+      elements.videoSource.currentTime = parseFloat(elements.seekStart.value);
+    });
 
-    if (state.croppedImages.length === 0) {
-      elements.modalPreview.classList.remove('active');
-    } else {
-      openModal(Math.min(state.previewIndex, state.croppedImages.length - 1));
-    }
-  });
+    elements.seekEnd.addEventListener('input', () => {
+      updateRangeUI();
+      elements.videoSource.currentTime = parseFloat(elements.seekEnd.value);
+    });
 
-  elements.btnDownload.addEventListener('click', () => {
-    const a = document.createElement('a');
-    const img = state.croppedImages[state.previewIndex];
-    a.href = img.url;
-    a.download = img.filename;
-    a.click();
-  });
+    elements.inputStart.addEventListener('input', () => {
+      let st = parseFloat(elements.inputStart.value) || 0;
+      const ed = parseFloat(elements.seekEnd.value) || 0;
 
-  elements.btnUpload.addEventListener('click', async () => {
-    if (!charWrite) {
-      logDebug("Error: Bluetooth badge not connected.");
-      elements.modalPreview.classList.remove('active');
-      switchTab(true);
-      return;
-    }
+      if (st > ed) {
+        st = ed;
+      }
 
-    const img = state.croppedImages[state.previewIndex];
-    const btns = document.querySelectorAll('.btn-modal');
+      elements.seekStart.value = st;
+      updateRangeUI();
+      elements.videoSource.currentTime = st;
+    });
 
-    btns.forEach(b => b.disabled = true);
-    elements.progressContainer.classList.add('active');
-    elements.progressBar.value = 0;
-    elements.progressText.textContent = `0 / ?`;
+    elements.inputDuration.addEventListener('input', () => {
+      const st = parseFloat(elements.seekStart.value) || 0;
+      let len = parseFloat(elements.inputDuration.value) || 0;
+      const dur = elements.videoSource.duration || 100;
 
-    try {
-      await transferFileToBadge(img.blob, (curr, tot) => {
-        elements.progressBar.max = tot;
-        elements.progressBar.value = curr;
-        elements.progressText.textContent = `${curr} / ${tot}`;
-      });
+      if (st + len > dur) {
+        len = dur - st;
+      }
 
-      elements.modalPreview.classList.remove('active');
-      switchTab(true);
-      logDebug("Upload complete. Checking free space...");
+      elements.seekEnd.value = st + len;
+      updateRangeUI();
+    });
 
-      await reqData(BLE_CMD.CTRL, 0x04);
-    } catch (e) {
-      logDebug(`Upload Error: ${e.message}`);
-    } finally {
-      btns.forEach(b => b.disabled = false);
-      elements.progressContainer.classList.remove('active');
-    }
-  });
+    elements.btnPlay.addEventListener('click', () => {
+      if (elements.videoSource.paused) {
+        elements.videoSource.play();
+        elements.iconPlay.textContent = 'pause';
+      } else {
+        elements.videoSource.pause();
+        elements.iconPlay.textContent = 'play_arrow';
+      }
+    });
 
-  initCjpegli();
-  elements.selResolution.dispatchEvent(new Event('change'));
+    elements.videoSource.addEventListener('timeupdate', () => {
+      if (!state.isVideo || !elements.videoSource.duration) return;
+
+      const dur = elements.videoSource.duration;
+      const curr = elements.videoSource.currentTime;
+      const ed = parseFloat(elements.seekEnd.value) || dur;
+      const st = parseFloat(elements.seekStart.value) || 0;
+
+      if (curr >= ed) {
+        if (!elements.videoSource.paused) {
+          elements.videoSource.currentTime = st;
+        }
+      }
+
+      elements.seekCurrentPos.style.insetInlineStart = `${(curr / dur) * 100}%`;
+    });
+
+    initCjpegli();
+    updateQualityUI();
+    elements.selResolution.dispatchEvent(new Event('change'));
+  };
+
+  initApp();
 </script>
 </body>
 </html>
