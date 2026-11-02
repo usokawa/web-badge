@@ -672,7 +672,7 @@
         </label>
         <select id="sel-resolution" title="Select Target Resolution">
           <option value="240">240px</option>
-          <!--<option value="360">360px</option>-->
+          <option value="360">360px</option>
         </select>
       </div>
 
@@ -881,7 +881,8 @@
     croppedImages: [],
     previewIndex: -1,
     badgeWidth: 0,
-    badgeHeight: 0
+    badgeHeight: 0,
+    maxBlockSize: 0
   };
 
   let bluetoothBadge = null;
@@ -1054,6 +1055,7 @@
   };
 
   const handleAckEvent = (val) => {
+    if (val.length < 8) return;
     const cls = val[3];
     const sub = val[4];
     const status = val[7];
@@ -1069,10 +1071,13 @@
   };
 
   const handleDataEvent = async (val) => {
+    if (val.length < 8) return;
     const frameLen = (val[1] << 8) | val[2];
+    const payloadLen = (val[6] << 8) | val[7];
+    if (frameLen !== payloadLen + 5 || val.length < 8 + payloadLen) return;
+
     const cls = val[3];
     const sub = val[5];
-    const payloadLen = (val[6] << 8) | val[7];
     const payload = val.slice(8, 8 + payloadLen);
 
     await sendAck(cls, sub, frameLen + 3);
@@ -1096,6 +1101,7 @@
 
   const onBleNotification = async (e) => {
     const val = new Uint8Array(e.target.value.buffer);
+    if (val.length === 0) return;
     const hex = toHex(val);
     logDebug(`[RX] ${hex}`);
     const type = val[0];
@@ -1191,14 +1197,21 @@
         elements.textBadgeName.textContent = new TextDecoder().decode(name.slice(1));
       }
 
-      await reqData(BLE_CMD.DEVICE, 0x1C);
-      await sendCmd(BLE_CMD.DEVICE, 0x10);
-
       const ctrlDevInfo = await reqData(BLE_CMD.CTRL, 0x02);
-      if (ctrlDevInfo.length >= 6 && ctrlDevInfo[0] === 0x01) {
+      if (ctrlDevInfo.length >= 32 && ctrlDevInfo[0] === 0x01) {
         state.badgeWidth = (ctrlDevInfo[2] << 8) | ctrlDevInfo[3];
         state.badgeHeight = (ctrlDevInfo[4] << 8) | ctrlDevInfo[5];
         elements.textScreenSize.textContent = `${state.badgeWidth}x${state.badgeHeight}`;
+        state.maxBlockSize = (ctrlDevInfo[30] << 8) | ctrlDevInfo[31];
+        const p1_len = ctrlDevInfo[6] || 0;
+        const p1 = p1_len ? new TextDecoder().decode(ctrlDevInfo.slice(7, 7 + p1_len)) : "";
+        const p2_start = 7 + p1_len;
+        const p2_len = ctrlDevInfo[p2_start] || 0;
+        const p2 = p2_len ? new TextDecoder().decode(ctrlDevInfo.slice(p2_start + 1, p2_start + 1 + p2_len)) : "";
+        const p3_start = p2_start + 1 + p2_len + 5;
+        const p3_len = ctrlDevInfo[p3_start] || 0;
+        const p3 = p3_len ? new TextDecoder().decode(ctrlDevInfo.slice(p3_start + 1, p3_start + 1 + p3_len)) : "";
+        logDebug(`[Device Info] Screen: ${state.badgeWidth}x${state.badgeHeight}, MaxBlockSize: ${state.maxBlockSize}, Cap: ${p1}, ${p2}, ${p3}`);
       }
 
       await reqData(BLE_CMD.CTRL, 0x04);
@@ -1241,7 +1254,7 @@
     let bid = 1;
 
     while (offset < size) {
-      const len = Math.min(size - offset, bid === 1 ? 24996 : 25000);
+      const len = Math.min(size - offset, bid === 1 ? state.maxBlockSize - 4 : state.maxBlockSize);
       blocks.push(buf.slice(offset, offset + len));
       offset += len;
       bid++;
@@ -1923,8 +1936,8 @@
         return;
       }
 
-      if (!state.badgeWidth) {
-        alert("Badge screen size is unknown. Cannot upload.");
+      if (!state.badgeWidth || !state.maxBlockSize) {
+        alert("Badge screen size or block size is unknown. Cannot upload.");
         return;
       }
 
