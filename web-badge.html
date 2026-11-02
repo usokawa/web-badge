@@ -1324,8 +1324,9 @@
   const transferFileToBadge = async (blob, onProgress) => {
     const buf = new Uint8Array(await blob.arrayBuffer());
     const size = buf.length;
+    const maxFileSize = state.maxBlockSize * 24 - 4;
 
-    if (size > 600000) {
+    if (size > maxFileSize) {
       throw new Error("File too large");
     }
 
