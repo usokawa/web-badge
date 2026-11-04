@@ -7,7 +7,7 @@
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e1e">
   <title>Web Badge</title>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet">
   <!-- <script src="cjpegli.js"></script> -->
   <style>
     :root {
@@ -250,7 +250,6 @@
     }
 
     #info-badge-header {
-      display: none;
       font-size: 14px;
     }
 
@@ -392,20 +391,27 @@
       }
     }
 
-    .thumbnail-list {
+    .thumbnail-footer {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding-inline: 12px;
+      padding-inline: 16px;
       block-size: 84px;
       background-color: var(--color-surface);
       border-block-start: 1px solid var(--color-border);
+    }
+
+    .thumbnail-list-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
       overflow-inline: auto;
       scrollbar-width: none;
+    }
 
-      &::-webkit-scrollbar {
-        display: none;
-      }
+    .thumbnail-list-inner::-webkit-scrollbar {
+      display: none;
     }
 
     .thumbnail-item {
@@ -418,10 +424,18 @@
       cursor: pointer;
       transition: transform var(--trans-normal);
       -webkit-user-drag: none;
+    }
 
-      &:hover {
-        transform: scale(1.05);
-      }
+    .thumbnail-item:hover {
+      transform: scale(1.05);
+    }
+
+    #btn-audio-thumb {
+      transition: color var(--trans-normal);
+    }
+
+    #btn-audio-thumb.active {
+      color: var(--color-primary);
     }
 
     .status-bar {
@@ -460,11 +474,11 @@
       outline: none;
       touch-action: none;
       transition: opacity 0.3s, visibility 0.3s;
+    }
 
-      &.active {
-        opacity: 1;
-        visibility: visible;
-      }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
     }
 
     .modal-bar {
@@ -475,68 +489,69 @@
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       pointer-events: none;
+    }
 
-      &.top {
-        inset-block-start: 16px;
-      }
+    .modal-bar.top {
+      inset-block-start: 16px;
+    }
 
-      &.bottom {
-        inset-block-end: 16px;
-      }
+    .modal-bar.bottom {
+      inset-block-end: 16px;
+      align-items: flex-end;
+    }
 
-      .center {
-        grid-column: 2;
-        pointer-events: auto;
-      }
+    .modal-bar .center {
+      grid-column: 2;
+      pointer-events: auto;
+    }
 
-      .right {
-        grid-column: 3;
-        justify-self: end;
-        pointer-events: auto;
-      }
+    .modal-bar .right {
+      grid-column: 3;
+      justify-self: end;
+      pointer-events: auto;
     }
 
     .modal-text {
       text-align: center;
       font-variant-numeric: tabular-nums;
+    }
 
-      &.primary {
-        max-inline-size: 200px;
-        color: var(--color-text-main);
-        font-size: 16px;
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+    .modal-text.primary {
+      max-inline-size: 200px;
+      color: var(--color-text-main);
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
 
-      &.secondary {
-        color: var(--color-text-muted);
-        font-size: 14px;
-      }
+    .modal-text.secondary {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: pre-line;
     }
 
     .btn-modal {
       background-color: var(--modal-btn);
       backdrop-filter: blur(4px);
+    }
 
-      &:hover:not(:disabled) {
-        background-color: var(--modal-btn-hover);
-      }
+    .btn-modal:hover:not(:disabled) {
+      background-color: var(--modal-btn-hover);
+    }
 
-      &:active:not(:disabled),
-      &.simulate-active {
-        background-color: var(--modal-btn-active);
-        transform: scale(0.9);
-      }
+    .btn-modal:active:not(:disabled),
+    .btn-modal.simulate-active {
+      background-color: var(--modal-btn-active);
+      transform: scale(0.9);
+    }
 
-      &.danger {
-        color: var(--color-danger);
+    .btn-modal.danger {
+      color: var(--color-danger);
+    }
 
-        &:hover:not(:disabled) {
-          background-color: var(--state-danger-hover);
-        }
-      }
+    .btn-modal.danger:hover:not(:disabled) {
+      background-color: var(--state-danger-hover);
     }
 
     .modal-content {
@@ -550,16 +565,37 @@
       justify-items: center;
       gap: 16px;
       pointer-events: none;
-
-      > button {
-        pointer-events: auto;
-      }
     }
 
-    #btn-upload { grid-area: upload; }
+    .modal-content > button, .modal-content > div {
+      pointer-events: auto;
+    }
+
+    .upload-group {
+      grid-area: upload;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .upload-group > button {
+      pointer-events: auto;
+    }
+
+    .download-group {
+      grid-area: download;
+      display: flex;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .download-group > button {
+      pointer-events: auto;
+    }
+
     #btn-prev { grid-area: prev; }
     #btn-next { grid-area: next; }
-    #btn-download { grid-area: download; }
 
     #img-preview {
       grid-area: img;
@@ -580,10 +616,10 @@
       inline-size: 80%;
       max-inline-size: 300px;
       pointer-events: none;
+    }
 
-      &.active {
-        display: flex;
-      }
+    .progress-container.active {
+      display: flex;
     }
 
     progress {
@@ -593,15 +629,15 @@
       border-radius: 3px;
       appearance: none;
       overflow: hidden;
+    }
 
-      &::-webkit-progress-bar {
-        background-color: var(--color-border);
-      }
+    progress::-webkit-progress-bar {
+      background-color: var(--color-border);
+    }
 
-      &::-webkit-progress-value {
-        background-color: var(--color-primary);
-        transition: inline-size 0.1s linear;
-      }
+    progress::-webkit-progress-value {
+      background-color: var(--color-primary);
+      transition: inline-size 0.1s linear;
     }
 
     .progress-text {
@@ -629,12 +665,10 @@
       <button id="btn-connect-ble" class="btn btn-icon" title="Connect/Disconnect Bluetooth">
         <span id="icon-ble" class="material-symbols-outlined">bluetooth</span>
       </button>
-
-      <div id="info-badge-header" class="status-group" title="Badge Info">
+      <div id="info-badge-header" class="status-group hidden-control" title="Badge Info">
         <span id="text-badge-name" title="Badge Name"></span>
         <span id="text-mac-address" title="MAC Address"></span>
       </div>
-
       <button id="btn-debug" class="btn btn-icon push-right" title="Toggle Console Debug Logging">
         <span class="material-symbols-outlined">bug_report</span>
       </button>
@@ -660,7 +694,7 @@
       <button id="btn-open-file" class="btn btn-icon" title="Open Media File">
         <span class="material-symbols-outlined">folder_open</span>
       </button>
-      <input type="file" id="input-file" accept="image/*,video/*" hidden>
+      <input type="file" id="input-file" accept="image/*,video/*,audio/*" hidden>
 
       <button id="btn-process" class="btn btn-icon" title="Crop and Process Media" disabled>
         <span class="material-symbols-outlined">crop</span>
@@ -694,7 +728,8 @@
 
     <main id="crop-area" class="crop-container" title="Drag to Pan, Scroll/Pinch to Zoom">
       <img id="img-source" decoding="async">
-      <video id="video-source" playsinline muted></video>
+      <video id="video-source" playsinline></video>
+      <audio id="audio-source"></audio>
       <div id="crop-mask" class="crop-mask"></div>
     </main>
 
@@ -714,21 +749,34 @@
       <div class="control-group video-params-row">
         <div class="control-group">
           <span class="text-label" title="Start Time (s)">Start(s)</span>
-          <input type="number" id="input-start" class="input-time" min="0" step="0.001" value="0">
+          <input type="number" id="input-start" class="input-time" min="0" step="0.001" value="0.000">
         </div>
         <div class="control-group">
           <span class="text-label" title="Duration (s)">Duration(s)</span>
-          <input type="number" id="input-duration" class="input-time" min="0.001" step="0.001" value="3.000">
+          <input type="number" id="input-duration" class="input-time" min="0.000" step="0.001" value="0.000">
         </div>
-        <div class="control-group">
+        <div class="control-group hidden-control" id="grp-total">
+          <span class="text-label" title="Total Time (s)">Total(s)</span>
+          <input type="number" id="input-total" class="input-time" min="0.000" step="0.001" value="0.000">
+        </div>
+        <div class="control-group" id="grp-fps">
           <span class="text-label" title="Frames Per Second">FPS</span>
-          <input type="number" id="input-fps" min="1" max="30" step="1" value="3">
+          <input type="number" id="input-fps" min="1" max="15" step="1" value="3">
         </div>
       </div>
     </div>
   </div>
 
-  <footer id="thumbnail-container" class="thumbnail-list"></footer>
+  <footer class="thumbnail-footer">
+    <button id="btn-import" class="btn btn-icon" title="Import processed JPG or WAV">
+      <span class="material-symbols-outlined">library_add</span>
+    </button>
+    <input type="file" id="input-import" accept=".jpg,.jpeg,.wav" hidden>
+    <div id="thumbnail-container" class="thumbnail-list-inner"></div>
+    <button id="btn-audio-thumb" class="btn btn-icon" title="Audio Edit">
+      <span class="material-symbols-outlined">edit_audio</span>
+    </button>
+  </footer>
 
   <div class="status-bar">
     <div class="status-group" title="Battery Level">
@@ -748,16 +796,25 @@
 
 <div id="modal-preview" class="modal-overlay" tabindex="-1">
   <div class="modal-bar top">
-    <div id="modal-filename" class="modal-text primary center" title="File Name"></div>
+    <div id="modal-filename" class="modal-text primary center" title="Frame Info"></div>
     <button id="btn-close" class="btn btn-icon btn-modal right" title="Close Overlay">
       <span class="material-symbols-outlined">close</span>
     </button>
   </div>
 
   <div class="modal-content">
-    <button id="btn-upload" class="btn btn-icon btn-modal" title="Upload to Badge">
-      <span class="material-symbols-outlined">upload</span>
-    </button>
+    <div id="upload-group" class="upload-group">
+      <button id="btn-upload-image" class="btn btn-icon btn-modal" title="Upload Image (JPEG)">
+        <span class="material-symbols-outlined">image</span>
+      </button>
+      <button id="btn-upload-video" class="btn btn-icon btn-modal hidden-control" title="Upload Video (AVI)">
+        <span class="material-symbols-outlined">animated_images</span>
+      </button>
+      <button id="btn-modal-music-cast" class="btn btn-icon btn-modal hidden-control" title="Add/Edit Audio">
+        <span class="material-symbols-outlined">edit_audio</span>
+      </button>
+    </div>
+
     <button id="btn-prev" class="btn btn-icon btn-modal" title="Previous Image">
       <span class="material-symbols-outlined">chevron_left</span>
     </button>
@@ -767,19 +824,25 @@
     <button id="btn-next" class="btn btn-icon btn-modal" title="Next Image">
       <span class="material-symbols-outlined">chevron_right</span>
     </button>
-    <button id="btn-download" class="btn btn-icon btn-modal" title="Download JPEG">
-      <span class="material-symbols-outlined">download</span>
-    </button>
+
+    <div id="download-group" class="download-group">
+      <button id="btn-download" class="btn btn-icon btn-modal" title="Download">
+        <span class="material-symbols-outlined">download</span>
+      </button>
+      <button id="btn-download-zip" class="btn btn-icon btn-modal hidden-control" title="Download ZIP">
+        <span class="material-symbols-outlined">folder_zip</span>
+      </button>
+    </div>
 
     <div id="progress-container" class="progress-container" title="Upload Progress">
       <progress id="progress-bar" max="100" value="0"></progress>
-      <span id="progress-text" class="progress-text">0 / 0</span>
+      <span id="progress-text" class="progress-text">0%</span>
     </div>
   </div>
 
   <div class="modal-bar bottom">
-    <div id="modal-filesize" class="modal-text secondary center" title="File Size"></div>
-    <button id="btn-delete" class="btn btn-icon btn-modal danger right" title="Delete Image">
+    <div id="modal-filesize" class="modal-text secondary center" title="File Info"></div>
+    <button id="btn-delete" class="btn btn-icon btn-modal danger right" title="Delete">
       <span class="material-symbols-outlined">delete</span>
     </button>
   </div>
@@ -791,21 +854,12 @@
     WRITE: '7e400002-b5a3-f393-e0a9-e50e24dcca9d',
     NOTIFY: '7e400003-b5a3-f393-e0a9-e50e24dcca9d'
   };
-
-  const BLE_FRAME = {
-    CMD: 0xCD,
-    ACK: 0xDC
-  };
-
-  const BLE_CMD = {
-    SYSTEM: 0x12,
-    DEVICE: 0x1A,
-    FILE: 0x1F,
-    CTRL: 0x20
-  };
+  const BLE_FRAME = { CMD: 0xCD, ACK: 0xDC };
+  const BLE_CMD = { SYSTEM: 0x12, DEVICE: 0x1A, FILE: 0x1F, CTRL: 0x20 };
 
   const $ = (id) => document.getElementById(id);
   const pad = (num) => String(num).padStart(2, '0');
+  const u32be = (v) => [(v >>> 24) & 0xFF, (v >>> 16) & 0xFF, (v >>> 8) & 0xFF, v & 0xFF];
 
   const elements = {
     tabBadge: $('tab-badge'),
@@ -833,6 +887,7 @@
     cropArea: $('crop-area'),
     imgSource: $('img-source'),
     videoSource: $('video-source'),
+    audioSource: $('audio-source'),
     cropMask: $('crop-mask'),
     videoControls: $('video-controls'),
     btnPlay: $('btn-play'),
@@ -843,8 +898,14 @@
     seekCurrentPos: $('seek-current-pos'),
     inputStart: $('input-start'),
     inputDuration: $('input-duration'),
+    grpTotal: $('grp-total'),
+    inputTotal: $('input-total'),
+    grpFps: $('grp-fps'),
     inputFps: $('input-fps'),
+    btnImport: $('btn-import'),
+    inputImport: $('input-import'),
     thumbnailContainer: $('thumbnail-container'),
+    btnAudioThumb: $('btn-audio-thumb'),
     iconBattery: $('icon-battery'),
     textBattery: $('text-battery'),
     textScreenSize: $('text-screen-size'),
@@ -852,11 +913,15 @@
     modalPreview: $('modal-preview'),
     modalFilename: $('modal-filename'),
     btnClose: $('btn-close'),
-    btnUpload: $('btn-upload'),
+    uploadGroup: $('upload-group'),
+    btnUploadImage: $('btn-upload-image'),
+    btnUploadVideo: $('btn-upload-video'),
+    btnModalMusicCast: $('btn-modal-music-cast'),
     btnPrev: $('btn-prev'),
     imgPreview: $('img-preview'),
     btnNext: $('btn-next'),
     btnDownload: $('btn-download'),
+    btnDownloadZip: $('btn-download-zip'),
     progressContainer: $('progress-container'),
     progressBar: $('progress-bar'),
     progressText: $('progress-text'),
@@ -867,6 +932,10 @@
   const state = {
     isDebug: false,
     isVideo: false,
+    isAudioCrop: false,
+    badgeWidth: 0,
+    badgeHeight: 0,
+    maxBlockSize: 0,
     scale: 1,
     x: 0,
     y: 0,
@@ -878,26 +947,40 @@
     startX: 0,
     startY: 0,
     pinchDist: 0,
+    sourceAudioBuffer: null,
+    tempVideoAudioBuffer: null,
+    activeAudio: null,
     croppedImages: [],
-    previewIndex: -1,
-    badgeWidth: 0,
-    badgeHeight: 0,
-    maxBlockSize: 0
+    previewIndex: -1
   };
 
   let bluetoothBadge = null;
   let charWrite = null;
   let charNotify = null;
-  const pendingRequests = {};
-  let pendingChunkReq = null;
-  let cjpegliPromise = null;
   let rafId = null;
+  let cjpegliPromise = null;
+  let pendingChunkReq = null;
   let modalTouchX = 0;
   let modalTouchY = 0;
+  const pendingRequests = {};
+
+  const decodeAudio = async (buf) => {
+    const ctx = new AudioContext();
+    try {
+      return await ctx.decodeAudioData(buf);
+    } finally {
+      await ctx.close();
+    }
+  };
+
+  const getTimestamp = () => {
+    const d = new Date();
+    const ms = String(d.getMilliseconds()).padStart(3, '0');
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${ms}`;
+  };
 
   const logDebug = (msg) => {
-    if (!state.isDebug) return;
-    console.log(`[${new Date().toISOString()}] ${msg}`);
+    if (state.isDebug) console.log(`[${new Date().toISOString()}] ${msg}`);
   };
 
   const toHex = (buf) => {
@@ -911,43 +994,10 @@
 
   const simulateClick = (id) => {
     const btn = $(id);
-    if (!btn || btn.style.visibility === 'hidden') return;
-
+    if (!btn || btn.disabled || btn.classList.contains('hidden-control') || btn.style.visibility === 'hidden') return;
     btn.classList.add('simulate-active');
     setTimeout(() => btn.classList.remove('simulate-active'), 150);
     btn.click();
-  };
-
-  const switchTab = (isBadge) => {
-    elements.tabBadge.classList.toggle('active', isBadge);
-    elements.tabMedia.classList.toggle('active', !isBadge);
-    elements.panelBadge.classList.toggle('active', isBadge);
-    elements.panelMedia.classList.toggle('active', !isBadge);
-  };
-
-  const updateModal = () => {
-    if (state.previewIndex < 0 || state.previewIndex >= state.croppedImages.length) return;
-
-    const item = state.croppedImages[state.previewIndex];
-    elements.imgPreview.src = item.url;
-    elements.modalFilename.textContent = item.filename;
-    elements.modalFilesize.textContent = `${item.sizeKiB} KiB`;
-    elements.btnPrev.style.visibility = state.previewIndex > 0 ? 'visible' : 'hidden';
-    elements.btnNext.style.visibility = state.previewIndex < state.croppedImages.length - 1 ? 'visible' : 'hidden';
-  };
-
-  const openModal = (index) => {
-    state.previewIndex = index;
-    updateModal();
-    elements.modalPreview.classList.add('active');
-    elements.modalPreview.focus();
-  };
-
-  const setBadgeControlState = (enabled) => {
-    document.querySelectorAll('.btn-badge-cmd').forEach(btn => btn.disabled = !enabled);
-    elements.btnConnectBle.classList.toggle('active-primary', enabled);
-    elements.iconBle.textContent = enabled ? 'bluetooth_connected' : 'bluetooth';
-    elements.infoBadgeHeader.style.display = enabled ? 'flex' : 'none';
   };
 
   const waitForPacket = (prefix, cls, sub, timeoutMs) => new Promise((resolve, reject) => {
@@ -956,7 +1006,6 @@
       delete pendingRequests[key];
       reject(new Error(`${prefix.toUpperCase()} Timeout (${cls.toString(16)} ${sub?.toString(16)})`));
     }, timeoutMs);
-
     pendingRequests[key] = {
       resolve: (data) => {
         clearTimeout(timer);
@@ -983,7 +1032,6 @@
       pendingChunkReq = null;
       reject(new Error(`Chunk Timeout (Expected: ${expectedCode})`));
     }, timeoutMs);
-
     pendingChunkReq = {
       expectedCode,
       resolve: () => {
@@ -1000,13 +1048,9 @@
   });
 
   const buildFrame = (cls, sub, payload = []) => {
-    if (sub === null) {
-      return new Uint8Array([BLE_FRAME.CMD, 0x00, 0x02, cls, 0x01]);
-    }
-
+    if (sub === null) return new Uint8Array([BLE_FRAME.CMD, 0x00, 0x02, cls, 0x01]);
     const len = 5 + payload.length;
     const buf = new Uint8Array(len + 3);
-
     buf[0] = BLE_FRAME.CMD;
     buf[1] = (len >>> 8) & 0xFF;
     buf[2] = len & 0xFF;
@@ -1016,7 +1060,6 @@
     buf[6] = (payload.length >>> 8) & 0xFF;
     buf[7] = payload.length & 0xFF;
     buf.set(payload, 8);
-
     return buf;
   };
 
@@ -1029,8 +1072,7 @@
   };
 
   const sendAck = async (cls, sub, len) => {
-    const frame = new Uint8Array([BLE_FRAME.ACK, 0x00, 0x05, cls, sub, (len >>> 8) & 0xFF, len & 0xFF, 0x01]);
-    await writePacket(frame);
+    await writePacket(new Uint8Array([BLE_FRAME.ACK, 0x00, 0x05, cls, sub, (len >>> 8) & 0xFF, len & 0xFF, 0x01]));
   };
 
   const sendCmd = async (cls, sub, payload = []) => {
@@ -1042,15 +1084,10 @@
   const reqData = async (cls, sub, payload = []) => {
     const pData = waitForData(cls, sub);
     await writePacket(buildFrame(cls, sub, payload));
-
-    if (cls === BLE_CMD.CTRL) {
-      return await pData;
-    }
-
+    if (cls === BLE_CMD.CTRL) return await pData;
     const pAck = waitForAck(cls, sub);
     await Promise.race([pAck, pData]);
     pendingRequests[`ack_${cls}_${sub}`]?.clear();
-
     return await pData;
   };
 
@@ -1058,16 +1095,9 @@
     if (val.length < 8) return;
     const cls = val[3];
     const sub = val[4];
-    const status = val[7];
     const req = pendingRequests[`ack_${cls}_${sub}`];
-
     if (!req) return;
-
-    if (status === 0x01) {
-      req.resolve();
-    } else {
-      req.reject(new Error(`ACK Error: ${status}`));
-    }
+    val[7] === 0x01 ? req.resolve() : req.reject(new Error(`ACK Error: ${val[7]}`));
   };
 
   const handleDataEvent = async (val) => {
@@ -1075,11 +1105,9 @@
     const frameLen = (val[1] << 8) | val[2];
     const payloadLen = (val[6] << 8) | val[7];
     if (frameLen !== payloadLen + 5 || val.length < 8 + payloadLen) return;
-
     const cls = val[3];
     const sub = val[5];
     const payload = val.slice(8, 8 + payloadLen);
-
     await sendAck(cls, sub, frameLen + 3);
     pendingRequests[`data_${cls}_${sub}`]?.resolve(payload);
 
@@ -1090,28 +1118,23 @@
     }
 
     if (cls === BLE_CMD.CTRL && sub === 0x01 && payload.length >= 4 && pendingChunkReq) {
-      const code = ((payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | payload[3]) >>> 0;
-      if (code === pendingChunkReq.expectedCode) {
-        pendingChunkReq.resolve();
-      } else {
-        pendingChunkReq.reject(new Error(`Transfer Rejected: Code ${code}`));
-      }
+      const code = ((payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | (payload[3])) >>> 0;
+      code === pendingChunkReq.expectedCode ? pendingChunkReq.resolve() : pendingChunkReq.reject(new Error(`Transfer Rejected: Code ${code}`));
     }
   };
 
   const onBleNotification = async (e) => {
     const val = new Uint8Array(e.target.value.buffer);
     if (val.length === 0) return;
-    const hex = toHex(val);
-    logDebug(`[RX] ${hex}`);
-    const type = val[0];
-    if (type === BLE_FRAME.ACK) {
-      handleAckEvent(val);
-      return;
-    }
-    if (type === BLE_FRAME.CMD) {
-      await handleDataEvent(val);
-    }
+    logDebug(`[RX] ${toHex(val)}`);
+    val[0] === BLE_FRAME.ACK ? handleAckEvent(val) : await handleDataEvent(val);
+  };
+
+  const setBadgeControlState = (enabled) => {
+    document.querySelectorAll('.btn-badge-cmd').forEach(btn => btn.disabled = !enabled);
+    elements.btnConnectBle.classList.toggle('active-primary', enabled);
+    elements.iconBle.textContent = enabled ? 'bluetooth_connected' : 'bluetooth';
+    elements.infoBadgeHeader.classList.toggle('hidden-control', !enabled);
   };
 
   const onBadgeDisconnected = () => {
@@ -1119,21 +1142,16 @@
     setBadgeControlState(false);
     charWrite = null;
     charNotify = null;
-
     state.badgeWidth = 0;
     state.badgeHeight = 0;
-
+    state.maxBlockSize = 0;
     elements.textBadgeName.textContent = '';
     elements.textMacAddress.textContent = '';
     elements.iconBattery.textContent = 'battery_full';
     elements.textBattery.textContent = '--%';
     elements.textScreenSize.textContent = '--x--';
     elements.textStorage.textContent = '-- KiB';
-
-    for (const k in pendingRequests) {
-      pendingRequests[k]?.reject(new Error("Badge disconnected"));
-    }
-
+    Object.keys(pendingRequests).forEach(k => pendingRequests[k]?.reject(new Error("Badge disconnected")));
     if (pendingChunkReq) {
       pendingChunkReq.reject(new Error("Badge disconnected"));
       pendingChunkReq = null;
@@ -1153,16 +1171,13 @@
     try {
       const batSvc = await server.getPrimaryService('battery_service');
       const batChar = await batSvc.getCharacteristic('battery_level');
-
       const updateBat = (val) => {
         elements.textBattery.textContent = `${val}%`;
         const step = Math.min(6, Math.floor(val / 15));
         elements.iconBattery.textContent = val >= 95 ? 'battery_full' : `battery_${step}_bar`;
       };
-
       const initialVal = await batChar.readValue();
       updateBat(initialVal.getUint8(0));
-
       await batChar.startNotifications();
       batChar.addEventListener('characteristicvaluechanged', e => updateBat(e.target.value.getUint8(0)));
     } catch (e) {
@@ -1179,100 +1194,53 @@
                    | ((d.getHours() & 0x1F) << 12)
                    | ((d.getMinutes() & 0x3F) << 6)
                    | (d.getSeconds() & 0x3F);
-
-      await sendCmd(BLE_CMD.SYSTEM, 0x01, new Uint8Array([
-        (packed >>> 24) & 0xFF,
-        (packed >>> 16) & 0xFF,
-        (packed >>> 8) & 0xFF,
-        packed & 0xFF
-      ]));
-
+      await sendCmd(BLE_CMD.SYSTEM, 0x01, new Uint8Array(u32be(packed)));
       const mac = await reqData(BLE_CMD.DEVICE, 0x0A);
       if (mac.length >= 6) {
         elements.textMacAddress.textContent = `(${Array.from(mac).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join(':')})`;
       }
-
       const name = await reqData(BLE_CMD.DEVICE, 0x0C);
-      if (name.length >= 1) {
-        elements.textBadgeName.textContent = new TextDecoder().decode(name.slice(1));
-      }
-
+      if (name.length >= 1) elements.textBadgeName.textContent = new TextDecoder().decode(name.slice(1));
       const ctrlDevInfo = await reqData(BLE_CMD.CTRL, 0x02);
       if (ctrlDevInfo.length >= 32 && ctrlDevInfo[0] === 0x01) {
         state.badgeWidth = (ctrlDevInfo[2] << 8) | ctrlDevInfo[3];
         state.badgeHeight = (ctrlDevInfo[4] << 8) | ctrlDevInfo[5];
         elements.textScreenSize.textContent = `${state.badgeWidth}x${state.badgeHeight}`;
         state.maxBlockSize = (ctrlDevInfo[30] << 8) | ctrlDevInfo[31];
-        const p1_len = ctrlDevInfo[6] || 0;
-        const p1 = p1_len ? new TextDecoder().decode(ctrlDevInfo.slice(7, 7 + p1_len)) : "";
-        const p2_start = 7 + p1_len;
-        const p2_len = ctrlDevInfo[p2_start] || 0;
-        const p2 = p2_len ? new TextDecoder().decode(ctrlDevInfo.slice(p2_start + 1, p2_start + 1 + p2_len)) : "";
-        const p3_start = p2_start + 1 + p2_len + 5;
-        const p3_len = ctrlDevInfo[p3_start] || 0;
-        const p3 = p3_len ? new TextDecoder().decode(ctrlDevInfo.slice(p3_start + 1, p3_start + 1 + p3_len)) : "";
-        logDebug(`[Device Info] Screen: ${state.badgeWidth}x${state.badgeHeight}, MaxBlockSize: ${state.maxBlockSize}, Cap: ${p1}, ${p2}, ${p3}`);
       }
-
       await reqData(BLE_CMD.CTRL, 0x04);
-
-      logDebug("Initialization sequence completed.");
     } catch (e) {
       logDebug(`Init Error: ${e.message}`);
     }
   };
 
   const connectAndInitBadge = async () => {
-    logDebug("Requesting BLE badge...");
     bluetoothBadge = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
       optionalServices: [BLE_UUIDS.SERVICE, 'battery_service']
     });
-
-    bluetoothBadge.addEventListener('gattserverdisconnected', onBadgeDisconnected);
-
+    bluetoothBadge.addEventListener('gattserverdisconnected', onBadgeDisconnected, { once: true });
     const server = await bluetoothBadge.gatt.connect();
     const service = await server.getPrimaryService(BLE_UUIDS.SERVICE);
-
     charWrite = await service.getCharacteristic(BLE_UUIDS.WRITE);
     charNotify = await service.getCharacteristic(BLE_UUIDS.NOTIFY);
-
     await charNotify.startNotifications();
     charNotify.addEventListener('characteristicvaluechanged', onBleNotification);
-
     setBadgeControlState(true);
-    logDebug("Connected. Starting initialization...");
-
     await setupSecondaryNotifications(service);
     await setupBatteryService(server);
     await execInitSequence();
   };
 
-  const createChunks = (buf, size) => {
-    const blocks = [];
-    let offset = 0;
-    let bid = 1;
-
-    while (offset < size) {
-      const len = Math.min(size - offset, bid === 1 ? state.maxBlockSize - 4 : state.maxBlockSize);
-      blocks.push(buf.slice(offset, offset + len));
-      offset += len;
-      bid++;
-    }
-
-    return blocks;
-  };
-
-  const initiateFileTransfer = async (size) => {
+  const initiateFileTransfer = async (size, fileType) => {
     const sid = Math.floor(Math.random() * 0xFFFFFFFF);
     const dSize = size + 4;
     const initPayload = new Uint8Array([
-      (sid >>> 24) & 0xFF, (sid >>> 16) & 0xFF, (sid >>> 8) & 0xFF, sid & 0xFF,
-      0x02, 0x08, 0, 0, 0,
-      (dSize >>> 24) & 0xFF, (dSize >>> 16) & 0xFF, (dSize >>> 8) & 0xFF, dSize & 0xFF,
+      ...u32be(sid),
+      fileType, 0x08, 0, 0, 0,
+      ...u32be(dSize),
       0, 0, 0, 0
     ]);
-
     await writePacket(buildFrame(BLE_CMD.FILE, 0x02, initPayload));
     await waitForChunkCtrl(1000);
   };
@@ -1282,138 +1250,201 @@
     const hEnd = isFirst ? 14 : 10;
     const fLen = 5 + (hEnd - 8) + blockData.length + 4;
     const frame = new Uint8Array(fLen + 3);
-
     frame.set([
       BLE_FRAME.CMD,
-      (fLen >>> 8) & 0xFF,
-      fLen & 0xFF,
-      BLE_CMD.FILE,
-      0x01,
-      0x01,
-      ((fLen - 5) >>> 8) & 0xFF,
-      (fLen - 5) & 0xFF,
-      (chunkIndex >>> 8) & 0xFF,
-      chunkIndex & 0xFF
+      (fLen >>> 8) & 0xFF, fLen & 0xFF,
+      BLE_CMD.FILE, 0x01, 0x01,
+      ((fLen - 5) >>> 8) & 0xFF, (fLen - 5) & 0xFF,
+      (chunkIndex >>> 8) & 0xFF, chunkIndex & 0xFF
     ]);
-
-    if (isFirst) {
-      frame.set([(totalSize >>> 24) & 0xFF, (totalSize >>> 16) & 0xFF, (totalSize >>> 8) & 0xFF, totalSize & 0xFF], 10);
-    }
-
+    if (isFirst) frame.set(u32be(totalSize), 10);
     frame.set(blockData, hEnd);
-
     const bCS = calcChecksum8(blockData);
     const newSum = (currentSum + bCS) >>> 0;
     const tVal = (isFirst ? (bCS + cs32 + 1) : (bCS + chunkIndex)) >>> 0;
-    const tIdx = hEnd + blockData.length;
-
-    frame.set([(tVal >>> 24) & 0xFF, (tVal >>> 16) & 0xFF, (tVal >>> 8) & 0xFF, tVal & 0xFF], tIdx);
-
+    frame.set(u32be(tVal), hEnd + blockData.length);
     await writePacket(frame);
     await waitForChunkCtrl(1000 + chunkIndex);
-
     return newSum;
-  };
-
-  const finalizeFileTransfer = async (sum, cs32) => {
-    const vCS = (sum + cs32) >>> 0;
-    await writePacket(buildFrame(BLE_CMD.FILE, 0x03, new Uint8Array([(vCS >>> 24) & 0xFF, (vCS >>> 16) & 0xFF, (vCS >>> 8) & 0xFF, vCS & 0xFF])));
-    await waitForChunkCtrl(0x0002);
   };
 
   const transferFileToBadge = async (blob, onProgress) => {
     const buf = new Uint8Array(await blob.arrayBuffer());
     const size = buf.length;
-    const maxFileSize = state.maxBlockSize * 24 - 4;
-
-    if (size > maxFileSize) {
-      throw new Error("File too large");
+    const blocks = [];
+    let offset = 0;
+    let bid = 1;
+    while (offset < size) {
+      const len = Math.min(size - offset, bid === 1 ? state.maxBlockSize - 4 : state.maxBlockSize);
+      blocks.push(buf.slice(offset, offset + len));
+      offset += len;
+      bid++;
     }
-
-    const blocks = createChunks(buf, size);
-    if (onProgress) {
-      onProgress(0, blocks.length);
-    }
-
-    await initiateFileTransfer(size);
-
+    if (onProgress) onProgress(0, blocks.length);
+    await initiateFileTransfer(size, blob.type === 'video/avi' ? 0x01 : 0x02);
     let sum = 0;
     const cs32 = calcChecksum32(size);
-
     for (let k = 1; k <= blocks.length; k++) {
       sum = await sendFileChunk(k, blocks[k - 1], size, cs32, sum);
-      if (onProgress) {
-        onProgress(k, blocks.length);
+      if (onProgress) onProgress(k, blocks.length);
+    }
+    const vCS = (sum + cs32) >>> 0;
+    await writePacket(buildFrame(BLE_CMD.FILE, 0x03, new Uint8Array(u32be(vCS))));
+    await waitForChunkCtrl(0x0002);
+  };
+
+  const buildAviFile = async (croppedImages, width, height, fps = 3, audioData = null) => {
+    const frames = await Promise.all(croppedImages.map(async (img) => {
+      const buf = new Uint8Array(await img.blob.arrayBuffer());
+      const pad = buf.length % 2 !== 0 ? 1 : 0;
+      return { buf, pad, size: buf.length + pad };
+    }));
+    const interleaved = [];
+    let audioBytesGenerated = 0;
+    const microSecPerFrame = Math.round(1000000 / fps);
+    const dwScale = 1000;
+    const dwRate = Math.max(1, Math.round(fps * dwScale));
+    const audioBytesPerSec = 32000;
+    const totalAudioBytes = audioData ? audioData.length : Math.floor(frames.length * (audioBytesPerSec / fps)) & ~1;
+    for (let v = 0; v < frames.length; v++) {
+      interleaved.push({ type: 'video', frame: frames[v] });
+      const targetAudioBytes = Math.floor(totalAudioBytes * (v + 1) / frames.length) & ~1;
+      while (audioBytesGenerated < targetAudioBytes) {
+        let chunkSize = targetAudioBytes - audioBytesGenerated;
+        if (chunkSize > 684) chunkSize = 684;
+        if (chunkSize % 2 !== 0) chunkSize--;
+        if (chunkSize > 0) {
+          interleaved.push({ type: 'audio', size: chunkSize, buf: audioData ? audioData.slice(audioBytesGenerated, audioBytesGenerated + chunkSize) : null });
+          audioBytesGenerated += chunkSize;
+        }
       }
     }
-
-    await finalizeFileTransfer(sum, cs32);
-  };
-
-  const updateQualityUI = () => {
-    const hasCjpegli = !!window.createCjpegli;
-    elements.grpFilesize.classList.toggle('hidden-control', !hasCjpegli);
-    elements.grpQuality.classList.toggle('hidden-control', hasCjpegli);
-  };
-
-  const initCjpegli = async () => {
-    if (window.createCjpegli) {
-      cjpegliPromise ??= window.createCjpegli();
-      try {
-        return await cjpegliPromise;
-      } catch (e) {
-        console.error(e);
-        throw e;
+    const maxVideoSize = Math.max(...frames.map(f => f.size));
+    const maxAudioSize = 684;
+    const maxBytesPerSec = Math.floor(maxVideoSize * fps) + audioBytesPerSec;
+    const suggestedBufferSize = maxVideoSize + maxAudioSize;
+    const estSize = 15000 + frames.reduce((sum, f) => sum + f.size, 0) + totalAudioBytes + (interleaved.length * 24);
+    const data = new Uint8Array(estSize);
+    const dv = new DataView(data.buffer);
+    let pos = 0;
+    const write4CC = (s) => { for(let i=0; i<4; i++) dv.setUint8(pos++, s.charCodeAt(i)); };
+    const writeU32 = (v) => { dv.setUint32(pos, v, true); pos += 4; };
+    const writeU16 = (v) => { dv.setUint16(pos, v, true); pos += 2; };
+    const writeZeros = (len) => { pos += len; };
+    const writeData = (buf) => { data.set(buf, pos); pos += buf.length; };
+    write4CC('RIFF');
+    const riffSizePos = pos;
+    writeU32(0); write4CC('AVI '); write4CC('LIST');
+    const hdrlSizePos = pos;
+    writeU32(0); write4CC('hdrl'); write4CC('avih');
+    writeU32(56); writeU32(microSecPerFrame); writeU32(maxBytesPerSec);
+    writeU32(0); writeU32(0x0910); writeU32(frames.length); writeU32(0);
+    writeU32(2); writeU32(suggestedBufferSize); writeU32(width); writeU32(height);
+    writeZeros(16); write4CC('LIST');
+    const vStrlSizePos = pos;
+    writeU32(0); write4CC('strl'); write4CC('strh'); writeU32(56);
+    write4CC('vids'); write4CC('MJPG'); writeU32(0); writeU16(0); writeU16(0);
+    writeU32(0); writeU32(dwScale); writeU32(dwRate); writeU32(0); writeU32(frames.length);
+    writeU32(maxVideoSize); writeU32(0xFFFFFFFF); writeU32(0); writeU16(0); writeU16(0);
+    writeU16(width); writeU16(height); write4CC('strf'); writeU32(40);
+    writeU32(40); writeU32(width); writeU32(height); writeU16(1); writeU16(24);
+    write4CC('MJPG'); writeU32(maxVideoSize); writeU32(0); writeU32(0); writeU32(0); writeU32(0);
+    dv.setUint32(vStrlSizePos, pos - vStrlSizePos - 4, true);
+    write4CC('LIST');
+    const aStrlSizePos = pos;
+    writeU32(0); write4CC('strl'); write4CC('strh'); writeU32(56);
+    write4CC('auds'); writeU32(0); writeU32(0); writeU16(0); writeU16(0);
+    writeU32(0); writeU32(1); writeU32(16000); writeU32(0); writeU32(totalAudioBytes / 2);
+    writeU32(maxAudioSize); writeU32(0xFFFFFFFF); writeU32(2); writeZeros(8);
+    write4CC('strf'); writeU32(18); writeU16(1); writeU16(1); writeU32(16000);
+    writeU32(32000); writeU16(2); writeU16(16); writeU16(0);
+    dv.setUint32(aStrlSizePos, pos - aStrlSizePos - 4, true);
+    dv.setUint32(hdrlSizePos, pos - hdrlSizePos - 4, true);
+    write4CC('LIST');
+    const moviSizePos = pos;
+    writeU32(0);
+    const moviFourccPos = pos;
+    write4CC('movi');
+    const indexEntries = [];
+    for (const item of interleaved) {
+      const chunkOffset = pos - moviFourccPos;
+      if (item.type === 'video') {
+        write4CC('00dc'); writeU32(item.frame.buf.length); writeData(item.frame.buf);
+        if (item.frame.pad) writeZeros(1);
+        indexEntries.push({ id: '00dc', flags: 0x10, offset: chunkOffset, size: item.frame.buf.length });
+      } else {
+        write4CC('01wb'); writeU32(item.size);
+        item.buf ? writeData(item.buf) : writeZeros(item.size);
+        indexEntries.push({ id: '01wb', flags: 0x10, offset: chunkOffset, size: item.size });
       }
     }
-    return null;
+    dv.setUint32(moviSizePos, pos - moviSizePos - 4, true);
+    write4CC('idx1'); writeU32(indexEntries.length * 16);
+    for (const entry of indexEntries) {
+      write4CC(entry.id); writeU32(entry.flags); writeU32(entry.offset); writeU32(entry.size);
+    }
+    dv.setUint32(riffSizePos, pos - 8, true);
+    return new Blob([data.slice(0, pos)], { type: 'video/avi' });
   };
 
-  const renderSourceMedia = () => {
-    if (rafId) return;
-
-    rafId = requestAnimationFrame(() => {
-      const el = state.isVideo ? elements.videoSource : elements.imgSource;
-      el.style.transform = `translate(-50%, -50%) translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale})`;
-      rafId = null;
+  const createZip = (files) => {
+    let cdSize = 0, lfSize = 0;
+    const crcTable = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      crcTable[i] = c;
+    }
+    const encoder = new TextEncoder();
+    const filesData = files.map(f => {
+      const nameBuf = encoder.encode(f.name);
+      const crc = ~f.data.reduce((c, b) => crcTable[(c ^ b) & 0xff] ^ (c >>> 8), ~0);
+      lfSize += 30 + nameBuf.length + f.data.length;
+      cdSize += 46 + nameBuf.length;
+      return { ...f, nameBuf, crc };
     });
-  };
-
-  const renderThumbs = () => {
-    elements.thumbnailContainer.innerHTML = '';
-
-    state.croppedImages.forEach((img, i) => {
-      const el = document.createElement('img');
-      el.src = img.url;
-      el.className = 'thumbnail-item';
-      el.draggable = false;
-      el.title = 'Preview';
-      el.addEventListener('click', () => openModal(i));
-      elements.thumbnailContainer.appendChild(el);
-    });
-
-    elements.thumbnailContainer.scrollLeft = elements.thumbnailContainer.scrollWidth;
+    const out = new Uint8Array(lfSize + cdSize + 22);
+    const dv = new DataView(out.buffer);
+    let p = 0;
+    for (const f of filesData) {
+      f.offset = p;
+      dv.setUint32(p, 0x04034b50, true); dv.setUint16(p + 4, 10, true);
+      dv.setUint16(p + 8, 0, true); dv.setUint32(p + 14, f.crc, true);
+      dv.setUint32(p + 18, f.data.length, true); dv.setUint32(p + 22, f.data.length, true);
+      dv.setUint16(p + 26, f.nameBuf.length, true);
+      out.set(f.nameBuf, p + 30); out.set(f.data, p + 30 + f.nameBuf.length);
+      p += 30 + f.nameBuf.length + f.data.length;
+    }
+    const cdStart = p;
+    for (const f of filesData) {
+      dv.setUint32(p, 0x02014b50, true); dv.setUint16(p + 4, 10, true);
+      dv.setUint16(p + 6, 10, true); dv.setUint32(p + 16, f.crc, true);
+      dv.setUint32(p + 20, f.data.length, true); dv.setUint32(p + 24, f.data.length, true);
+      dv.setUint16(p + 28, f.nameBuf.length, true); dv.setUint32(p + 42, f.offset, true);
+      out.set(f.nameBuf, p + 46);
+      p += 46 + f.nameBuf.length;
+    }
+    dv.setUint32(p, 0x06054b50, true); dv.setUint16(p + 8, files.length, true);
+    dv.setUint16(p + 10, files.length, true); dv.setUint32(p + 12, cdSize, true);
+    dv.setUint32(p + 16, cdStart, true);
+    return new Blob([out], { type: 'application/zip' });
   };
 
   const drawToCanvas = async (source, res) => {
     const bmp = await createImageBitmap(source);
-
     try {
       const cvs = new OffscreenCanvas(res, res);
       const ctx = cvs.getContext('2d', { willReadFrequently: true });
       ctx.imageSmoothingQuality = 'high';
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, res, res);
-
       ctx.beginPath();
       ctx.arc(res / 2, res / 2, (res + 16) / 2, 0, Math.PI * 2);
       ctx.clip();
-
       const dSize = res + 16;
       const sArea = dSize / state.scale;
       const sx = (bmp.width / 2) - (state.x / state.scale) - sArea / 2;
       const sy = (bmp.height / 2) - (state.y / state.scale) - sArea / 2;
-
       ctx.drawImage(bmp, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
       return { cvs, ctx };
     } finally {
@@ -1421,110 +1452,291 @@
     }
   };
 
-  const convertToJpegBlob = async (mod, pam, tSize) => {
-    mod.FS.writeFile('in.pam', pam);
-    let jpg = null;
-
-    try {
-      mod.callMain(['in.pam', 'out.jpg', '-p', '0', '--target_size', tSize, '--std_quant']);
-      jpg = mod.FS.readFile('out.jpg');
-    } catch(e) {
-      console.error(e);
-    } finally {
-      try {
-        mod.FS.unlink('in.pam');
-        mod.FS.unlink('out.jpg');
-      } catch(e) {}
-    }
-
-    return jpg ? new Blob([jpg], { type: 'image/jpeg' }) : null;
-  };
-
   const generatePamImageAsync = async (source, res) => {
     const { ctx } = await drawToCanvas(source, res);
     const imgData = ctx.getImageData(0, 0, res, res);
     const hdr = new TextEncoder().encode(`P7\nWIDTH ${res}\nHEIGHT ${res}\nDEPTH 3\nMAXVAL 255\nTUPLTYPE RGB\nENDHDR\n`);
     const pam = new Uint8Array(hdr.length + res * res * 3);
-
     pam.set(hdr);
     let p = hdr.length;
-
     for (let i = 0; i < imgData.data.length; i += 4) {
-      pam[p++] = imgData.data[i];
-      pam[p++] = imgData.data[i+1];
-      pam[p++] = imgData.data[i+2];
+      pam[p++] = imgData.data[i]; pam[p++] = imgData.data[i+1]; pam[p++] = imgData.data[i+2];
     }
-
     return pam;
   };
 
-  const generateNativeJpegBlob = async (source, res, quality) => {
+  const processFrameCjpegli = async (mod, source, res, targetSizeKb) => {
+    const pam = await generatePamImageAsync(source, res);
+    mod.FS.writeFile('in.pam', pam);
+    let jpg = null;
+    try {
+      mod.callMain(['in.pam', 'out.jpg', '-p', '0', '--target_size', Math.round(Math.max(1, targetSizeKb) * 1024).toString(), '--std_quant']);
+      jpg = mod.FS.readFile('out.jpg');
+    } catch (e) {
+      logDebug(`cjpegli Process Error: ${e.message}`);
+    } finally {
+      try { mod.FS.unlink('in.pam'); mod.FS.unlink('out.jpg'); } catch (e) {}
+    }
+    return jpg ? new Blob([jpg], { type: 'image/jpeg' }) : null;
+  };
+
+  const initCjpegli = async () => {
+    if (!window.createCjpegli) return null;
+    try {
+      cjpegliPromise ??= window.createCjpegli();
+      return await cjpegliPromise;
+    } catch (e) {
+      logDebug(`cjpegli Init Error: ${e.message}`);
+      cjpegliPromise = null;
+      return null;
+    }
+  };
+
+  const processSingleFrame = async (source, res, targetSize, quality) => {
+    const mod = await initCjpegli();
+    if (mod) return await processFrameCjpegli(mod, source, res, targetSize);
     const { cvs } = await drawToCanvas(source, res);
     return await cvs.convertToBlob({ type: 'image/jpeg', quality });
   };
 
-  const processFrameCjpegli = async (mod, source, res, targetSizeKb) => {
-    const tSize = Math.round(Math.max(1, targetSizeKb) * 1024).toString();
-    const pam = await generatePamImageAsync(source, res);
-    return await convertToJpegBlob(mod, pam, tSize);
+  const createPcmWav = async (audioBuffer, startOffset = 0, duration = null, totalDuration = null) => {
+    const dur = duration ?? audioBuffer.duration;
+    const tot = totalDuration ?? dur;
+    const offCtx = new OfflineAudioContext(1, Math.max(1, Math.ceil(tot * 16000)), 16000);
+    if (dur > 0 && audioBuffer) {
+      const src = offCtx.createBufferSource();
+      src.buffer = audioBuffer;
+      src.connect(offCtx.destination);
+      src.start(0, startOffset, dur);
+    }
+    const rbuf = await offCtx.startRendering();
+    const ch = rbuf.getChannelData(0);
+    const pcm = new Int16Array(ch.length);
+    for (let j = 0; j < ch.length; j++) {
+      let s = Math.max(-1, Math.min(1, ch[j]));
+      pcm[j] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    const pcmData = new Uint8Array(pcm.buffer);
+    const wav = new ArrayBuffer(44);
+    const dv = new DataView(wav);
+    const ws = (p, s) => { for(let i=0; i<s.length; i++) dv.setUint8(p+i, s.charCodeAt(i)); };
+    ws(0, 'RIFF'); dv.setUint32(4, 36 + pcmData.length, true);
+    ws(8, 'WAVE'); ws(12, 'fmt '); dv.setUint32(16, 16, true);
+    dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+    dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true);
+    dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+    ws(36, 'data'); dv.setUint32(40, pcmData.length, true);
+    return { pcmData, blob: new Blob([wav, pcmData], { type: 'audio/wav' }), rbuf };
+  };
+
+  const getMedia = () => state.isAudioCrop ? elements.audioSource : elements.videoSource;
+
+  const pauseMedia = () => {
+    elements.videoSource.pause();
+    elements.audioSource.pause();
+  };
+
+  const revokeMediaUrl = (el) => {
+    if (el.src.startsWith('blob:') && el.src !== state.activeAudio?.url) {
+      URL.revokeObjectURL(el.src);
+    }
+    el.removeAttribute('src');
+  };
+
+  const switchTab = (isMedia) => {
+    pauseMedia();
+    elements.tabBadge.classList.toggle('active', !isMedia);
+    elements.tabMedia.classList.toggle('active', isMedia);
+    elements.panelBadge.classList.toggle('active', !isMedia);
+    elements.panelMedia.classList.toggle('active', isMedia);
+  };
+
+  const updateMediaModeUI = () => {
+    elements.cropMask.classList.toggle('hidden-control', state.isAudioCrop);
+    elements.imgSource.classList.toggle('hidden-control', state.isAudioCrop || state.isVideo);
+    elements.videoSource.classList.toggle('hidden-control', state.isAudioCrop || !state.isVideo);
+    elements.videoControls.classList.toggle('active', state.isAudioCrop || state.isVideo);
+    elements.grpTotal.classList.toggle('hidden-control', !state.isAudioCrop);
+    elements.grpFps.classList.toggle('hidden-control', state.isAudioCrop);
+  };
+
+  const seekVideo = (time) => new Promise(resolve => {
+    if (elements.videoSource.currentTime === time) return resolve();
+    const timer = setTimeout(resolve, 500);
+    elements.videoSource.addEventListener('seeked', () => {
+      clearTimeout(timer);
+      resolve();
+    }, { once: true });
+    elements.videoSource.currentTime = time;
+  });
+
+  const updateRangeUI = (syncTotal = true) => {
+    if (!(state.isVideo || state.isAudioCrop)) return;
+    const dur = getMedia().duration || 0;
+    let st = parseFloat(elements.seekStart.value) || 0;
+    let ed = parseFloat(elements.seekEnd.value) || 0;
+    if (st > ed) {
+      document.activeElement === elements.seekStart ? (elements.seekEnd.value = ed = st) : (elements.seekStart.value = st = ed);
+    }
+    const len = ed - st;
+    elements.seekHighlight.style.insetInlineStart = `${dur > 0 ? (st / dur) * 100 : 0}%`;
+    elements.seekHighlight.style.inlineSize = `${dur > 0 ? (len / dur) * 100 : 0}%`;
+    elements.inputStart.value = st.toFixed(3);
+    elements.inputDuration.value = len.toFixed(3);
+    if (syncTotal) elements.inputTotal.value = len.toFixed(3);
+  };
+
+  const initTimelineUI = (dur) => {
+    elements.seekStart.max = elements.seekEnd.max = dur;
+    elements.seekStart.value = 0;
+    elements.seekEnd.value = dur;
+    elements.seekCurrentPos.style.insetInlineStart = '0%';
+    updateRangeUI(true);
+  };
+
+  const renderSourceMedia = () => {
+    if (rafId || state.isAudioCrop) return;
+    rafId = requestAnimationFrame(() => {
+      const el = state.isVideo ? elements.videoSource : elements.imgSource;
+      el.style.transform = `translate(-50%, -50%) translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale})`;
+      rafId = null;
+    });
+  };
+
+  const openModal = (index) => {
+    state.previewIndex = index;
+    const fileCount = state.croppedImages.length;
+    if (state.previewIndex < 0 || state.previewIndex >= fileCount) return;
+    elements.btnDownloadZip.classList.toggle('hidden-control', !(fileCount > 1 || state.activeAudio));
+    const item = state.croppedImages[state.previewIndex];
+    elements.imgPreview.src = item.url;
+    elements.modalFilename.textContent = `${state.previewIndex + 1} / ${fileCount}`;
+    const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
+    let bottomText = `${item.filename}\nImage ${item.res}x${item.res} ${(item.size/1024).toFixed(1)} KiB`;
+    if (audioLen > 0) {
+      const calcFps = (fileCount / audioLen).toFixed(1);
+      const overhead = 15000 + (fileCount * 24) + (Math.ceil(state.activeAudio.pcmData.length / 684) * 24);
+      const estSize = ((state.croppedImages.reduce((s, img) => s + img.blob.size, 0) + state.activeAudio.pcmData.length + overhead) / 1024).toFixed(1);
+      bottomText += `\nAudio ${audioLen.toFixed(1)}s | AVI ${estSize} KiB ${calcFps}fps`;
+    }
+    elements.modalFilesize.textContent = bottomText;
+    elements.btnPrev.style.visibility = state.previewIndex > 0 ? 'visible' : 'hidden';
+    elements.btnNext.style.visibility = state.previewIndex < fileCount - 1 ? 'visible' : 'hidden';
+    const canVideo = audioLen > 0 && fileCount > 0;
+    elements.btnUploadVideo.classList.toggle('hidden-control', !canVideo);
+    elements.btnModalMusicCast.classList.toggle('hidden-control', canVideo);
+    elements.modalPreview.classList.add('active');
+    elements.modalPreview.focus();
+  };
+
+  const renderThumbs = () => {
+    elements.thumbnailContainer.innerHTML = '';
+    state.croppedImages.forEach((img, i) => {
+      const el = document.createElement('img');
+      el.src = img.url; el.className = 'thumbnail-item'; el.draggable = false; el.title = 'Preview';
+      el.addEventListener('click', () => openModal(i));
+      elements.thumbnailContainer.appendChild(el);
+    });
+    elements.btnAudioThumb.classList.toggle('active', !!state.activeAudio);
+    elements.thumbnailContainer.scrollLeft = elements.thumbnailContainer.scrollWidth;
+  };
+
+  const clearActiveAudio = () => {
+    pauseMedia();
+    revokeMediaUrl(elements.audioSource);
+    if (state.activeAudio) {
+      URL.revokeObjectURL(state.activeAudio.url);
+      state.activeAudio = null;
+    }
+  };
+
+  const setActiveAudio = (pcmData, blob, buffer, prefix = 'audio') => {
+    clearActiveAudio();
+    blob.name = `${prefix}_${getTimestamp()}.wav`;
+    state.sourceAudioBuffer = buffer;
+    state.activeAudio = { pcmData, blob, buffer, url: URL.createObjectURL(blob) };
+    elements.audioSource.src = state.activeAudio.url;
   };
 
   const addCroppedImage = (blob, res) => {
-    const d = new Date();
-    const ms = String(d.getMilliseconds()).padStart(3, '0');
-    const ts = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${ms}`;
-
-    state.croppedImages.push({
-      url: URL.createObjectURL(blob),
-      blob,
-      filename: `badge_${ts}.jpg`,
-      sizeKiB: (blob.size/1024).toFixed(1),
-      res
-    });
-
+    const filename = `badge_${getTimestamp()}.jpg`;
+    state.croppedImages.push({ url: URL.createObjectURL(blob), blob, filename, size: blob.size, res });
     renderThumbs();
   };
 
-  const updateRangeUI = () => {
-    if (!state.isVideo || !elements.videoSource.duration) return;
+  const loadMediaFile = (file) => {
+    pauseMedia();
+    elements.btnProcess.disabled = true;
+    elements.imgSource.classList.remove('loaded');
+    elements.videoSource.classList.remove('loaded');
+    revokeMediaUrl(elements.imgSource);
+    revokeMediaUrl(elements.videoSource);
+    revokeMediaUrl(elements.audioSource);
+    state.tempVideoAudioBuffer = null;
+    state.isAudioCrop = file.type.startsWith('audio/');
+    state.isVideo = file.type.startsWith('video/');
+    state.scale = state.initialScale = 1;
+    state.x = state.y = state.initialX = state.initialY = state.startX = state.startY = state.pinchDist = 0;
+    state.pointers.clear();
+    state.isPanning = false;
+    updateMediaModeUI();
 
-    const dur = elements.videoSource.duration;
-    let st = parseFloat(elements.seekStart.value);
-    let ed = parseFloat(elements.seekEnd.value);
+    const url = URL.createObjectURL(file);
 
-    if (st > ed) {
-      if (document.activeElement === elements.seekStart) {
-        elements.seekEnd.value = st;
-        ed = st;
-      } else {
-        elements.seekStart.value = ed;
-        st = ed;
-      }
+    if (state.isAudioCrop) {
+      file.arrayBuffer().then(decodeAudio).then(ab => {
+        state.sourceAudioBuffer = ab;
+        elements.audioSource.src = url;
+        elements.btnProcess.disabled = false;
+      }).catch(e => {
+        URL.revokeObjectURL(url);
+        logDebug(`Audio Decode Error: ${e.message}`);
+      });
+      return;
     }
 
-    const startPct = (st / dur) * 100;
-    const endPct = (ed / dur) * 100;
+    elements.videoSource.muted = false;
 
-    elements.seekHighlight.style.insetInlineStart = `${startPct}%`;
-    elements.seekHighlight.style.inlineSize = `${endPct - startPct}%`;
-    elements.inputStart.value = st.toFixed(3);
-    elements.inputDuration.value = (ed - st).toFixed(3);
+    if (state.isVideo) {
+      file.arrayBuffer().then(decodeAudio).then(ab => {
+        state.tempVideoAudioBuffer = ab;
+        state.sourceAudioBuffer = ab;
+      }).catch(e => logDebug(`Video Audio Decode Error: ${e.message}`));
+      elements.videoSource.src = url;
+      elements.videoSource.onloadedmetadata = async () => {
+        const res = parseInt(elements.selResolution.value, 10);
+        state.scale = Math.min(1, res / Math.min(elements.videoSource.videoWidth, elements.videoSource.videoHeight));
+        state.x = state.y = 0;
+        elements.videoSource.currentTime = 0;
+        initTimelineUI(elements.videoSource.duration);
+        renderSourceMedia();
+        elements.videoSource.classList.add('loaded');
+        await initCjpegli();
+        elements.btnProcess.disabled = false;
+      };
+    } else {
+      elements.imgSource.src = url;
+      elements.imgSource.onload = async () => {
+        const res = parseInt(elements.selResolution.value, 10);
+        state.scale = Math.min(1, res / Math.min(elements.imgSource.naturalWidth || res, elements.imgSource.naturalHeight || res));
+        state.x = state.y = 0;
+        renderSourceMedia();
+        elements.imgSource.classList.add('loaded');
+        await initCjpegli();
+        elements.btnProcess.disabled = false;
+      };
+    }
   };
 
   const handlePointerDown = (e) => {
-    if (elements.btnProcess.disabled) return;
-
+    if (elements.btnProcess.disabled || state.isAudioCrop) return;
     e.preventDefault();
     document.activeElement?.blur();
     elements.cropArea.setPointerCapture(e.pointerId);
     state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
     if (state.pointers.size === 1) {
-      state.isPanning = true;
-      state.startX = e.clientX;
-      state.startY = e.clientY;
-      state.initialX = state.x;
-      state.initialY = state.y;
+      state.isPanning = true; state.startX = e.clientX; state.startY = e.clientY;
+      state.initialX = state.x; state.initialY = state.y;
     } else if (state.pointers.size === 2) {
       state.isPanning = false;
       const pts = Array.from(state.pointers.values());
@@ -1534,33 +1746,26 @@
   };
 
   const handlePointerMove = (e) => {
-    if (!state.pointers.has(e.pointerId)) return;
-
+    if (!state.pointers.has(e.pointerId) || state.isAudioCrop) return;
     state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const pts = Array.from(state.pointers.values());
-
     if (pts.length === 1 && state.isPanning) {
       state.x = state.initialX + (e.clientX - state.startX);
       state.y = state.initialY + (e.clientY - state.startY);
       renderSourceMedia();
     } else if (pts.length === 2 && state.pinchDist > 0) {
       const r = (state.initialScale * (Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) / state.pinchDist)) / state.scale;
-      state.scale *= r;
-      state.x *= r;
-      state.y *= r;
+      state.scale *= r; state.x *= r; state.y *= r;
       renderSourceMedia();
     }
   };
 
   const handlePointerUp = (e) => {
     state.pointers.delete(e.pointerId);
-
     if (state.pointers.size === 1) {
       const pt = Array.from(state.pointers.values())[0];
-      state.startX = pt.x;
-      state.startY = pt.y;
-      state.initialX = state.x;
-      state.initialY = state.y;
+      state.startX = pt.x; state.startY = pt.y;
+      state.initialX = state.x; state.initialY = state.y;
       state.isPanning = true;
     } else {
       state.isPanning = false;
@@ -1569,350 +1774,211 @@
 
   const handleKeydown = (e) => {
     if (elements.modalPreview.classList.contains('active')) {
-      const acts = {
-        Escape: 'btn-close',
-        Esc: 'btn-close',
-        Delete: 'btn-delete',
-        Backspace: 'btn-delete',
-        ArrowLeft: 'btn-prev',
-        ArrowRight: 'btn-next',
-        ArrowUp: 'btn-upload',
-        ArrowDown: 'btn-download'
-      };
-
-      if (acts[e.key]) {
-        simulateClick(acts[e.key]);
-        e.preventDefault();
-      }
+      const acts = { Escape: 'btn-close', Delete: 'btn-delete', Backspace: 'btn-delete', ArrowLeft: 'btn-prev', ArrowRight: 'btn-next', ArrowDown: 'btn-download' };
+      let targetId = acts[e.key];
+      if (e.key === 'ArrowUp') targetId = (e.shiftKey && state.activeAudio && state.croppedImages.length > 0) ? 'btn-upload-video' : 'btn-upload-image';
+      if (targetId) { simulateClick(targetId); e.preventDefault(); }
       return;
     }
-
-    if (elements.btnProcess.disabled || ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) return;
-
+    if (!elements.panelMedia.classList.contains('active') || elements.btnProcess.disabled || state.isAudioCrop || ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) return;
     const acts = {
-      ArrowUp: () => {
-        state.y -= 20;
-      },
-      ArrowDown: () => {
-        state.y += 20;
-      },
-      ArrowLeft: () => {
-        state.x -= 20;
-      },
-      ArrowRight: () => {
-        state.x += 20;
-      },
-      PageUp: () => {
-        state.scale *= 1.1;
-        state.x *= 1.1;
-        state.y *= 1.1;
-      },
-      PageDown: () => {
-        state.scale /= 1.1;
-        state.x /= 1.1;
-        state.y /= 1.1;
-      }
+      ArrowUp: () => state.y -= 20, ArrowDown: () => state.y += 20,
+      ArrowLeft: () => state.x -= 20, ArrowRight: () => state.x += 20,
+      PageUp: () => { state.scale *= 1.1; state.x *= 1.1; state.y *= 1.1; },
+      PageDown: () => { state.scale /= 1.1; state.x /= 1.1; state.y /= 1.1; }
     };
+    if (acts[e.key]) { acts[e.key](); e.preventDefault(); renderSourceMedia(); }
+  };
 
-    if (acts[e.key]) {
-      acts[e.key]();
-      e.preventDefault();
-      renderSourceMedia();
+  const executeUpload = async (blobToUpload) => {
+    const btns = document.querySelectorAll('.btn-modal');
+    btns.forEach(b => b.disabled = true);
+    elements.progressContainer.classList.add('active');
+    elements.progressBar.value = 0;
+    elements.progressText.textContent = `0%`;
+    try {
+      await transferFileToBadge(blobToUpload, (curr, tot) => {
+        const pct = Math.round((curr / tot) * 100);
+        elements.progressBar.value = pct;
+        elements.progressText.textContent = `${pct}%`;
+      });
+      await reqData(BLE_CMD.CTRL, 0x04);
+    } catch (e) {
+      logDebug(`Upload Error: ${e.message}`);
+    } finally {
+      btns.forEach(b => b.disabled = false);
+      setTimeout(() => elements.progressContainer.classList.remove('active'), 500);
     }
   };
 
   const initApp = () => {
+    const syncPlayIcon = (e) => elements.iconPlay.textContent = e.type === 'play' ? 'pause' : 'play_arrow';
+    elements.videoSource.addEventListener('play', syncPlayIcon);
+    elements.videoSource.addEventListener('pause', syncPlayIcon);
+    elements.audioSource.addEventListener('play', syncPlayIcon);
+    elements.audioSource.addEventListener('pause', syncPlayIcon);
+
     document.addEventListener('keydown', handleKeydown);
-    elements.tabBadge.addEventListener('click', () => switchTab(true));
-    elements.tabMedia.addEventListener('click', () => switchTab(false));
+    elements.tabBadge.addEventListener('click', () => switchTab(false));
+    elements.tabMedia.addEventListener('click', () => switchTab(true));
 
     elements.btnConnectBle.addEventListener('click', async () => {
-      if (bluetoothBadge?.gatt.connected) {
-        bluetoothBadge.gatt.disconnect();
-        return;
-      }
-      try {
-        await connectAndInitBadge();
-      } catch (e) {
-        logDebug(`Connection Error: ${e.message}`);
-      }
+      if (bluetoothBadge?.gatt.connected) return bluetoothBadge.gatt.disconnect();
+      try { await connectAndInitBadge(); } catch (e) { logDebug(`BLE Connect Error: ${e.message}`); }
     });
-
-    elements.btnDebug.addEventListener('click', () => {
-      state.isDebug = !state.isDebug;
-      elements.btnDebug.classList.toggle('active-primary', state.isDebug);
-    });
-
-    if (elements.btnSetLang) {
-      elements.btnSetLang.addEventListener('click', async () => {
-        try {
-          await sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]);
-          logDebug("Language applied.");
-        } catch(e) {}
-      });
-    }
-
-    if (elements.btnCall) {
-      elements.btnCall.addEventListener('click', async () => {
-        try {
-          await sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]);
-          logDebug("Call alert sent.");
-        } catch(e) {}
-      });
-    }
-
-    if (elements.btnCheckStorage) {
-      elements.btnCheckStorage.addEventListener('click', async () => {
-        try {
-          await reqData(BLE_CMD.CTRL, 0x04);
-          logDebug("Storage requested.");
-        } catch(e) {}
-      });
-    }
+    elements.btnDebug.addEventListener('click', () => { state.isDebug = !state.isDebug; elements.btnDebug.classList.toggle('active-primary', state.isDebug); });
+    elements.btnSetLang.addEventListener('click', async () => { try { await sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]); } catch (e) { logDebug(`Command Error: ${e.message}`); } });
+    elements.btnCall.addEventListener('click', async () => { try { await sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]); } catch (e) { logDebug(`Command Error: ${e.message}`); } });
+    elements.btnCheckStorage.addEventListener('click', async () => { try { await reqData(BLE_CMD.CTRL, 0x04); } catch (e) { logDebug(`Command Error: ${e.message}`); } });
 
     elements.btnOpenFile.addEventListener('click', () => elements.inputFile.click());
-
     elements.inputFile.addEventListener('change', e => {
       const file = e.target.files[0];
-      if (!file) return;
-
-      if (file.type.includes('svg')) {
-        alert("SVG files are not supported.");
-        e.target.value = '';
-        return;
-      }
-
-      elements.btnProcess.disabled = true;
-      elements.imgSource.classList.remove('loaded');
-      elements.videoSource.classList.remove('loaded');
-
-      if (elements.imgSource.src.startsWith('blob:')) {
-        URL.revokeObjectURL(elements.imgSource.src);
-        elements.imgSource.removeAttribute('src');
-      }
-      if (elements.videoSource.src.startsWith('blob:')) {
-        URL.revokeObjectURL(elements.videoSource.src);
-        elements.videoSource.removeAttribute('src');
-      }
-
-      state.isVideo = file.type.startsWith('video/');
-      state.scale = 1;
-      state.x = 0;
-      state.y = 0;
-      state.initialScale = 1;
-      state.initialX = 0;
-      state.initialY = 0;
-      state.pointers.clear();
-      state.isPanning = false;
-      state.startX = 0;
-      state.startY = 0;
-      state.pinchDist = 0;
-
-      const url = URL.createObjectURL(file);
-
-      elements.imgSource.style.display = state.isVideo ? 'none' : 'block';
-      elements.videoSource.style.display = state.isVideo ? 'block' : 'none';
-      elements.videoControls.classList.toggle('active', state.isVideo);
-
-      if (state.isVideo) {
-        elements.videoSource.src = url;
-        elements.videoSource.onloadedmetadata = async () => {
-          const res = parseInt(elements.selResolution.value, 10);
-          state.scale = Math.min(1, res / Math.min(elements.videoSource.videoWidth, elements.videoSource.videoHeight));
-          state.x = 0;
-          state.y = 0;
-
-          const dur = elements.videoSource.duration;
-
-          elements.videoSource.currentTime = 0;
-          elements.iconPlay.textContent = 'play_arrow';
-          elements.seekStart.max = dur;
-          elements.seekStart.value = 0;
-          elements.seekEnd.max = dur;
-          elements.seekEnd.value = dur;
-          elements.seekCurrentPos.style.insetInlineStart = '0%';
-          elements.inputStart.value = "0.000";
-          elements.inputDuration.value = dur.toFixed(3);
-
-          updateRangeUI();
-          renderSourceMedia();
-
-          elements.videoSource.classList.add('loaded');
-          await initCjpegli();
-          elements.btnProcess.disabled = false;
-        };
-      } else {
-        elements.imgSource.src = url;
-        elements.imgSource.onload = async () => {
-          const res = parseInt(elements.selResolution.value, 10);
-          const nw = elements.imgSource.naturalWidth || res;
-          const nh = elements.imgSource.naturalHeight || res;
-          state.scale = Math.min(1, res / Math.min(nw, nh));
-          state.x = 0;
-          state.y = 0;
-
-          renderSourceMedia();
-          elements.imgSource.classList.add('loaded');
-
-          await initCjpegli();
-          elements.btnProcess.disabled = false;
-        };
-      }
+      if (!file || file.type.includes('svg')) return e.target.value = '';
       e.target.value = '';
+      loadMediaFile(file);
     });
 
     elements.btnProcess.addEventListener('click', async () => {
       if (elements.btnProcess.disabled) return;
-
       elements.btnProcess.disabled = true;
-
       try {
-        const mod = window.createCjpegli ? await initCjpegli() : null;
         const targetSize = parseFloat(elements.inputFilesize.value) || 20;
         const res = parseInt(elements.selResolution.value, 10);
-        const qualityVal = parseInt(elements.inputQuality.value, 10) || 90;
-        const quality = Math.max(1, Math.min(100, qualityVal)) / 100;
+        const quality = Math.max(1, Math.min(100, parseInt(elements.inputQuality.value, 10) || 90)) / 100;
+        const st = parseFloat(elements.inputStart.value) || 0;
+        const dur = parseFloat(elements.inputDuration.value) || 0;
 
-        const processSingleFrame = async (source) => {
-          if (mod) {
-            return await processFrameCjpegli(mod, source, res, targetSize);
+        if (state.isAudioCrop) {
+          const parsedTot = parseFloat(elements.inputTotal.value);
+          const tot = isNaN(parsedTot) ? dur : parsedTot;
+          if (tot <= 0) {
+            clearActiveAudio();
+            state.sourceAudioBuffer = null;
+            initTimelineUI(0);
+            renderThumbs();
           } else {
-            return await generateNativeJpegBlob(source, res, quality);
+            const srcBuf = state.sourceAudioBuffer ?? new AudioBuffer({ length: 16, sampleRate: 16000 });
+            const { pcmData, blob, rbuf } = await createPcmWav(srcBuf, st, dur, tot);
+            setActiveAudio(pcmData, blob, rbuf);
+            renderThumbs();
           }
-        };
-
-        if (state.isVideo) {
+        } else if (state.isVideo) {
+          const fps = Math.min(15, Math.max(1, parseInt(elements.inputFps.value, 10) || 3));
+          const frames = Math.round(dur * fps);
+          if (dur <= 0 || frames <= 0) return;
           const wasPlaying = !elements.videoSource.paused;
           const originalTime = elements.videoSource.currentTime;
           elements.videoSource.pause();
-
-          const st = parseFloat(elements.inputStart.value) || 0;
-          const dur = parseFloat(elements.inputDuration.value) || 3;
-          const rawFps = parseInt(elements.inputFps.value, 10) || 3;
-          const fps = Math.min(30, Math.max(1, rawFps));
-          const frames = Math.floor(dur * fps);
           const step = 1 / fps;
-
-          for (let i = 0; i <= frames; i++) {
-            const t = st + i * step;
-            if (t > elements.videoSource.duration || t > st + dur) break;
-
-            if (elements.videoSource.currentTime !== t) {
-              elements.videoSource.currentTime = t;
-              await new Promise(resolve => {
-                const timer = setTimeout(resolve, 500);
-                const onSeeked = () => {
-                  clearTimeout(timer);
-                  resolve();
-                };
-                elements.videoSource.addEventListener('seeked', onSeeked, { once: true });
-              });
-            }
-
-            const blob = await processSingleFrame(elements.videoSource);
-            if (blob) {
-              addCroppedImage(blob, res);
-            }
+          for (let i = 0; i < frames; i++) {
+            const t = Math.min(elements.videoSource.duration, st + i * step);
+            if (t > st + dur + 1e-6) break;
+            await seekVideo(t);
+            const blob = await processSingleFrame(elements.videoSource, res, targetSize, quality);
+            if (blob) addCroppedImage(blob, res);
           }
-
-          if (elements.videoSource.currentTime !== originalTime) {
-            elements.videoSource.currentTime = originalTime;
-            await new Promise(resolve => {
-              const timer = setTimeout(resolve, 500);
-              const onSeeked = () => {
-                clearTimeout(timer);
-                resolve();
-              };
-              elements.videoSource.addEventListener('seeked', onSeeked, { once: true });
-            });
-          }
-
-          if (wasPlaying) {
-            elements.videoSource.play();
+          await seekVideo(originalTime);
+          if (wasPlaying) elements.videoSource.play();
+          if (state.tempVideoAudioBuffer) {
+            const { pcmData, blob, rbuf } = await createPcmWav(state.tempVideoAudioBuffer, st, dur, dur);
+            setActiveAudio(pcmData, blob, rbuf);
+            renderThumbs();
           }
         } else {
-          const blob = await processSingleFrame(elements.imgSource);
-          if (blob) {
-            addCroppedImage(blob, res);
-          }
+          const blob = await processSingleFrame(elements.imgSource, res, targetSize, quality);
+          if (blob) addCroppedImage(blob, res);
         }
       } finally {
         elements.btnProcess.disabled = false;
       }
     });
 
-    elements.selResolution.addEventListener('change', () => {
-      const s = elements.selResolution.value;
-      elements.cropMask.style.inlineSize = `${s}px`;
-      elements.cropMask.style.blockSize = `${s}px`;
-    });
-
-    elements.cropArea.addEventListener('pointerdown', handlePointerDown);
-    elements.cropArea.addEventListener('pointermove', handlePointerMove);
-
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => {
-      elements.cropArea.addEventListener(ev, handlePointerUp);
-    });
-
-    elements.cropArea.addEventListener('wheel', e => {
-      if (elements.btnProcess.disabled) return;
-
-      e.preventDefault();
-      const f = Math.exp(-e.deltaY * 0.005);
-      state.scale *= f;
-      state.x *= f;
-      state.y *= f;
-
-      renderSourceMedia();
-    }, { passive: false });
-
-    elements.thumbnailContainer.addEventListener('wheel', e => {
-      e.preventDefault();
-      elements.thumbnailContainer.scrollLeft += e.deltaY + e.deltaX;
-    }, { passive: false });
-
-    elements.modalPreview.addEventListener('pointerdown', e => {
-      if (e.pointerType !== 'mouse') {
-        modalTouchX = e.clientX;
-        modalTouchY = e.clientY;
-      }
-    });
-
-    elements.modalPreview.addEventListener('pointerup', e => {
-      if (e.pointerType === 'mouse' || state.previewIndex < 0) return;
-
-      const dx = e.clientX - modalTouchX;
-      const dy = e.clientY - modalTouchY;
-
-      if (Math.abs(dx) > 50 && Math.abs(dy) < 50) {
-        if (dx < 0) {
-          simulateClick('btn-next');
-        } else {
-          simulateClick('btn-prev');
+    elements.btnImport.addEventListener('click', () => elements.inputImport.click());
+    elements.inputImport.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      e.target.value = '';
+      const name = file.name.toLowerCase();
+      if (file.type === 'image/jpeg' || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => { addCroppedImage(file, img.naturalWidth || parseInt(elements.selResolution.value, 10)); URL.revokeObjectURL(url); };
+        img.src = url;
+      } else if (file.type.startsWith('audio/wav') || file.type === 'audio/x-wav' || name.endsWith('.wav')) {
+        try {
+          const ab = await decodeAudio(await file.arrayBuffer());
+          const { pcmData, blob, rbuf } = await createPcmWav(ab, 0, ab.duration, ab.duration);
+          setActiveAudio(pcmData, blob, rbuf);
+          renderThumbs();
+        } catch (err) {
+          logDebug(`WAV Import Error: ${err.message}`);
         }
       }
     });
 
-    elements.btnClose.addEventListener('click', () => {
-      elements.modalPreview.classList.remove('active');
+    elements.btnAudioThumb.addEventListener('click', async () => {
+      pauseMedia();
+      revokeMediaUrl(elements.audioSource);
+      if (!state.activeAudio && state.sourceAudioBuffer) {
+        const { pcmData, blob, rbuf } = await createPcmWav(state.sourceAudioBuffer, 0, state.sourceAudioBuffer.duration, state.sourceAudioBuffer.duration);
+        setActiveAudio(pcmData, blob, rbuf);
+        renderThumbs();
+      }
+      state.isAudioCrop = true;
+      state.isVideo = false;
+      switchTab(true);
+      updateMediaModeUI();
+      if (state.activeAudio?.url) {
+        elements.audioSource.src = state.activeAudio.url;
+      } else {
+        initTimelineUI(0);
+      }
+      elements.btnProcess.disabled = false;
     });
 
-    elements.btnPrev.addEventListener('click', () => {
-      if (state.previewIndex > 0) {
-        openModal(state.previewIndex - 1);
-      }
+    elements.btnModalMusicCast.addEventListener('click', () => { elements.modalPreview.classList.remove('active'); elements.btnAudioThumb.click(); });
+
+    elements.audioSource.addEventListener('loadedmetadata', () => {
+      if (!state.isAudioCrop) return;
+      initTimelineUI(elements.audioSource.duration);
+      elements.btnProcess.disabled = false;
     });
 
-    elements.btnNext.addEventListener('click', () => {
-      if (state.previewIndex < state.croppedImages.length - 1) {
-        openModal(state.previewIndex + 1);
-      }
+    elements.selResolution.addEventListener('change', () => {
+      const s = elements.selResolution.value;
+      elements.cropMask.style.inlineSize = `${s}px`; elements.cropMask.style.blockSize = `${s}px`;
     });
+
+    elements.cropArea.addEventListener('pointerdown', handlePointerDown);
+    elements.cropArea.addEventListener('pointermove', handlePointerMove);
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
+    elements.cropArea.addEventListener('wheel', e => {
+      if (elements.btnProcess.disabled || state.isAudioCrop) return;
+      e.preventDefault();
+      const f = Math.exp(-e.deltaY * 0.005);
+      state.scale *= f; state.x *= f; state.y *= f;
+      renderSourceMedia();
+    }, { passive: false });
+
+    elements.thumbnailContainer.addEventListener('wheel', e => { e.preventDefault(); elements.thumbnailContainer.scrollLeft += e.deltaY + e.deltaX; }, { passive: false });
+
+    elements.modalPreview.addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse') { modalTouchX = e.clientX; modalTouchY = e.clientY; }
+    });
+    elements.modalPreview.addEventListener('pointerup', e => {
+      if (e.pointerType === 'mouse' || state.previewIndex < 0) return;
+      const dx = e.clientX - modalTouchX;
+      if (Math.abs(dx) > 50 && Math.abs(e.clientY - modalTouchY) < 50) simulateClick(dx < 0 ? 'btn-next' : 'btn-prev');
+    });
+
+    elements.btnClose.addEventListener('click', () => elements.modalPreview.classList.remove('active'));
+    elements.btnPrev.addEventListener('click', () => { if (state.previewIndex > 0) openModal(state.previewIndex - 1); });
+    elements.btnNext.addEventListener('click', () => { if (state.previewIndex < state.croppedImages.length - 1) openModal(state.previewIndex + 1); });
 
     elements.btnDelete.addEventListener('click', () => {
       URL.revokeObjectURL(state.croppedImages.splice(state.previewIndex, 1)[0].url);
       renderThumbs();
-
       if (state.croppedImages.length === 0) {
         elements.modalPreview.classList.remove('active');
         state.previewIndex = -1;
@@ -1924,121 +1990,84 @@
     elements.btnDownload.addEventListener('click', () => {
       const a = document.createElement('a');
       const img = state.croppedImages[state.previewIndex];
-      a.href = img.url;
-      a.download = img.filename;
-      a.click();
+      a.href = img.url; a.download = img.filename; a.click();
     });
 
-    elements.btnUpload.addEventListener('click', async () => {
-      if (!charWrite) {
-        logDebug("Error: Bluetooth badge not connected.");
-        elements.modalPreview.classList.remove('active');
-        switchTab(true);
-        return;
-      }
+    elements.btnDownloadZip.addEventListener('click', async () => {
+      const filesToZip = [];
+      for (const img of state.croppedImages) filesToZip.push({ name: img.filename, data: new Uint8Array(await img.blob.arrayBuffer()) });
+      if (state.activeAudio) filesToZip.push({ name: state.activeAudio.blob.name, data: new Uint8Array(await state.activeAudio.blob.arrayBuffer()) });
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(createZip(filesToZip));
+      a.href = url;
+      a.download = `badge_media_${Date.now()}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
 
-      if (!state.badgeWidth || !state.maxBlockSize) {
-        alert("Badge screen size or block size is unknown. Cannot upload.");
-        return;
-      }
-
+    elements.btnUploadImage.addEventListener('click', async () => {
+      if (!charWrite) { elements.modalPreview.classList.remove('active'); return simulateClick('tab-badge'); }
+      if (!state.badgeWidth || !state.maxBlockSize) return alert("Error: Badge screen size or block size is unknown. Cannot upload.");
       const img = state.croppedImages[state.previewIndex];
+      if (img.res !== state.badgeWidth) return alert(`Error: Resolution mismatch in cropped image. Expected ${state.badgeWidth}px.`);
+      if (img.blob.size > 40959) return alert("Error: Image exceeds the maximum size of 40959 bytes.");
+      await executeUpload(img.blob);
+    });
 
-      if (img.res !== state.badgeWidth) {
-        alert(`Image resolution (${img.res}px) does not match the badge screen size (${state.badgeWidth}px). Please crop again with the correct resolution.`);
-        return;
-      }
-
-      const btns = document.querySelectorAll('.btn-modal');
-      btns.forEach(b => b.disabled = true);
-      elements.progressContainer.classList.add('active');
-      elements.progressBar.value = 0;
-      elements.progressText.textContent = `0 / ?`;
+    elements.btnUploadVideo.addEventListener('click', async () => {
+      if (!charWrite) { elements.modalPreview.classList.remove('active'); return simulateClick('tab-badge'); }
+      if (!state.badgeWidth || !state.maxBlockSize) return alert("Error: Badge screen size or block size is unknown. Cannot upload.");
+      if (state.croppedImages.some(img => img.res !== state.badgeWidth)) return alert(`Error: Resolution mismatch in cropped images. Expected ${state.badgeWidth}px.`);
+      if (state.croppedImages.some(img => img.blob.size > 40959)) return alert("Error: One or more frames exceed the maximum size of 40959 bytes.");
 
       try {
-        await transferFileToBadge(img.blob, (curr, tot) => {
-          elements.progressBar.max = tot;
-          elements.progressBar.value = curr;
-          elements.progressText.textContent = `${curr} / ${tot}`;
-        });
-
-        logDebug("Upload complete. Checking free space...");
-        await reqData(BLE_CMD.CTRL, 0x04);
+        const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
+        const fps = Math.max(0.001, audioLen > 0 ? state.croppedImages.length / audioLen : 1);
+        if (fps > 15) return alert(`Error: FPS (${fps.toFixed(1)}) exceeds the maximum limit of 15.`);
+        await executeUpload(await buildAviFile(state.croppedImages, state.badgeWidth, state.badgeHeight, fps, state.activeAudio?.pcmData));
       } catch (e) {
-        logDebug(`Upload Error: ${e.message}`);
-      } finally {
-        btns.forEach(b => b.disabled = false);
-        setTimeout(() => {
-          elements.progressContainer.classList.remove('active');
-        }, 500);
+        alert("Failed to build AVI: " + e.message);
       }
     });
 
-    elements.seekStart.addEventListener('input', () => {
-      updateRangeUI();
-      elements.videoSource.currentTime = parseFloat(elements.seekStart.value);
-    });
-
-    elements.seekEnd.addEventListener('input', () => {
-      updateRangeUI();
-      elements.videoSource.currentTime = parseFloat(elements.seekEnd.value);
-    });
-
+    elements.seekStart.addEventListener('input', () => { updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekStart.value); });
+    elements.seekEnd.addEventListener('input', () => { updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekEnd.value); });
     elements.inputStart.addEventListener('input', () => {
       let st = parseFloat(elements.inputStart.value) || 0;
       const ed = parseFloat(elements.seekEnd.value) || 0;
-
-      if (st > ed) {
-        st = ed;
-      }
-
+      if (st > ed) st = ed;
       elements.seekStart.value = st;
       updateRangeUI();
-      elements.videoSource.currentTime = st;
+      getMedia().currentTime = st;
     });
-
     elements.inputDuration.addEventListener('input', () => {
       const st = parseFloat(elements.seekStart.value) || 0;
       let len = parseFloat(elements.inputDuration.value) || 0;
-      const dur = elements.videoSource.duration || 100;
-
-      if (st + len > dur) {
-        len = dur - st;
-      }
-
+      const dur = getMedia().duration || 0;
+      if (st + len > dur) len = Math.max(0, dur - st);
       elements.seekEnd.value = st + len;
       updateRangeUI();
     });
 
     elements.btnPlay.addEventListener('click', () => {
-      if (elements.videoSource.paused) {
-        elements.videoSource.play();
-        elements.iconPlay.textContent = 'pause';
-      } else {
-        elements.videoSource.pause();
-        elements.iconPlay.textContent = 'play_arrow';
-      }
+      if (state.isAudioCrop && !elements.audioSource.src) return;
+      const m = getMedia();
+      m.paused ? m.play() : m.pause();
     });
 
-    elements.videoSource.addEventListener('timeupdate', () => {
-      if (!state.isVideo || !elements.videoSource.duration) return;
+    const onTimeUpdate = () => {
+      const m = getMedia();
+      if (!(state.isVideo || state.isAudioCrop) || !m.duration) return;
+      if (m.currentTime >= (parseFloat(elements.seekEnd.value) || m.duration) && !m.paused) m.currentTime = parseFloat(elements.seekStart.value) || 0;
+      elements.seekCurrentPos.style.insetInlineStart = `${(m.currentTime / m.duration) * 100}%`;
+    };
+    elements.videoSource.addEventListener('timeupdate', onTimeUpdate);
+    elements.audioSource.addEventListener('timeupdate', onTimeUpdate);
 
-      const dur = elements.videoSource.duration;
-      const curr = elements.videoSource.currentTime;
-      const ed = parseFloat(elements.seekEnd.value) || dur;
-      const st = parseFloat(elements.seekStart.value) || 0;
-
-      if (curr >= ed) {
-        if (!elements.videoSource.paused) {
-          elements.videoSource.currentTime = st;
-        }
-      }
-
-      elements.seekCurrentPos.style.insetInlineStart = `${(curr / dur) * 100}%`;
+    initCjpegli().then(mod => {
+      elements.grpFilesize.classList.toggle('hidden-control', !mod);
+      elements.grpQuality.classList.toggle('hidden-control', !!mod);
     });
-
-    initCjpegli();
-    updateQualityUI();
     elements.selResolution.dispatchEvent(new Event('change'));
   };
 
