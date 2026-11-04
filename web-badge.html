@@ -810,9 +810,10 @@
       <button id="btn-upload-video" class="btn btn-icon btn-modal hidden-control" title="Upload Video (AVI)">
         <span class="material-symbols-outlined">animated_images</span>
       </button>
-      <button id="btn-modal-music-cast" class="btn btn-icon btn-modal hidden-control" title="Add/Edit Audio">
-        <span class="material-symbols-outlined">edit_audio</span>
-      </button>
+      <div id="modal-fps-group" class="control-group hidden-control" style="background: var(--color-surface); padding: 4px 8px; border-radius: 4px; box-shadow: var(--shadow-sm); pointer-events: auto;">
+        <input type="number" id="modal-input-fps" min="1" max="15" step="1" value="3" style="width: 48px;">
+        <span class="text-label" style="margin-left: 2px;">fps</span>
+      </div>
     </div>
 
     <button id="btn-prev" class="btn btn-icon btn-modal" title="Previous Image">
@@ -916,7 +917,8 @@
     uploadGroup: $('upload-group'),
     btnUploadImage: $('btn-upload-image'),
     btnUploadVideo: $('btn-upload-video'),
-    btnModalMusicCast: $('btn-modal-music-cast'),
+    modalFpsGroup: $('modal-fps-group'),
+    modalInputFps: $('modal-input-fps'),
     btnPrev: $('btn-prev'),
     imgPreview: $('img-preview'),
     btnNext: $('btn-next'),
@@ -964,13 +966,13 @@
   let modalTouchY = 0;
   const pendingRequests = {};
 
+  let cachedCanvas = null;
+  let cachedCtx = null;
+  let cachedRes = 0;
+
   const decodeAudio = async (buf) => {
-    const ctx = new AudioContext();
-    try {
-      return await ctx.decodeAudioData(buf);
-    } finally {
-      await ctx.close();
-    }
+    const ctx = new OfflineAudioContext(1, 1, 16000);
+    return await ctx.decodeAudioData(buf);
   };
 
   const getTimestamp = () => {
@@ -1000,8 +1002,16 @@
     btn.click();
   };
 
+  const setUILock = (locked) => {
+    elements.btnOpenFile.disabled = locked;
+    elements.btnImport.disabled = locked;
+    elements.tabBadge.disabled = locked;
+    elements.tabMedia.disabled = locked;
+  };
+
   const waitForPacket = (prefix, cls, sub, timeoutMs) => new Promise((resolve, reject) => {
     const key = `${prefix}_${cls}_${sub}`;
+    if (pendingRequests[key]) pendingRequests[key].reject(new Error('Cancelled'));
     const timer = setTimeout(() => {
       delete pendingRequests[key];
       reject(new Error(`${prefix.toUpperCase()} Timeout (${cls.toString(16)} ${sub?.toString(16)})`));
@@ -1048,7 +1058,6 @@
   });
 
   const buildFrame = (cls, sub, payload = []) => {
-    if (sub === null) return new Uint8Array([BLE_FRAME.CMD, 0x00, 0x02, cls, 0x01]);
     const len = 5 + payload.length;
     const buf = new Uint8Array(len + 3);
     buf[0] = BLE_FRAME.CMD;
@@ -1077,18 +1086,29 @@
 
   const sendCmd = async (cls, sub, payload = []) => {
     const p = waitForAck(cls, sub);
-    await writePacket(buildFrame(cls, sub, payload));
-    await p;
+    try {
+      await writePacket(buildFrame(cls, sub, payload));
+      await p;
+    } catch (e) {
+      pendingRequests[`ack_${cls}_${sub}`]?.clear();
+      throw e;
+    }
   };
 
   const reqData = async (cls, sub, payload = []) => {
     const pData = waitForData(cls, sub);
-    await writePacket(buildFrame(cls, sub, payload));
-    if (cls === BLE_CMD.CTRL) return await pData;
-    const pAck = waitForAck(cls, sub);
-    await Promise.race([pAck, pData]);
-    pendingRequests[`ack_${cls}_${sub}`]?.clear();
-    return await pData;
+    try {
+      await writePacket(buildFrame(cls, sub, payload));
+      if (cls === BLE_CMD.CTRL) return await pData;
+      const pAck = waitForAck(cls, sub);
+      await Promise.race([pAck, pData]);
+      pendingRequests[`ack_${cls}_${sub}`]?.clear();
+      return await pData;
+    } catch (e) {
+      pendingRequests[`data_${cls}_${sub}`]?.clear();
+      pendingRequests[`ack_${cls}_${sub}`]?.clear();
+      throw e;
+    }
   };
 
   const handleAckEvent = (val) => {
@@ -1112,7 +1132,7 @@
     pendingRequests[`data_${cls}_${sub}`]?.resolve(payload);
 
     if (cls === BLE_CMD.CTRL && sub === 0x04 && payload.length >= 8) {
-      const storageBytes = (payload[4] << 24) | (payload[5] << 16) | (payload[6] << 8) | payload[7];
+      const storageBytes = ((payload[4] << 24) | (payload[5] << 16) | (payload[6] << 8) | payload[7]) >>> 0;
       elements.textStorage.textContent = `${(storageBytes / 1024).toFixed(0)} KiB`;
       return;
     }
@@ -1241,8 +1261,9 @@
       ...u32be(dSize),
       0, 0, 0, 0
     ]);
+    const p = waitForChunkCtrl(1000);
     await writePacket(buildFrame(BLE_CMD.FILE, 0x02, initPayload));
-    await waitForChunkCtrl(1000);
+    await p;
   };
 
   const sendFileChunk = async (chunkIndex, blockData, totalSize, cs32, currentSum) => {
@@ -1263,8 +1284,9 @@
     const newSum = (currentSum + bCS) >>> 0;
     const tVal = (isFirst ? (bCS + cs32 + 1) : (bCS + chunkIndex)) >>> 0;
     frame.set(u32be(tVal), hEnd + blockData.length);
+    const pChunk = waitForChunkCtrl(1000 + chunkIndex);
     await writePacket(frame);
-    await waitForChunkCtrl(1000 + chunkIndex);
+    await pChunk;
     return newSum;
   };
 
@@ -1299,29 +1321,36 @@
       const pad = buf.length % 2 !== 0 ? 1 : 0;
       return { buf, pad, size: buf.length + pad };
     }));
+    const hasAudio = audioData && audioData.length > 0;
     const interleaved = [];
     let audioBytesGenerated = 0;
     const microSecPerFrame = Math.round(1000000 / fps);
     const dwScale = 1000;
     const dwRate = Math.max(1, Math.round(fps * dwScale));
     const audioBytesPerSec = 32000;
-    const totalAudioBytes = audioData ? audioData.length : Math.floor(frames.length * (audioBytesPerSec / fps)) & ~1;
+    const totalAudioBytes = hasAudio ? audioData.length : 0;
     for (let v = 0; v < frames.length; v++) {
       interleaved.push({ type: 'video', frame: frames[v] });
-      const targetAudioBytes = Math.floor(totalAudioBytes * (v + 1) / frames.length) & ~1;
-      while (audioBytesGenerated < targetAudioBytes) {
-        let chunkSize = targetAudioBytes - audioBytesGenerated;
-        if (chunkSize > 684) chunkSize = 684;
-        if (chunkSize % 2 !== 0) chunkSize--;
-        if (chunkSize > 0) {
-          interleaved.push({ type: 'audio', size: chunkSize, buf: audioData ? audioData.slice(audioBytesGenerated, audioBytesGenerated + chunkSize) : null });
-          audioBytesGenerated += chunkSize;
+      if (hasAudio) {
+        const targetAudioBytes = Math.floor(totalAudioBytes * (v + 1) / frames.length) & ~1;
+        while (audioBytesGenerated < targetAudioBytes) {
+          let chunkSize = targetAudioBytes - audioBytesGenerated;
+          chunkSize = Math.min(chunkSize, audioData.length - audioBytesGenerated);
+          if (chunkSize <= 0) break;
+          if (chunkSize > 684) chunkSize = 684;
+          if (chunkSize % 2 !== 0) chunkSize--;
+          if (chunkSize > 0) {
+            interleaved.push({ type: 'audio', size: chunkSize, buf: audioData.slice(audioBytesGenerated, audioBytesGenerated + chunkSize) });
+            audioBytesGenerated += chunkSize;
+          } else {
+            break;
+          }
         }
       }
     }
-    const maxVideoSize = Math.max(...frames.map(f => f.size));
-    const maxAudioSize = 684;
-    const maxBytesPerSec = Math.floor(maxVideoSize * fps) + audioBytesPerSec;
+    const maxVideoSize = frames.reduce((max, f) => Math.max(max, f.size), 0);
+    const maxAudioSize = hasAudio ? 684 : 0;
+    const maxBytesPerSec = Math.floor(maxVideoSize * fps) + (hasAudio ? audioBytesPerSec : 0);
     const suggestedBufferSize = maxVideoSize + maxAudioSize;
     const estSize = 15000 + frames.reduce((sum, f) => sum + f.size, 0) + totalAudioBytes + (interleaved.length * 24);
     const data = new Uint8Array(estSize);
@@ -1339,7 +1368,7 @@
     writeU32(0); write4CC('hdrl'); write4CC('avih');
     writeU32(56); writeU32(microSecPerFrame); writeU32(maxBytesPerSec);
     writeU32(0); writeU32(0x0910); writeU32(frames.length); writeU32(0);
-    writeU32(2); writeU32(suggestedBufferSize); writeU32(width); writeU32(height);
+    writeU32(hasAudio ? 2 : 1); writeU32(suggestedBufferSize); writeU32(width); writeU32(height);
     writeZeros(16); write4CC('LIST');
     const vStrlSizePos = pos;
     writeU32(0); write4CC('strl'); write4CC('strh'); writeU32(56);
@@ -1350,15 +1379,17 @@
     writeU32(40); writeU32(width); writeU32(height); writeU16(1); writeU16(24);
     write4CC('MJPG'); writeU32(maxVideoSize); writeU32(0); writeU32(0); writeU32(0); writeU32(0);
     dv.setUint32(vStrlSizePos, pos - vStrlSizePos - 4, true);
-    write4CC('LIST');
-    const aStrlSizePos = pos;
-    writeU32(0); write4CC('strl'); write4CC('strh'); writeU32(56);
-    write4CC('auds'); writeU32(0); writeU32(0); writeU16(0); writeU16(0);
-    writeU32(0); writeU32(1); writeU32(16000); writeU32(0); writeU32(totalAudioBytes / 2);
-    writeU32(maxAudioSize); writeU32(0xFFFFFFFF); writeU32(2); writeZeros(8);
-    write4CC('strf'); writeU32(18); writeU16(1); writeU16(1); writeU32(16000);
-    writeU32(32000); writeU16(2); writeU16(16); writeU16(0);
-    dv.setUint32(aStrlSizePos, pos - aStrlSizePos - 4, true);
+    if (hasAudio) {
+      write4CC('LIST');
+      const aStrlSizePos = pos;
+      writeU32(0); write4CC('strl'); write4CC('strh'); writeU32(56);
+      write4CC('auds'); writeU32(0); writeU32(0); writeU16(0); writeU16(0);
+      writeU32(0); writeU32(1); writeU32(16000); writeU32(0); writeU32(totalAudioBytes / 2);
+      writeU32(maxAudioSize); writeU32(0xFFFFFFFF); writeU32(2); writeZeros(8);
+      write4CC('strf'); writeU32(18); writeU16(1); writeU16(1); writeU32(16000);
+      writeU32(32000); writeU16(2); writeU16(16); writeU16(0);
+      dv.setUint32(aStrlSizePos, pos - aStrlSizePos - 4, true);
+    }
     dv.setUint32(hdrlSizePos, pos - hdrlSizePos - 4, true);
     write4CC('LIST');
     const moviSizePos = pos;
@@ -1398,10 +1429,16 @@
     const encoder = new TextEncoder();
     const filesData = files.map(f => {
       const nameBuf = encoder.encode(f.name);
-      const crc = ~f.data.reduce((c, b) => crcTable[(c ^ b) & 0xff] ^ (c >>> 8), ~0);
+      let crc = ~0 >>> 0;
+      const d = f.data;
+      const len = d.length;
+      for (let j = 0; j < len; j++) {
+        crc = crcTable[(crc ^ d[j]) & 0xff] ^ (crc >>> 8);
+      }
+      const finalCrc = (~crc) >>> 0;
       lfSize += 30 + nameBuf.length + f.data.length;
       cdSize += 46 + nameBuf.length;
-      return { ...f, nameBuf, crc };
+      return { ...f, nameBuf, crc: finalCrc };
     });
     const out = new Uint8Array(lfSize + cdSize + 22);
     const dv = new DataView(out.buffer);
@@ -1433,8 +1470,13 @@
   const drawToCanvas = async (source, res) => {
     const bmp = await createImageBitmap(source);
     try {
-      const cvs = new OffscreenCanvas(res, res);
-      const ctx = cvs.getContext('2d', { willReadFrequently: true });
+      if (cachedRes !== res || !cachedCanvas) {
+        cachedCanvas = new OffscreenCanvas(res, res);
+        cachedCtx = cachedCanvas.getContext('2d');
+        cachedRes = res;
+      }
+      const ctx = cachedCtx;
+      const cvs = cachedCanvas;
       ctx.imageSmoothingQuality = 'high';
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, res, res);
@@ -1474,6 +1516,7 @@
       jpg = mod.FS.readFile('out.jpg');
     } catch (e) {
       logDebug(`cjpegli Process Error: ${e.message}`);
+      cjpegliPromise = null;
     } finally {
       try { mod.FS.unlink('in.pam'); mod.FS.unlink('out.jpg'); } catch (e) {}
     }
@@ -1504,10 +1547,12 @@
     const tot = totalDuration ?? dur;
     const offCtx = new OfflineAudioContext(1, Math.max(1, Math.ceil(tot * 16000)), 16000);
     if (dur > 0 && audioBuffer) {
+      const safeStart = Math.min(startOffset, audioBuffer.duration - 0.001);
+      const safeDur = Math.min(dur, audioBuffer.duration - safeStart);
       const src = offCtx.createBufferSource();
       src.buffer = audioBuffer;
       src.connect(offCtx.destination);
-      src.start(0, startOffset, dur);
+      src.start(0, safeStart, safeDur);
     }
     const rbuf = await offCtx.startRendering();
     const ch = rbuf.getChannelData(0);
@@ -1537,7 +1582,7 @@
   };
 
   const revokeMediaUrl = (el) => {
-    if (el.src.startsWith('blob:') && el.src !== state.activeAudio?.url) {
+    if (el.src.startsWith('blob:') && el.src !== state.activeAudio?.url && el.src !== elements.videoSource.src) {
       URL.revokeObjectURL(el.src);
     }
     el.removeAttribute('src');
@@ -1562,11 +1607,20 @@
 
   const seekVideo = (time) => new Promise(resolve => {
     if (elements.videoSource.currentTime === time) return resolve();
-    const timer = setTimeout(resolve, 500);
-    elements.videoSource.addEventListener('seeked', () => {
+    let timer;
+    const onSeeked = () => {
       clearTimeout(timer);
+      if ('requestVideoFrameCallback' in elements.videoSource) {
+        elements.videoSource.requestVideoFrameCallback(() => resolve());
+      } else {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }
+    };
+    timer = setTimeout(() => {
+      elements.videoSource.removeEventListener('seeked', onSeeked);
       resolve();
-    }, { once: true });
+    }, 500);
+    elements.videoSource.addEventListener('seeked', onSeeked, { once: true });
     elements.videoSource.currentTime = time;
   });
 
@@ -1581,9 +1635,10 @@
     const len = ed - st;
     elements.seekHighlight.style.insetInlineStart = `${dur > 0 ? (st / dur) * 100 : 0}%`;
     elements.seekHighlight.style.inlineSize = `${dur > 0 ? (len / dur) * 100 : 0}%`;
-    elements.inputStart.value = st.toFixed(3);
-    elements.inputDuration.value = len.toFixed(3);
-    if (syncTotal) elements.inputTotal.value = len.toFixed(3);
+
+    if (document.activeElement !== elements.inputStart) elements.inputStart.value = st.toFixed(3);
+    if (document.activeElement !== elements.inputDuration) elements.inputDuration.value = len.toFixed(3);
+    if (syncTotal && document.activeElement !== elements.inputTotal) elements.inputTotal.value = len.toFixed(3);
   };
 
   const initTimelineUI = (dur) => {
@@ -1603,30 +1658,51 @@
     });
   };
 
-  const openModal = (index) => {
-    state.previewIndex = index;
-    const fileCount = state.croppedImages.length;
-    if (state.previewIndex < 0 || state.previewIndex >= fileCount) return;
-    elements.btnDownloadZip.classList.toggle('hidden-control', !(fileCount > 1 || state.activeAudio));
+  const updateModalText = () => {
+    if (state.previewIndex < 0) return;
     const item = state.croppedImages[state.previewIndex];
-    elements.imgPreview.src = item.url;
-    elements.modalFilename.textContent = `${state.previewIndex + 1} / ${fileCount}`;
+    const fileCount = state.croppedImages.length;
     const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
+
     let bottomText = `${item.filename}\nImage ${item.res}x${item.res} ${(item.size/1024).toFixed(1)} KiB`;
+
     if (audioLen > 0) {
       const calcFps = (fileCount / audioLen).toFixed(1);
       const overhead = 15000 + (fileCount * 24) + (Math.ceil(state.activeAudio.pcmData.length / 684) * 24);
       const estSize = ((state.croppedImages.reduce((s, img) => s + img.blob.size, 0) + state.activeAudio.pcmData.length + overhead) / 1024).toFixed(1);
       bottomText += `\nAudio ${audioLen.toFixed(1)}s | AVI ${estSize} KiB ${calcFps}fps`;
+      elements.modalFpsGroup.classList.add('hidden-control');
+    } else if (fileCount > 0) {
+      const uiFps = Math.max(1, Math.min(15, parseInt(elements.modalInputFps.value, 10) || 3));
+      const overhead = 15000 + (fileCount * 24);
+      const estSize = ((state.croppedImages.reduce((s, img) => s + img.blob.size, 0) + overhead) / 1024).toFixed(1);
+      bottomText += `\nNo Audio | AVI ~${estSize} KiB (at ${uiFps}fps)`;
+      elements.modalFpsGroup.classList.remove('hidden-control');
     }
     elements.modalFilesize.textContent = bottomText;
+  };
+
+  const openModal = (index) => {
+    state.previewIndex = index;
+    const fileCount = state.croppedImages.length;
+    if (state.previewIndex < 0 || state.previewIndex >= fileCount) return;
+
+    elements.btnDownloadZip.classList.toggle('hidden-control', !(fileCount > 1 || state.activeAudio));
+    const item = state.croppedImages[state.previewIndex];
+    elements.imgPreview.src = item.url;
+    elements.modalFilename.textContent = `${state.previewIndex + 1} / ${fileCount}`;
+
+    updateModalText();
+
     elements.btnPrev.style.visibility = state.previewIndex > 0 ? 'visible' : 'hidden';
     elements.btnNext.style.visibility = state.previewIndex < fileCount - 1 ? 'visible' : 'hidden';
-    const canVideo = audioLen > 0 && fileCount > 0;
-    elements.btnUploadVideo.classList.toggle('hidden-control', !canVideo);
-    elements.btnModalMusicCast.classList.toggle('hidden-control', canVideo);
+
+    elements.btnUploadVideo.classList.toggle('hidden-control', fileCount === 0);
     elements.modalPreview.classList.add('active');
-    elements.modalPreview.focus();
+
+    if (document.activeElement !== elements.modalInputFps) {
+      elements.modalPreview.focus();
+    }
   };
 
   const renderThumbs = () => {
@@ -1658,10 +1734,10 @@
     elements.audioSource.src = state.activeAudio.url;
   };
 
-  const addCroppedImage = (blob, res) => {
+  const addCroppedImage = (blob, res, skipRender = false) => {
     const filename = `badge_${getTimestamp()}.jpg`;
     state.croppedImages.push({ url: URL.createObjectURL(blob), blob, filename, size: blob.size, res });
-    renderThumbs();
+    if (!skipRender) renderThumbs();
   };
 
   const loadMediaFile = (file) => {
@@ -1679,6 +1755,7 @@
     state.x = state.y = state.initialX = state.initialY = state.startX = state.startY = state.pinchDist = 0;
     state.pointers.clear();
     state.isPanning = false;
+    clearActiveAudio();
     updateMediaModeUI();
 
     const url = URL.createObjectURL(file);
@@ -1698,22 +1775,29 @@
     elements.videoSource.muted = false;
 
     if (state.isVideo) {
-      file.arrayBuffer().then(decodeAudio).then(ab => {
+      const audioPromise = file.arrayBuffer().then(decodeAudio).then(ab => {
         state.tempVideoAudioBuffer = ab;
         state.sourceAudioBuffer = ab;
       }).catch(e => logDebug(`Video Audio Decode Error: ${e.message}`));
+
       elements.videoSource.src = url;
-      elements.videoSource.onloadedmetadata = async () => {
-        const res = parseInt(elements.selResolution.value, 10);
-        state.scale = Math.min(1, res / Math.min(elements.videoSource.videoWidth, elements.videoSource.videoHeight));
-        state.x = state.y = 0;
-        elements.videoSource.currentTime = 0;
-        initTimelineUI(elements.videoSource.duration);
-        renderSourceMedia();
-        elements.videoSource.classList.add('loaded');
-        await initCjpegli();
+      const videoPromise = new Promise(resolve => {
+        elements.videoSource.onloadedmetadata = async () => {
+          const res = parseInt(elements.selResolution.value, 10);
+          state.scale = Math.min(1, res / Math.min(elements.videoSource.videoWidth, elements.videoSource.videoHeight));
+          state.x = state.y = 0;
+          elements.videoSource.currentTime = 0;
+          initTimelineUI(elements.videoSource.duration);
+          renderSourceMedia();
+          elements.videoSource.classList.add('loaded');
+          await initCjpegli();
+          resolve();
+        };
+      });
+
+      Promise.all([audioPromise, videoPromise]).then(() => {
         elements.btnProcess.disabled = false;
-      };
+      });
     } else {
       elements.imgSource.src = url;
       elements.imgSource.onload = async () => {
@@ -1774,13 +1858,14 @@
 
   const handleKeydown = (e) => {
     if (elements.modalPreview.classList.contains('active')) {
+      if (['INPUT', 'SELECT'].includes(document.activeElement?.tagName)) return;
       const acts = { Escape: 'btn-close', Delete: 'btn-delete', Backspace: 'btn-delete', ArrowLeft: 'btn-prev', ArrowRight: 'btn-next', ArrowDown: 'btn-download' };
       let targetId = acts[e.key];
       if (e.key === 'ArrowUp') targetId = (e.shiftKey && state.activeAudio && state.croppedImages.length > 0) ? 'btn-upload-video' : 'btn-upload-image';
       if (targetId) { simulateClick(targetId); e.preventDefault(); }
       return;
     }
-    if (!elements.panelMedia.classList.contains('active') || elements.btnProcess.disabled || state.isAudioCrop || ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) return;
+    if (!elements.panelMedia.classList.contains('active') || elements.btnProcess.disabled || state.isAudioCrop || ['INPUT', 'SELECT'].includes(document.activeElement?.tagName)) return;
     const acts = {
       ArrowUp: () => state.y -= 20, ArrowDown: () => state.y += 20,
       ArrowLeft: () => state.x -= 20, ArrowRight: () => state.x += 20,
@@ -1813,10 +1898,10 @@
 
   const initApp = () => {
     const syncPlayIcon = (e) => elements.iconPlay.textContent = e.type === 'play' ? 'pause' : 'play_arrow';
-    elements.videoSource.addEventListener('play', syncPlayIcon);
-    elements.videoSource.addEventListener('pause', syncPlayIcon);
-    elements.audioSource.addEventListener('play', syncPlayIcon);
-    elements.audioSource.addEventListener('pause', syncPlayIcon);
+    ['play', 'pause'].forEach(evt => {
+      elements.videoSource.addEventListener(evt, syncPlayIcon);
+      elements.audioSource.addEventListener(evt, syncPlayIcon);
+    });
 
     document.addEventListener('keydown', handleKeydown);
     elements.tabBadge.addEventListener('click', () => switchTab(false));
@@ -1842,6 +1927,8 @@
     elements.btnProcess.addEventListener('click', async () => {
       if (elements.btnProcess.disabled) return;
       elements.btnProcess.disabled = true;
+      setUILock(true);
+      const originalBtnHtml = elements.btnProcess.innerHTML;
       try {
         const targetSize = parseFloat(elements.inputFilesize.value) || 20;
         const res = parseInt(elements.selResolution.value, 10);
@@ -1871,26 +1958,33 @@
           const originalTime = elements.videoSource.currentTime;
           elements.videoSource.pause();
           const step = 1 / fps;
+
           for (let i = 0; i < frames; i++) {
             const t = Math.min(elements.videoSource.duration, st + i * step);
             if (t > st + dur + 1e-6) break;
             await seekVideo(t);
             const blob = await processSingleFrame(elements.videoSource, res, targetSize, quality);
-            if (blob) addCroppedImage(blob, res);
+            if (blob) addCroppedImage(blob, res, true);
+
+            const pct = Math.round(((i + 1) / frames) * 100);
+            elements.btnProcess.innerHTML = `<span style="font-size: 14px; font-weight: bold;">${pct}%</span>`;
           }
+
           await seekVideo(originalTime);
           if (wasPlaying) elements.videoSource.play();
           if (state.tempVideoAudioBuffer) {
             const { pcmData, blob, rbuf } = await createPcmWav(state.tempVideoAudioBuffer, st, dur, dur);
             setActiveAudio(pcmData, blob, rbuf);
-            renderThumbs();
           }
+          renderThumbs();
         } else {
           const blob = await processSingleFrame(elements.imgSource, res, targetSize, quality);
           if (blob) addCroppedImage(blob, res);
         }
       } finally {
+        elements.btnProcess.innerHTML = originalBtnHtml;
         elements.btnProcess.disabled = false;
+        setUILock(false);
       }
     });
 
@@ -1919,25 +2013,22 @@
 
     elements.btnAudioThumb.addEventListener('click', async () => {
       pauseMedia();
-      revokeMediaUrl(elements.audioSource);
-      if (!state.activeAudio && state.sourceAudioBuffer) {
-        const { pcmData, blob, rbuf } = await createPcmWav(state.sourceAudioBuffer, 0, state.sourceAudioBuffer.duration, state.sourceAudioBuffer.duration);
-        setActiveAudio(pcmData, blob, rbuf);
-        renderThumbs();
+      if (!state.activeAudio && state.tempVideoAudioBuffer) {
+        state.sourceAudioBuffer = state.tempVideoAudioBuffer;
       }
       state.isAudioCrop = true;
       state.isVideo = false;
       switchTab(true);
       updateMediaModeUI();
+
       if (state.activeAudio?.url) {
         elements.audioSource.src = state.activeAudio.url;
-      } else {
-        initTimelineUI(0);
+      } else if (elements.videoSource.src) {
+        elements.audioSource.src = elements.videoSource.src;
       }
+      initTimelineUI(elements.audioSource.duration || (state.sourceAudioBuffer ? state.sourceAudioBuffer.duration : 0));
       elements.btnProcess.disabled = false;
     });
-
-    elements.btnModalMusicCast.addEventListener('click', () => { elements.modalPreview.classList.remove('active'); elements.btnAudioThumb.click(); });
 
     elements.audioSource.addEventListener('loadedmetadata', () => {
       if (!state.isAudioCrop) return;
@@ -1952,7 +2043,7 @@
 
     elements.cropArea.addEventListener('pointerdown', handlePointerDown);
     elements.cropArea.addEventListener('pointermove', handlePointerMove);
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
+    ['pointerup', 'pointercancel'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
     elements.cropArea.addEventListener('wheel', e => {
       if (elements.btnProcess.disabled || state.isAudioCrop) return;
       e.preventDefault();
@@ -1990,19 +2081,29 @@
     elements.btnDownload.addEventListener('click', () => {
       const a = document.createElement('a');
       const img = state.croppedImages[state.previewIndex];
-      a.href = img.url; a.download = img.filename; a.click();
+      a.href = img.url; a.download = img.filename.replace('.jpg', `_${state.previewIndex}.jpg`); a.click();
     });
 
     elements.btnDownloadZip.addEventListener('click', async () => {
-      const filesToZip = [];
-      for (const img of state.croppedImages) filesToZip.push({ name: img.filename, data: new Uint8Array(await img.blob.arrayBuffer()) });
-      if (state.activeAudio) filesToZip.push({ name: state.activeAudio.blob.name, data: new Uint8Array(await state.activeAudio.blob.arrayBuffer()) });
-      const a = document.createElement('a');
-      const url = URL.createObjectURL(createZip(filesToZip));
-      a.href = url;
-      a.download = `badge_media_${Date.now()}.zip`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const btns = document.querySelectorAll('.btn-modal');
+      btns.forEach(b => b.disabled = true);
+      try {
+        const filesToZip = [];
+        for (let i = 0; i < state.croppedImages.length; i++) {
+          const img = state.croppedImages[i];
+          const uniqueName = img.filename.replace('.jpg', `_${i}.jpg`);
+          filesToZip.push({ name: uniqueName, data: new Uint8Array(await img.blob.arrayBuffer()) });
+        }
+        if (state.activeAudio) filesToZip.push({ name: state.activeAudio.blob.name, data: new Uint8Array(await state.activeAudio.blob.arrayBuffer()) });
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(createZip(filesToZip));
+        a.href = url;
+        a.download = `badge_media_${Date.now()}.zip`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } finally {
+        btns.forEach(b => b.disabled = false);
+      }
     });
 
     elements.btnUploadImage.addEventListener('click', async () => {
@@ -2014,39 +2115,76 @@
       await executeUpload(img.blob);
     });
 
-    elements.btnUploadVideo.addEventListener('click', async () => {
-      if (!charWrite) { elements.modalPreview.classList.remove('active'); return simulateClick('tab-badge'); }
-      if (!state.badgeWidth || !state.maxBlockSize) return alert("Error: Badge screen size or block size is unknown. Cannot upload.");
-      if (state.croppedImages.some(img => img.res !== state.badgeWidth)) return alert(`Error: Resolution mismatch in cropped images. Expected ${state.badgeWidth}px.`);
-      if (state.croppedImages.some(img => img.blob.size > 40959)) return alert("Error: One or more frames exceed the maximum size of 40959 bytes.");
+    elements.modalInputFps.addEventListener('input', updateModalText);
 
+    elements.btnUploadVideo.addEventListener('click', async () => {
+      const btns = document.querySelectorAll('.btn-modal');
+      btns.forEach(b => b.disabled = true);
       try {
+        if (!charWrite) { elements.modalPreview.classList.remove('active'); simulateClick('tab-badge'); return; }
+        if (!state.badgeWidth || !state.maxBlockSize) { alert("Error: Badge screen size or block size is unknown. Cannot upload."); return; }
+        if (state.croppedImages.some(img => img.res !== state.badgeWidth)) { alert(`Error: Resolution mismatch in cropped images. Expected ${state.badgeWidth}px.`); return; }
+        if (state.croppedImages.some(img => img.blob.size > 40959)) { alert("Error: One or more frames exceed the maximum size of 40959 bytes."); return; }
+
         const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
-        const fps = Math.max(0.001, audioLen > 0 ? state.croppedImages.length / audioLen : 1);
-        if (fps > 15) return alert(`Error: FPS (${fps.toFixed(1)}) exceeds the maximum limit of 15.`);
-        await executeUpload(await buildAviFile(state.croppedImages, state.badgeWidth, state.badgeHeight, fps, state.activeAudio?.pcmData));
+        const uiFps = Math.max(1, Math.min(15, parseInt(elements.modalInputFps.value, 10) || 3));
+        const fps = audioLen > 0 ? Math.max(0.001, state.croppedImages.length / audioLen) : uiFps;
+
+        if (fps > 15) throw new Error(`FPS (${fps.toFixed(1)}) exceeds the maximum limit of 15.`);
+        const aviBlob = await buildAviFile(state.croppedImages, state.badgeWidth, state.badgeHeight, fps, state.activeAudio?.pcmData);
+        await executeUpload(aviBlob);
       } catch (e) {
         alert("Failed to build AVI: " + e.message);
+      } finally {
+        btns.forEach(b => b.disabled = false);
       }
     });
 
-    elements.seekStart.addEventListener('input', () => { updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekStart.value); });
-    elements.seekEnd.addEventListener('input', () => { updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekEnd.value); });
+    elements.seekStart.addEventListener('input', () => {
+      elements.seekStart.style.zIndex = 5; elements.seekEnd.style.zIndex = 4;
+      updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekStart.value);
+    });
+    elements.seekEnd.addEventListener('input', () => {
+      elements.seekEnd.style.zIndex = 5; elements.seekStart.style.zIndex = 4;
+      updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekEnd.value);
+    });
+
     elements.inputStart.addEventListener('input', () => {
+      const st = parseFloat(elements.inputStart.value);
+      if (!isNaN(st)) {
+        elements.seekStart.value = st;
+        updateRangeUI(false);
+        getMedia().currentTime = st;
+      }
+    });
+
+    elements.inputStart.addEventListener('change', () => {
       let st = parseFloat(elements.inputStart.value) || 0;
       const ed = parseFloat(elements.seekEnd.value) || 0;
       if (st > ed) st = ed;
+      elements.inputStart.value = st.toFixed(3);
       elements.seekStart.value = st;
-      updateRangeUI();
+      updateRangeUI(true);
       getMedia().currentTime = st;
     });
+
     elements.inputDuration.addEventListener('input', () => {
+      const len = parseFloat(elements.inputDuration.value);
+      if (!isNaN(len)) {
+        const st = parseFloat(elements.seekStart.value) || 0;
+        elements.seekEnd.value = st + len;
+        updateRangeUI(false);
+      }
+    });
+
+    elements.inputDuration.addEventListener('change', () => {
       const st = parseFloat(elements.seekStart.value) || 0;
       let len = parseFloat(elements.inputDuration.value) || 0;
       const dur = getMedia().duration || 0;
       if (st + len > dur) len = Math.max(0, dur - st);
+      elements.inputDuration.value = len.toFixed(3);
       elements.seekEnd.value = st + len;
-      updateRangeUI();
+      updateRangeUI(true);
     });
 
     elements.btnPlay.addEventListener('click', () => {
