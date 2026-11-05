@@ -11,25 +11,26 @@
   <!-- <script src="cjpegli.js"></script> -->
   <style>
     :root {
-      --color-bg: #f8f9fa;
-      --color-surface: #ffffff;
-      --color-text-main: #202124;
-      --color-text-muted: #5f6368;
-      --color-border: #dadce0;
-      --color-input-bg: #ffffff;
-      --color-crop-bg: #e8eaed;
-      --color-mask-border: rgba(0, 0, 0, 0.2);
-      --color-primary: #007bff;
-      --color-danger: #dc3545;
-      --state-hover: rgba(0, 0, 0, 0.05);
-      --state-active: rgba(0, 0, 0, 0.1);
-      --state-danger-hover: rgba(220, 53, 69, 0.1);
-      --modal-bg: rgba(255, 255, 255, 0.95);
-      --modal-btn: rgba(0, 0, 0, 0.05);
-      --modal-btn-hover: rgba(0, 0, 0, 0.1);
-      --modal-btn-active: rgba(0, 0, 0, 0.2);
-      --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.15);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      color-scheme: light dark;
+      --color-bg: light-dark(#f8f9fa, #121212);
+      --color-surface: light-dark(#ffffff, #1e1e1e);
+      --color-text-main: light-dark(#202124, #ffffff);
+      --color-text-muted: light-dark(#5f6368, #aaaaaa);
+      --color-border: light-dark(#dadce0, #333333);
+      --color-input-bg: light-dark(#ffffff, #333333);
+      --color-crop-bg: light-dark(#e8eaed, #222222);
+      --color-mask-border: light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.4));
+      --color-primary: light-dark(#007bff, #4da3ff);
+      --color-danger: light-dark(#dc3545, #ff453a);
+      --state-hover: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
+      --state-active: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.2));
+      --state-danger-hover: light-dark(rgba(220, 53, 69, 0.1), rgba(255, 69, 58, 0.15));
+      --modal-bg: light-dark(rgba(255, 255, 255, 0.95), rgba(0, 0, 0, 0.95));
+      --modal-btn: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.15));
+      --modal-btn-hover: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.25));
+      --modal-btn-active: light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.35));
+      --shadow-xs: 0 2px 4px light-dark(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.4));
+      --shadow-sm: 0 2px 8px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
       --trans-fast: 0.1s ease;
       --trans-normal: 0.2s ease;
       --z-range-base: 4;
@@ -37,30 +38,7 @@
       --z-nav: 20;
       --z-modal: 100;
       --z-modal-ui: 101;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --color-bg: #121212;
-        --color-surface: #1e1e1e;
-        --color-text-main: #ffffff;
-        --color-text-muted: #aaaaaa;
-        --color-border: #333333;
-        --color-input-bg: #333333;
-        --color-crop-bg: #222222;
-        --color-mask-border: rgba(255, 255, 255, 0.4);
-        --color-primary: #4da3ff;
-        --color-danger: #ff453a;
-        --state-hover: rgba(255, 255, 255, 0.1);
-        --state-active: rgba(255, 255, 255, 0.2);
-        --state-danger-hover: rgba(255, 69, 58, 0.15);
-        --modal-bg: rgba(0, 0, 0, 0.95);
-        --modal-btn: rgba(255, 255, 255, 0.15);
-        --modal-btn-hover: rgba(255, 255, 255, 0.25);
-        --modal-btn-active: rgba(255, 255, 255, 0.35);
-        --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.4);
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
-      }
+      --z-progress: 200;
     }
 
     *, *::before, *::after {
@@ -98,13 +76,12 @@
       color: var(--color-text-muted);
       font-size: 14px;
       font-weight: 500;
-      cursor: pointer;
     }
 
     .app-layout {
       display: flex;
       flex-direction: column;
-      block-size: 100dvh;
+      block-size: 100%;
     }
 
     .tab-nav {
@@ -200,7 +177,7 @@
       }
     }
 
-    :is(select, input[type="number"], input[type="checkbox"]) {
+    :is(select, input[type="number"]) {
       padding: 6px 4px;
       color: var(--color-text-main);
       font-size: 14px;
@@ -216,13 +193,6 @@
       &.input-time {
         inline-size: 68px;
       }
-    }
-
-    input[type="checkbox"] {
-      inline-size: 16px;
-      block-size: 16px;
-      margin: 0;
-      cursor: pointer;
     }
 
     .control-group {
@@ -242,9 +212,9 @@
 
     .badge-controls {
       display: flex;
+      flex: 1;
       flex-direction: column;
       padding: 16px;
-      block-size: 100%;
       background-color: var(--color-surface);
       overflow: hidden;
     }
@@ -279,7 +249,6 @@
 
     .crop-container {
       position: relative;
-      display: flex;
       flex: 1;
       background-color: var(--color-crop-bg);
       overflow: hidden;
@@ -350,7 +319,7 @@
 
     .range-current-pos {
       position: absolute;
-      z-index: calc(var(--z-range-base) + 1);
+      z-index: calc(var(--z-range-base) + 2);
       inline-size: 14px;
       block-size: 14px;
       background-color: var(--color-danger);
@@ -363,15 +332,18 @@
 
     input[type="range"].dual-slider {
       position: absolute;
+      z-index: var(--z-range-base);
       inline-size: 100%;
       margin: 0;
       background-color: transparent;
       appearance: none;
       pointer-events: none;
 
+      &.is-front {
+        z-index: calc(var(--z-range-base) + 1);
+      }
+
       &::-webkit-slider-thumb {
-        position: relative;
-        z-index: var(--z-range-base);
         inline-size: 12px;
         block-size: 20px;
         background-color: var(--color-surface);
@@ -385,7 +357,6 @@
       }
 
       &:active::-webkit-slider-thumb {
-        z-index: calc(var(--z-range-base) + 2);
         box-shadow: var(--shadow-sm), inset 0 0 0 3px var(--color-primary);
         transform: scale(1.05);
       }
@@ -408,10 +379,10 @@
       flex: 1;
       overflow-inline: auto;
       scrollbar-width: none;
-    }
 
-    .thumbnail-list-inner::-webkit-scrollbar {
-      display: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
 
     .thumbnail-item {
@@ -424,18 +395,18 @@
       cursor: pointer;
       transition: transform var(--trans-normal);
       -webkit-user-drag: none;
-    }
 
-    .thumbnail-item:hover {
-      transform: scale(1.05);
+      &:hover {
+        transform: scale(1.05);
+      }
     }
 
     #btn-audio-thumb {
       transition: color var(--trans-normal);
-    }
 
-    #btn-audio-thumb.active {
-      color: var(--color-primary);
+      &.active {
+        color: var(--color-primary);
+      }
     }
 
     .status-bar {
@@ -474,11 +445,19 @@
       outline: none;
       touch-action: none;
       transition: opacity 0.3s, visibility 0.3s;
+
+      &.active {
+        opacity: 1;
+        visibility: visible;
+      }
     }
 
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
+    #modal-progress {
+      z-index: var(--z-progress);
+
+      &:not(.active) progress::-webkit-progress-value {
+        transition: none;
+      }
     }
 
     .modal-bar {
@@ -489,69 +468,69 @@
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       pointer-events: none;
-    }
 
-    .modal-bar.top {
-      inset-block-start: 16px;
-    }
+      &.top {
+        inset-block-start: 16px;
+      }
 
-    .modal-bar.bottom {
-      inset-block-end: 16px;
-      align-items: flex-end;
-    }
+      &.bottom {
+        inset-block-end: 16px;
+        align-items: flex-end;
+      }
 
-    .modal-bar .center {
-      grid-column: 2;
-      pointer-events: auto;
-    }
+      & .center {
+        grid-column: 2;
+        pointer-events: auto;
+      }
 
-    .modal-bar .right {
-      grid-column: 3;
-      justify-self: end;
-      pointer-events: auto;
+      & .right {
+        grid-column: 3;
+        justify-self: end;
+        pointer-events: auto;
+      }
     }
 
     .modal-text {
       text-align: center;
       font-variant-numeric: tabular-nums;
-    }
 
-    .modal-text.primary {
-      max-inline-size: 200px;
-      color: var(--color-text-main);
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 1.2;
-    }
+      &.primary {
+        max-inline-size: 200px;
+        color: var(--color-text-main);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
 
-    .modal-text.secondary {
-      color: var(--color-text-muted);
-      font-size: 14px;
-      line-height: 1.4;
-      white-space: pre-line;
+      &.secondary {
+        color: var(--color-text-muted);
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: pre-line;
+      }
     }
 
     .btn-modal {
       background-color: var(--modal-btn);
       backdrop-filter: blur(4px);
-    }
 
-    .btn-modal:hover:not(:disabled) {
-      background-color: var(--modal-btn-hover);
-    }
+      &:hover:not(:disabled) {
+        background-color: var(--modal-btn-hover);
+      }
 
-    .btn-modal:active:not(:disabled),
-    .btn-modal.simulate-active {
-      background-color: var(--modal-btn-active);
-      transform: scale(0.9);
-    }
+      &:active:not(:disabled),
+      &.simulate-active {
+        background-color: var(--modal-btn-active);
+        transform: scale(0.9);
+      }
 
-    .btn-modal.danger {
-      color: var(--color-danger);
-    }
+      &.danger {
+        color: var(--color-danger);
 
-    .btn-modal.danger:hover:not(:disabled) {
-      background-color: var(--state-danger-hover);
+        &:hover:not(:disabled) {
+          background-color: var(--state-danger-hover);
+        }
+      }
     }
 
     .modal-content {
@@ -559,16 +538,15 @@
       grid-template-areas:
         ". upload ."
         "prev img next"
-        ". download ."
-        "prog prog prog";
+        ". download .";
       align-items: center;
       justify-items: center;
       gap: 16px;
       pointer-events: none;
-    }
 
-    .modal-content > button, .modal-content > div {
-      pointer-events: auto;
+      & > * {
+        pointer-events: auto;
+      }
     }
 
     .upload-group {
@@ -576,22 +554,23 @@
       display: flex;
       gap: 16px;
       align-items: center;
-      pointer-events: none;
     }
 
-    .upload-group > button {
-      pointer-events: auto;
+    .modal-fps-badge {
+      padding: 4px 8px;
+      background-color: var(--color-surface);
+      border-radius: 4px;
+      box-shadow: var(--shadow-sm);
+
+      & input[type="number"] {
+        inline-size: 48px;
+      }
     }
 
     .download-group {
       grid-area: download;
       display: flex;
       gap: 16px;
-      pointer-events: none;
-    }
-
-    .download-group > button {
-      pointer-events: auto;
     }
 
     #btn-prev { grid-area: prev; }
@@ -603,23 +582,16 @@
       max-block-size: 55vh;
       box-shadow: var(--shadow-sm);
       object-fit: contain;
-      pointer-events: auto;
       -webkit-user-drag: none;
     }
 
     .progress-container {
-      display: none;
-      grid-area: prog;
+      display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
       inline-size: 80%;
       max-inline-size: 300px;
-      pointer-events: none;
-    }
-
-    .progress-container.active {
-      display: flex;
     }
 
     progress {
@@ -629,15 +601,15 @@
       border-radius: 3px;
       appearance: none;
       overflow: hidden;
-    }
 
-    progress::-webkit-progress-bar {
-      background-color: var(--color-border);
-    }
+      &::-webkit-progress-bar {
+        background-color: var(--color-border);
+      }
 
-    progress::-webkit-progress-value {
-      background-color: var(--color-primary);
-      transition: inline-size 0.1s linear;
+      &::-webkit-progress-value {
+        background-color: var(--color-primary);
+        transition: inline-size 0.1s linear;
+      }
     }
 
     .progress-text {
@@ -650,7 +622,7 @@
 </head>
 <body>
 
-<div class="app-layout">
+<div id="app-layout" class="app-layout">
   <nav class="tab-nav">
     <button id="tab-badge" class="btn btn-tab active" title="Badge Control">
       <span class="material-symbols-outlined">watch</span>
@@ -677,11 +649,11 @@
     <main class="badge-controls">
       <div class="command-panel">
         <div class="command-row">
-            <button id="btn-set-lang" class="btn btn-text btn-badge-cmd" title="Set Badge Language" disabled>Language</button>
-            <select id="sel-lang" class="select-command" title="Select Language">
-              <option value="0x01">English</option>
-              <option value="0x08">日本語</option>
-            </select>
+          <button id="btn-set-lang" class="btn btn-text btn-badge-cmd" title="Set Badge Language" disabled>Language</button>
+          <select id="sel-lang" class="select-command" title="Select Language">
+            <option value="0x01">English</option>
+            <option value="0x08">日本語</option>
+          </select>
         </div>
         <button id="btn-call" class="btn btn-text btn-badge-cmd" title="Send Call Alert" disabled>Call</button>
         <button id="btn-check-storage" class="btn btn-text btn-badge-cmd" title="Check Free Space on Badge" disabled>Check Free Space</button>
@@ -738,7 +710,7 @@
         <button id="btn-play" class="btn btn-icon sm">
           <span id="icon-play" class="material-symbols-outlined">play_arrow</span>
         </button>
-        <div class="range-slider-container" id="seek-container">
+        <div class="range-slider-container">
           <div class="range-track"></div>
           <div class="range-track-highlight" id="seek-highlight"></div>
           <div class="range-current-pos" id="seek-current-pos"></div>
@@ -753,11 +725,11 @@
         </div>
         <div class="control-group">
           <span class="text-label" title="Duration (s)">Duration(s)</span>
-          <input type="number" id="input-duration" class="input-time" min="0.000" step="0.001" value="0.000">
+          <input type="number" id="input-duration" class="input-time" min="0" step="0.001" value="0.000">
         </div>
         <div class="control-group hidden-control" id="grp-total">
           <span class="text-label" title="Total Time (s)">Total(s)</span>
-          <input type="number" id="input-total" class="input-time" min="0.000" step="0.001" value="0.000">
+          <input type="number" id="input-total" class="input-time" min="0" step="0.001" value="0.000">
         </div>
         <div class="control-group" id="grp-fps">
           <span class="text-label" title="Frames Per Second">FPS</span>
@@ -771,7 +743,7 @@
     <button id="btn-import" class="btn btn-icon" title="Import processed JPG or WAV">
       <span class="material-symbols-outlined">library_add</span>
     </button>
-    <input type="file" id="input-import" accept=".jpg,.jpeg,.wav" hidden>
+    <input type="file" id="input-import" accept=".jpg,.jpeg,.wav" multiple hidden>
     <div id="thumbnail-container" class="thumbnail-list-inner"></div>
     <button id="btn-audio-thumb" class="btn btn-icon" title="Audio Edit">
       <span class="material-symbols-outlined">edit_audio</span>
@@ -803,16 +775,16 @@
   </div>
 
   <div class="modal-content">
-    <div id="upload-group" class="upload-group">
+    <div class="upload-group">
       <button id="btn-upload-image" class="btn btn-icon btn-modal" title="Upload Image (JPEG)">
         <span class="material-symbols-outlined">image</span>
       </button>
-      <button id="btn-upload-video" class="btn btn-icon btn-modal hidden-control" title="Upload Video (AVI)">
+      <button id="btn-upload-video" class="btn btn-icon btn-modal" title="Upload Video (AVI)">
         <span class="material-symbols-outlined">animated_images</span>
       </button>
-      <div id="modal-fps-group" class="control-group hidden-control" style="background: var(--color-surface); padding: 4px 8px; border-radius: 4px; box-shadow: var(--shadow-sm); pointer-events: auto;">
-        <input type="number" id="modal-input-fps" min="1" max="15" step="1" value="3" style="width: 48px;">
-        <span class="text-label" style="margin-left: 2px;">fps</span>
+      <div id="modal-fps-group" class="control-group modal-fps-badge hidden-control">
+        <input type="number" id="modal-input-fps" min="1" max="15" step="1" value="3">
+        <span class="text-label">fps</span>
       </div>
     </div>
 
@@ -826,18 +798,13 @@
       <span class="material-symbols-outlined">chevron_right</span>
     </button>
 
-    <div id="download-group" class="download-group">
+    <div class="download-group">
       <button id="btn-download" class="btn btn-icon btn-modal" title="Download">
         <span class="material-symbols-outlined">download</span>
       </button>
       <button id="btn-download-zip" class="btn btn-icon btn-modal hidden-control" title="Download ZIP">
         <span class="material-symbols-outlined">folder_zip</span>
       </button>
-    </div>
-
-    <div id="progress-container" class="progress-container" title="Upload Progress">
-      <progress id="progress-bar" max="100" value="0"></progress>
-      <span id="progress-text" class="progress-text">0%</span>
     </div>
   </div>
 
@@ -846,6 +813,13 @@
     <button id="btn-delete" class="btn btn-icon btn-modal danger right" title="Delete">
       <span class="material-symbols-outlined">delete</span>
     </button>
+  </div>
+</div>
+
+<div id="modal-progress" class="modal-overlay" tabindex="-1">
+  <div class="progress-container" title="Progress">
+    <progress id="progress-bar" max="100" value="0"></progress>
+    <span id="progress-text" class="progress-text">0%</span>
   </div>
 </div>
 
@@ -858,11 +832,24 @@
   const BLE_FRAME = { CMD: 0xCD, ACK: 0xDC };
   const BLE_CMD = { SYSTEM: 0x12, DEVICE: 0x1A, FILE: 0x1F, CTRL: 0x20 };
 
+  const CRC_TABLE = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let j = 0; j < 8; j++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    CRC_TABLE[i] = c;
+  }
+
   const $ = (id) => document.getElementById(id);
-  const pad = (num) => String(num).padStart(2, '0');
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const pad = (num, len = 2) => String(num).padStart(len, '0');
+  const hexByte = (b) => b.toString(16).padStart(2, '0').toUpperCase();
   const u32be = (v) => [(v >>> 24) & 0xFF, (v >>> 16) & 0xFF, (v >>> 8) & 0xFF, v & 0xFF];
+  const readU32be = (buf, pos = 0) => ((buf[pos] << 24) | (buf[pos + 1] << 16) | (buf[pos + 2] << 8) | buf[pos + 3]) >>> 0;
+  const writeAscii = (dv, pos, str) => { for (let i = 0; i < str.length; i++) dv.setUint8(pos + i, str.charCodeAt(i)); };
+  const getExportFilename = (img, idx) => img.filename.replace('.jpg', `_${idx}.jpg`);
 
   const elements = {
+    appLayout: $('app-layout'),
     tabBadge: $('tab-badge'),
     tabMedia: $('tab-media'),
     panelBadge: $('panel-badge'),
@@ -914,7 +901,6 @@
     modalPreview: $('modal-preview'),
     modalFilename: $('modal-filename'),
     btnClose: $('btn-close'),
-    uploadGroup: $('upload-group'),
     btnUploadImage: $('btn-upload-image'),
     btnUploadVideo: $('btn-upload-video'),
     modalFpsGroup: $('modal-fps-group'),
@@ -924,20 +910,22 @@
     btnNext: $('btn-next'),
     btnDownload: $('btn-download'),
     btnDownloadZip: $('btn-download-zip'),
-    progressContainer: $('progress-container'),
-    progressBar: $('progress-bar'),
-    progressText: $('progress-text'),
     modalFilesize: $('modal-filesize'),
-    btnDelete: $('btn-delete')
+    btnDelete: $('btn-delete'),
+    modalProgress: $('modal-progress'),
+    progressBar: $('progress-bar'),
+    progressText: $('progress-text')
   };
 
   const state = {
+    isBusy: false,
     isDebug: false,
     isVideo: false,
     isAudioCrop: false,
     badgeWidth: 0,
     badgeHeight: 0,
     maxBlockSize: 0,
+    maskRes: 0,
     scale: 1,
     x: 0,
     y: 0,
@@ -945,12 +933,10 @@
     initialX: 0,
     initialY: 0,
     pointers: new Map(),
-    isPanning: false,
     startX: 0,
     startY: 0,
     pinchDist: 0,
-    sourceAudioBuffer: null,
-    tempVideoAudioBuffer: null,
+    currentAudioBuffer: null,
     activeAudio: null,
     croppedImages: [],
     previewIndex: -1
@@ -959,9 +945,12 @@
   let bluetoothBadge = null;
   let charWrite = null;
   let charNotify = null;
+  let charBattery = null;
+  let writeChain = Promise.resolve();
   let rafId = null;
   let cjpegliPromise = null;
   let pendingChunkReq = null;
+  let modalTouchId = null;
   let modalTouchX = 0;
   let modalTouchY = 0;
   const pendingRequests = {};
@@ -977,8 +966,7 @@
 
   const getTimestamp = () => {
     const d = new Date();
-    const ms = String(d.getMilliseconds()).padStart(3, '0');
-    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${ms}`;
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}_${pad(d.getMilliseconds(), 3)}`;
   };
 
   const logDebug = (msg) => {
@@ -986,7 +974,7 @@
   };
 
   const toHex = (buf) => {
-    const hex = Array.from(buf).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+    const hex = Array.from(buf, hexByte).join(' ');
     return hex.length > 96 ? hex.substring(0, 96) + '...' : hex;
   };
 
@@ -1002,11 +990,34 @@
     btn.click();
   };
 
-  const setUILock = (locked) => {
-    elements.btnOpenFile.disabled = locked;
-    elements.btnImport.disabled = locked;
-    elements.tabBadge.disabled = locked;
-    elements.tabMedia.disabled = locked;
+  const updateProgress = (curr, tot) => {
+    const pct = tot > 0 ? Math.round((curr / tot) * 100) : 0;
+    elements.progressBar.value = pct;
+    elements.progressText.textContent = `${pct}%`;
+  };
+
+  const setUILock = (locked, showProg = false) => {
+    state.isBusy = locked;
+    elements.appLayout.inert = locked;
+    elements.modalPreview.inert = locked;
+    if (showProg) {
+      updateProgress(0, 1);
+      void elements.progressBar.offsetWidth;
+      elements.modalProgress.classList.add('active');
+    } else if (!locked) {
+      elements.modalProgress.classList.remove('active');
+      updateProgress(0, 1);
+      if (elements.modalPreview.classList.contains('active')) {
+        elements.modalPreview.focus();
+      }
+    }
+  };
+
+  const triggerDownload = (url, filename) => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
   };
 
   const waitForPacket = (prefix, cls, sub, timeoutMs) => new Promise((resolve, reject) => {
@@ -1038,6 +1049,7 @@
   const waitForData = (cls, sub) => waitForPacket('data', cls, sub, 5000);
 
   const waitForChunkCtrl = (expectedCode, timeoutMs = 10000) => new Promise((resolve, reject) => {
+    if (pendingChunkReq) pendingChunkReq.reject(new Error('Cancelled'));
     const timer = setTimeout(() => {
       pendingChunkReq = null;
       reject(new Error(`Chunk Timeout (Expected: ${expectedCode})`));
@@ -1053,6 +1065,10 @@
         clearTimeout(timer);
         pendingChunkReq = null;
         reject(err);
+      },
+      clear: () => {
+        clearTimeout(timer);
+        pendingChunkReq = null;
       }
     };
   });
@@ -1072,12 +1088,18 @@
     return buf;
   };
 
-  const writePacket = async (buf) => {
-    if (!charWrite) throw new Error("Bluetooth not connected");
-    logDebug(`[TX] ${toHex(buf)}`);
-    for (let i = 0; i < buf.length; i += 487) {
-      await charWrite.writeValueWithoutResponse(buf.slice(i, i + 487));
-    }
+  const writePacket = (buf) => {
+    const run = async () => {
+      if (!charWrite) throw new Error("Bluetooth not connected");
+      logDebug(`[TX] ${toHex(buf)}`);
+      for (let i = 0; i < buf.length; i += 487) {
+        if (!charWrite) throw new Error("Bluetooth not connected");
+        await charWrite.writeValueWithoutResponse(buf.subarray(i, i + 487));
+      }
+    };
+    const task = writeChain.then(run, run);
+    writeChain = task.catch(() => {});
+    return task;
   };
 
   const sendAck = async (cls, sub, len) => {
@@ -1086,6 +1108,7 @@
 
   const sendCmd = async (cls, sub, payload = []) => {
     const p = waitForAck(cls, sub);
+    p.catch(() => {});
     try {
       await writePacket(buildFrame(cls, sub, payload));
       await p;
@@ -1097,12 +1120,15 @@
 
   const reqData = async (cls, sub, payload = []) => {
     const pData = waitForData(cls, sub);
+    pData.catch(() => {});
+    const pAck = cls === BLE_CMD.CTRL ? null : waitForAck(cls, sub);
+    pAck?.catch(() => {});
     try {
       await writePacket(buildFrame(cls, sub, payload));
-      if (cls === BLE_CMD.CTRL) return await pData;
-      const pAck = waitForAck(cls, sub);
-      await Promise.race([pAck, pData]);
-      pendingRequests[`ack_${cls}_${sub}`]?.clear();
+      if (pAck) {
+        await Promise.race([pAck, pData]);
+        pendingRequests[`ack_${cls}_${sub}`]?.clear();
+      }
       return await pData;
     } catch (e) {
       pendingRequests[`data_${cls}_${sub}`]?.clear();
@@ -1111,11 +1137,23 @@
     }
   };
 
+  const sendFileCmd = async (sub, payload, expectedCode) => {
+    const p = waitForChunkCtrl(expectedCode);
+    p.catch(() => {});
+    try {
+      await writePacket(buildFrame(BLE_CMD.FILE, sub, payload));
+      await p;
+    } catch (e) {
+      pendingChunkReq?.clear();
+      throw e;
+    }
+  };
+
+  const checkBadgeStorage = () => reqData(BLE_CMD.CTRL, 0x04);
+
   const handleAckEvent = (val) => {
     if (val.length < 8) return;
-    const cls = val[3];
-    const sub = val[4];
-    const req = pendingRequests[`ack_${cls}_${sub}`];
+    const req = pendingRequests[`ack_${val[3]}_${val[4]}`];
     if (!req) return;
     val[7] === 0x01 ? req.resolve() : req.reject(new Error(`ACK Error: ${val[7]}`));
   };
@@ -1127,28 +1165,40 @@
     if (frameLen !== payloadLen + 5 || val.length < 8 + payloadLen) return;
     const cls = val[3];
     const sub = val[5];
-    const payload = val.slice(8, 8 + payloadLen);
-    await sendAck(cls, sub, frameLen + 3);
+    const payload = val.subarray(8, 8 + payloadLen);
+    try {
+      await sendAck(cls, sub, frameLen + 3);
+    } catch (e) {
+      logDebug(`ACK Send Error: ${e.message}`);
+    }
     pendingRequests[`data_${cls}_${sub}`]?.resolve(payload);
 
     if (cls === BLE_CMD.CTRL && sub === 0x04 && payload.length >= 8) {
-      const storageBytes = ((payload[4] << 24) | (payload[5] << 16) | (payload[6] << 8) | payload[7]) >>> 0;
-      elements.textStorage.textContent = `${(storageBytes / 1024).toFixed(0)} KiB`;
+      elements.textStorage.textContent = `${(readU32be(payload, 4) / 1024).toFixed(0)} KiB`;
       return;
     }
 
     if (cls === BLE_CMD.CTRL && sub === 0x01 && payload.length >= 4 && pendingChunkReq) {
-      const code = ((payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | (payload[3])) >>> 0;
+      const code = readU32be(payload, 0);
       code === pendingChunkReq.expectedCode ? pendingChunkReq.resolve() : pendingChunkReq.reject(new Error(`Transfer Rejected: Code ${code}`));
     }
   };
 
   const onBleNotification = async (e) => {
-    const val = new Uint8Array(e.target.value.buffer);
+    const dv = e.target.value;
+    const val = new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength);
     if (val.length === 0) return;
     logDebug(`[RX] ${toHex(val)}`);
     val[0] === BLE_FRAME.ACK ? handleAckEvent(val) : await handleDataEvent(val);
   };
+
+  const updateBatteryUI = (val) => {
+    elements.textBattery.textContent = `${val}%`;
+    const step = Math.min(6, Math.floor(val / 15));
+    elements.iconBattery.textContent = val >= 95 ? 'battery_full' : `battery_${step}_bar`;
+  };
+
+  const onBatteryChange = (e) => updateBatteryUI(e.target.value.getUint8(0));
 
   const setBadgeControlState = (enabled) => {
     document.querySelectorAll('.btn-badge-cmd').forEach(btn => btn.disabled = !enabled);
@@ -1160,8 +1210,12 @@
   const onBadgeDisconnected = () => {
     logDebug("Badge disconnected.");
     setBadgeControlState(false);
+    charNotify?.removeEventListener('characteristicvaluechanged', onBleNotification);
+    charBattery?.removeEventListener('characteristicvaluechanged', onBatteryChange);
     charWrite = null;
     charNotify = null;
+    charBattery = null;
+    writeChain = Promise.resolve();
     state.badgeWidth = 0;
     state.badgeHeight = 0;
     state.maxBlockSize = 0;
@@ -1174,7 +1228,6 @@
     Object.keys(pendingRequests).forEach(k => pendingRequests[k]?.reject(new Error("Badge disconnected")));
     if (pendingChunkReq) {
       pendingChunkReq.reject(new Error("Badge disconnected"));
-      pendingChunkReq = null;
     }
   };
 
@@ -1190,16 +1243,11 @@
   const setupBatteryService = async (server) => {
     try {
       const batSvc = await server.getPrimaryService('battery_service');
-      const batChar = await batSvc.getCharacteristic('battery_level');
-      const updateBat = (val) => {
-        elements.textBattery.textContent = `${val}%`;
-        const step = Math.min(6, Math.floor(val / 15));
-        elements.iconBattery.textContent = val >= 95 ? 'battery_full' : `battery_${step}_bar`;
-      };
-      const initialVal = await batChar.readValue();
-      updateBat(initialVal.getUint8(0));
-      await batChar.startNotifications();
-      batChar.addEventListener('characteristicvaluechanged', e => updateBat(e.target.value.getUint8(0)));
+      charBattery = await batSvc.getCharacteristic('battery_level');
+      const initialVal = await charBattery.readValue();
+      updateBatteryUI(initialVal.getUint8(0));
+      await charBattery.startNotifications();
+      charBattery.addEventListener('characteristicvaluechanged', onBatteryChange);
     } catch (e) {
       logDebug("Battery Service unavailable.");
     }
@@ -1214,79 +1262,69 @@
                    | ((d.getHours() & 0x1F) << 12)
                    | ((d.getMinutes() & 0x3F) << 6)
                    | (d.getSeconds() & 0x3F);
-      await sendCmd(BLE_CMD.SYSTEM, 0x01, new Uint8Array(u32be(packed)));
+      await sendCmd(BLE_CMD.SYSTEM, 0x01, u32be(packed));
       const mac = await reqData(BLE_CMD.DEVICE, 0x0A);
       if (mac.length >= 6) {
-        elements.textMacAddress.textContent = `(${Array.from(mac).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join(':')})`;
+        elements.textMacAddress.textContent = `(${Array.from(mac, hexByte).join(':')})`;
       }
       const name = await reqData(BLE_CMD.DEVICE, 0x0C);
-      if (name.length >= 1) elements.textBadgeName.textContent = new TextDecoder().decode(name.slice(1));
+      if (name.length >= 1) elements.textBadgeName.textContent = new TextDecoder().decode(name.subarray(1));
       const ctrlDevInfo = await reqData(BLE_CMD.CTRL, 0x02);
       if (ctrlDevInfo.length >= 32 && ctrlDevInfo[0] === 0x01) {
         state.badgeWidth = (ctrlDevInfo[2] << 8) | ctrlDevInfo[3];
         state.badgeHeight = (ctrlDevInfo[4] << 8) | ctrlDevInfo[5];
         elements.textScreenSize.textContent = `${state.badgeWidth}x${state.badgeHeight}`;
         state.maxBlockSize = (ctrlDevInfo[30] << 8) | ctrlDevInfo[31];
+        const wStr = String(state.badgeWidth);
+        if ([...elements.selResolution.options].some(o => o.value === wStr)) {
+          elements.selResolution.value = wStr;
+          elements.selResolution.dispatchEvent(new Event('change'));
+        }
       }
-      await reqData(BLE_CMD.CTRL, 0x04);
+      await checkBadgeStorage();
     } catch (e) {
       logDebug(`Init Error: ${e.message}`);
     }
   };
 
   const connectAndInitBadge = async () => {
+    bluetoothBadge?.removeEventListener('gattserverdisconnected', onBadgeDisconnected);
     bluetoothBadge = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
       optionalServices: [BLE_UUIDS.SERVICE, 'battery_service']
     });
     bluetoothBadge.addEventListener('gattserverdisconnected', onBadgeDisconnected, { once: true });
-    const server = await bluetoothBadge.gatt.connect();
-    const service = await server.getPrimaryService(BLE_UUIDS.SERVICE);
-    charWrite = await service.getCharacteristic(BLE_UUIDS.WRITE);
-    charNotify = await service.getCharacteristic(BLE_UUIDS.NOTIFY);
-    await charNotify.startNotifications();
-    charNotify.addEventListener('characteristicvaluechanged', onBleNotification);
-    setBadgeControlState(true);
-    await setupSecondaryNotifications(service);
-    await setupBatteryService(server);
-    await execInitSequence();
-  };
-
-  const initiateFileTransfer = async (size, fileType) => {
-    const sid = Math.floor(Math.random() * 0xFFFFFFFF);
-    const dSize = size + 4;
-    const initPayload = new Uint8Array([
-      ...u32be(sid),
-      fileType, 0x08, 0, 0, 0,
-      ...u32be(dSize),
-      0, 0, 0, 0
-    ]);
-    const p = waitForChunkCtrl(1000);
-    await writePacket(buildFrame(BLE_CMD.FILE, 0x02, initPayload));
-    await p;
+    try {
+      const server = await bluetoothBadge.gatt.connect();
+      const service = await server.getPrimaryService(BLE_UUIDS.SERVICE);
+      charWrite = await service.getCharacteristic(BLE_UUIDS.WRITE);
+      charNotify = await service.getCharacteristic(BLE_UUIDS.NOTIFY);
+      await charNotify.startNotifications();
+      charNotify.addEventListener('characteristicvaluechanged', onBleNotification);
+      await setupSecondaryNotifications(service);
+      await setupBatteryService(server);
+      await execInitSequence();
+      if (bluetoothBadge?.gatt.connected) setBadgeControlState(true);
+    } catch (e) {
+      if (bluetoothBadge?.gatt.connected) bluetoothBadge.gatt.disconnect();
+      else onBadgeDisconnected();
+      throw e;
+    }
   };
 
   const sendFileChunk = async (chunkIndex, blockData, totalSize, cs32, currentSum) => {
     const isFirst = chunkIndex === 1;
-    const hEnd = isFirst ? 14 : 10;
-    const fLen = 5 + (hEnd - 8) + blockData.length + 4;
-    const frame = new Uint8Array(fLen + 3);
-    frame.set([
-      BLE_FRAME.CMD,
-      (fLen >>> 8) & 0xFF, fLen & 0xFF,
-      BLE_CMD.FILE, 0x01, 0x01,
-      ((fLen - 5) >>> 8) & 0xFF, (fLen - 5) & 0xFF,
-      (chunkIndex >>> 8) & 0xFF, chunkIndex & 0xFF
-    ]);
-    if (isFirst) frame.set(u32be(totalSize), 10);
-    frame.set(blockData, hEnd);
+    const headerLen = isFirst ? 6 : 2;
+    const payload = new Uint8Array(headerLen + blockData.length + 4);
+    payload[0] = (chunkIndex >>> 8) & 0xFF;
+    payload[1] = chunkIndex & 0xFF;
+    if (isFirst) payload.set(u32be(totalSize), 2);
+    payload.set(blockData, headerLen);
     const bCS = calcChecksum8(blockData);
     const newSum = (currentSum + bCS) >>> 0;
     const tVal = (isFirst ? (bCS + cs32 + 1) : (bCS + chunkIndex)) >>> 0;
-    frame.set(u32be(tVal), hEnd + blockData.length);
-    const pChunk = waitForChunkCtrl(1000 + chunkIndex);
-    await writePacket(frame);
-    await pChunk;
+    payload.set(u32be(tVal), headerLen + blockData.length);
+    await sendFileCmd(0x01, payload, 1000 + chunkIndex);
     return newSum;
   };
 
@@ -1298,12 +1336,20 @@
     let bid = 1;
     while (offset < size) {
       const len = Math.min(size - offset, bid === 1 ? state.maxBlockSize - 4 : state.maxBlockSize);
-      blocks.push(buf.slice(offset, offset + len));
+      blocks.push(buf.subarray(offset, offset + len));
       offset += len;
       bid++;
     }
     if (onProgress) onProgress(0, blocks.length);
-    await initiateFileTransfer(size, blob.type === 'video/avi' ? 0x01 : 0x02);
+    const sid = Math.floor(Math.random() * 0xFFFFFFFF);
+    const fileType = blob.type === 'video/avi' ? 0x01 : 0x02;
+    const initPayload = new Uint8Array([
+      ...u32be(sid),
+      fileType, 0x08, 0, 0, 0,
+      ...u32be(size + 4),
+      0, 0, 0, 0
+    ]);
+    await sendFileCmd(0x02, initPayload, 1000);
     let sum = 0;
     const cs32 = calcChecksum32(size);
     for (let k = 1; k <= blocks.length; k++) {
@@ -1311,17 +1357,33 @@
       if (onProgress) onProgress(k, blocks.length);
     }
     const vCS = (sum + cs32) >>> 0;
-    await writePacket(buildFrame(BLE_CMD.FILE, 0x03, new Uint8Array(u32be(vCS))));
-    await waitForChunkCtrl(0x0002);
+    await sendFileCmd(0x03, u32be(vCS), 0x0002);
   };
 
-  const buildAviFile = async (croppedImages, width, height, fps = 3, audioData = null) => {
+  const calcAviSize = (items, totalAudioBytes) => {
+    const hasAudio = totalAudioBytes > 0;
+    let videoBytes = 0;
+    let chunkCount = items.length;
+    let audioGenerated = 0;
+    for (let v = 0; v < items.length; v++) {
+      const rawSize = items[v].blob ? items[v].blob.size : items[v].buf.length;
+      videoBytes += rawSize + (rawSize & 1);
+      if (hasAudio) {
+        const target = Math.floor(totalAudioBytes * (v + 1) / items.length) & ~1;
+        chunkCount += Math.ceil((target - audioGenerated) / 684);
+        audioGenerated = target;
+      }
+    }
+    return (hasAudio ? 334 : 232) + videoBytes + totalAudioBytes + (chunkCount * 24);
+  };
+
+  const buildAviFile = async (croppedImages, width, height, fps, audioData) => {
     const frames = await Promise.all(croppedImages.map(async (img) => {
       const buf = new Uint8Array(await img.blob.arrayBuffer());
-      const pad = buf.length % 2 !== 0 ? 1 : 0;
+      const pad = buf.length & 1;
       return { buf, pad, size: buf.length + pad };
     }));
-    const hasAudio = audioData && audioData.length > 0;
+    const hasAudio = Boolean(audioData?.length);
     const interleaved = [];
     let audioBytesGenerated = 0;
     const microSecPerFrame = Math.round(1000000 / fps);
@@ -1334,17 +1396,9 @@
       if (hasAudio) {
         const targetAudioBytes = Math.floor(totalAudioBytes * (v + 1) / frames.length) & ~1;
         while (audioBytesGenerated < targetAudioBytes) {
-          let chunkSize = targetAudioBytes - audioBytesGenerated;
-          chunkSize = Math.min(chunkSize, audioData.length - audioBytesGenerated);
-          if (chunkSize <= 0) break;
-          if (chunkSize > 684) chunkSize = 684;
-          if (chunkSize % 2 !== 0) chunkSize--;
-          if (chunkSize > 0) {
-            interleaved.push({ type: 'audio', size: chunkSize, buf: audioData.slice(audioBytesGenerated, audioBytesGenerated + chunkSize) });
-            audioBytesGenerated += chunkSize;
-          } else {
-            break;
-          }
+          const chunkSize = Math.min(684, targetAudioBytes - audioBytesGenerated);
+          interleaved.push({ type: 'audio', size: chunkSize, buf: audioData.subarray(audioBytesGenerated, audioBytesGenerated + chunkSize) });
+          audioBytesGenerated += chunkSize;
         }
       }
     }
@@ -1352,11 +1406,11 @@
     const maxAudioSize = hasAudio ? 684 : 0;
     const maxBytesPerSec = Math.floor(maxVideoSize * fps) + (hasAudio ? audioBytesPerSec : 0);
     const suggestedBufferSize = maxVideoSize + maxAudioSize;
-    const estSize = 15000 + frames.reduce((sum, f) => sum + f.size, 0) + totalAudioBytes + (interleaved.length * 24);
-    const data = new Uint8Array(estSize);
+    const exactSize = calcAviSize(frames, totalAudioBytes);
+    const data = new Uint8Array(exactSize);
     const dv = new DataView(data.buffer);
     let pos = 0;
-    const write4CC = (s) => { for(let i=0; i<4; i++) dv.setUint8(pos++, s.charCodeAt(i)); };
+    const write4CC = (s) => { writeAscii(dv, pos, s); pos += 4; };
     const writeU32 = (v) => { dv.setUint32(pos, v, true); pos += 4; };
     const writeU16 = (v) => { dv.setUint16(pos, v, true); pos += 2; };
     const writeZeros = (len) => { pos += len; };
@@ -1383,7 +1437,7 @@
       write4CC('LIST');
       const aStrlSizePos = pos;
       writeU32(0); write4CC('strl'); write4CC('strh'); writeU32(56);
-      write4CC('auds'); writeU32(0); writeU32(0); writeU16(0); writeU16(0);
+      write4CC('auds'); writeU32(0); writeU16(0); writeU16(0);
       writeU32(0); writeU32(1); writeU32(16000); writeU32(0); writeU32(totalAudioBytes / 2);
       writeU32(maxAudioSize); writeU32(0xFFFFFFFF); writeU32(2); writeZeros(8);
       write4CC('strf'); writeU32(18); writeU16(1); writeU16(1); writeU32(16000);
@@ -1404,8 +1458,7 @@
         if (item.frame.pad) writeZeros(1);
         indexEntries.push({ id: '00dc', flags: 0x10, offset: chunkOffset, size: item.frame.buf.length });
       } else {
-        write4CC('01wb'); writeU32(item.size);
-        item.buf ? writeData(item.buf) : writeZeros(item.size);
+        write4CC('01wb'); writeU32(item.size); writeData(item.buf);
         indexEntries.push({ id: '01wb', flags: 0x10, offset: chunkOffset, size: item.size });
       }
     }
@@ -1415,28 +1468,24 @@
       write4CC(entry.id); writeU32(entry.flags); writeU32(entry.offset); writeU32(entry.size);
     }
     dv.setUint32(riffSizePos, pos - 8, true);
-    return new Blob([data.slice(0, pos)], { type: 'video/avi' });
+    return new Blob([data], { type: 'video/avi' });
   };
 
   const createZip = (files) => {
     let cdSize = 0, lfSize = 0;
-    const crcTable = new Uint32Array(256);
-    for (let i = 0; i < 256; i++) {
-      let c = i;
-      for (let j = 0; j < 8; j++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      crcTable[i] = c;
-    }
     const encoder = new TextEncoder();
+    const d = new Date();
+    const dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    const dosDate = ((Math.max(1980, d.getFullYear()) - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
     const filesData = files.map(f => {
       const nameBuf = encoder.encode(f.name);
       let crc = ~0 >>> 0;
-      const d = f.data;
-      const len = d.length;
-      for (let j = 0; j < len; j++) {
-        crc = crcTable[(crc ^ d[j]) & 0xff] ^ (crc >>> 8);
+      const buf = f.data;
+      for (let j = 0; j < buf.length; j++) {
+        crc = CRC_TABLE[(crc ^ buf[j]) & 0xff] ^ (crc >>> 8);
       }
       const finalCrc = (~crc) >>> 0;
-      lfSize += 30 + nameBuf.length + f.data.length;
+      lfSize += 30 + nameBuf.length + buf.length;
       cdSize += 46 + nameBuf.length;
       return { ...f, nameBuf, crc: finalCrc };
     });
@@ -1446,7 +1495,8 @@
     for (const f of filesData) {
       f.offset = p;
       dv.setUint32(p, 0x04034b50, true); dv.setUint16(p + 4, 10, true);
-      dv.setUint16(p + 8, 0, true); dv.setUint32(p + 14, f.crc, true);
+      dv.setUint16(p + 8, 0, true); dv.setUint16(p + 10, dosTime, true); dv.setUint16(p + 12, dosDate, true);
+      dv.setUint32(p + 14, f.crc, true);
       dv.setUint32(p + 18, f.data.length, true); dv.setUint32(p + 22, f.data.length, true);
       dv.setUint16(p + 26, f.nameBuf.length, true);
       out.set(f.nameBuf, p + 30); out.set(f.data, p + 30 + f.nameBuf.length);
@@ -1455,7 +1505,8 @@
     const cdStart = p;
     for (const f of filesData) {
       dv.setUint32(p, 0x02014b50, true); dv.setUint16(p + 4, 10, true);
-      dv.setUint16(p + 6, 10, true); dv.setUint32(p + 16, f.crc, true);
+      dv.setUint16(p + 6, 10, true); dv.setUint16(p + 12, dosTime, true); dv.setUint16(p + 14, dosDate, true);
+      dv.setUint32(p + 16, f.crc, true);
       dv.setUint32(p + 20, f.data.length, true); dv.setUint32(p + 24, f.data.length, true);
       dv.setUint16(p + 28, f.nameBuf.length, true); dv.setUint32(p + 42, f.offset, true);
       out.set(f.nameBuf, p + 46);
@@ -1467,52 +1518,47 @@
     return new Blob([out], { type: 'application/zip' });
   };
 
-  const drawToCanvas = async (source, res) => {
-    const bmp = await createImageBitmap(source);
-    try {
-      if (cachedRes !== res || !cachedCanvas) {
-        cachedCanvas = new OffscreenCanvas(res, res);
-        cachedCtx = cachedCanvas.getContext('2d');
-        cachedRes = res;
-      }
-      const ctx = cachedCtx;
-      const cvs = cachedCanvas;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, res, res);
-      ctx.beginPath();
-      ctx.arc(res / 2, res / 2, (res + 16) / 2, 0, Math.PI * 2);
-      ctx.clip();
-      const dSize = res + 16;
-      const sArea = dSize / state.scale;
-      const sx = (bmp.width / 2) - (state.x / state.scale) - sArea / 2;
-      const sy = (bmp.height / 2) - (state.y / state.scale) - sArea / 2;
-      ctx.drawImage(bmp, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
-      return { cvs, ctx };
-    } finally {
-      bmp.close();
+  const drawToCanvas = (source, res) => {
+    if (cachedRes !== res || !cachedCanvas) {
+      cachedCanvas = new OffscreenCanvas(res, res);
+      cachedCtx = cachedCanvas.getContext('2d');
+      cachedCtx.imageSmoothingQuality = 'high';
+      cachedCtx.fillStyle = 'black';
+      cachedCtx.beginPath();
+      cachedCtx.arc(res / 2, res / 2, (res + 16) / 2, 0, Math.PI * 2);
+      cachedCtx.clip();
+      cachedRes = res;
     }
+    cachedCtx.fillRect(0, 0, res, res);
+    const srcW = source.videoWidth || source.naturalWidth;
+    const srcH = source.videoHeight || source.naturalHeight;
+    const dSize = res + 16;
+    const sArea = dSize / state.scale;
+    const sx = (srcW / 2) - (state.x / state.scale) - sArea / 2;
+    const sy = (srcH / 2) - (state.y / state.scale) - sArea / 2;
+    cachedCtx.drawImage(source, sx, sy, sArea, sArea, -8, -8, dSize, dSize);
+    return { cvs: cachedCanvas, ctx: cachedCtx };
   };
 
-  const generatePamImageAsync = async (source, res) => {
-    const { ctx } = await drawToCanvas(source, res);
+  const generatePamImage = (source, res) => {
+    const { ctx } = drawToCanvas(source, res);
     const imgData = ctx.getImageData(0, 0, res, res);
     const hdr = new TextEncoder().encode(`P7\nWIDTH ${res}\nHEIGHT ${res}\nDEPTH 3\nMAXVAL 255\nTUPLTYPE RGB\nENDHDR\n`);
     const pam = new Uint8Array(hdr.length + res * res * 3);
     pam.set(hdr);
     let p = hdr.length;
     for (let i = 0; i < imgData.data.length; i += 4) {
-      pam[p++] = imgData.data[i]; pam[p++] = imgData.data[i+1]; pam[p++] = imgData.data[i+2];
+      pam[p++] = imgData.data[i]; pam[p++] = imgData.data[i + 1]; pam[p++] = imgData.data[i + 2];
     }
     return pam;
   };
 
-  const processFrameCjpegli = async (mod, source, res, targetSizeKb) => {
-    const pam = await generatePamImageAsync(source, res);
+  const processFrameCjpegli = (mod, source, res, targetSizeKb) => {
+    const pam = generatePamImage(source, res);
     mod.FS.writeFile('in.pam', pam);
     let jpg = null;
     try {
-      mod.callMain(['in.pam', 'out.jpg', '-p', '0', '--target_size', Math.round(Math.max(1, targetSizeKb) * 1024).toString(), '--std_quant']);
+      mod.callMain(['in.pam', 'out.jpg', '-p', '0', '--target_size', Math.round(clamp(targetSizeKb, 1, 39) * 1024).toString(), '--std_quant']);
       jpg = mod.FS.readFile('out.jpg');
     } catch (e) {
       logDebug(`cjpegli Process Error: ${e.message}`);
@@ -1537,44 +1583,49 @@
 
   const processSingleFrame = async (source, res, targetSize, quality) => {
     const mod = await initCjpegli();
-    if (mod) return await processFrameCjpegli(mod, source, res, targetSize);
-    const { cvs } = await drawToCanvas(source, res);
+    if (mod) return processFrameCjpegli(mod, source, res, targetSize);
+    const { cvs } = drawToCanvas(source, res);
     return await cvs.convertToBlob({ type: 'image/jpeg', quality });
   };
 
-  const createPcmWav = async (audioBuffer, startOffset = 0, duration = null, totalDuration = null) => {
-    const dur = duration ?? audioBuffer.duration;
-    const tot = totalDuration ?? dur;
-    const offCtx = new OfflineAudioContext(1, Math.max(1, Math.ceil(tot * 16000)), 16000);
-    if (dur > 0 && audioBuffer) {
-      const safeStart = Math.min(startOffset, audioBuffer.duration - 0.001);
-      const safeDur = Math.min(dur, audioBuffer.duration - safeStart);
-      const src = offCtx.createBufferSource();
-      src.buffer = audioBuffer;
-      src.connect(offCtx.destination);
-      src.start(0, safeStart, safeDur);
+  const createPcmWav = async (audioBuffer, startOffset, duration, totalDuration) => {
+    const offCtx = new OfflineAudioContext(1, Math.max(1, Math.ceil(totalDuration * 16000)), 16000);
+    if (duration > 0 && audioBuffer) {
+      const safeStart = clamp(startOffset, 0, Math.max(0, audioBuffer.duration - 0.001));
+      const safeDur = clamp(duration, 0, Math.max(0, audioBuffer.duration - safeStart));
+      if (safeDur > 0) {
+        const src = offCtx.createBufferSource();
+        src.buffer = audioBuffer;
+        src.connect(offCtx.destination);
+        src.start(0, safeStart, safeDur);
+      }
     }
     const rbuf = await offCtx.startRendering();
     const ch = rbuf.getChannelData(0);
     const pcm = new Int16Array(ch.length);
     for (let j = 0; j < ch.length; j++) {
-      let s = Math.max(-1, Math.min(1, ch[j]));
+      const s = clamp(ch[j], -1, 1);
       pcm[j] = s < 0 ? s * 0x8000 : s * 0x7FFF;
     }
     const pcmData = new Uint8Array(pcm.buffer);
     const wav = new ArrayBuffer(44);
     const dv = new DataView(wav);
-    const ws = (p, s) => { for(let i=0; i<s.length; i++) dv.setUint8(p+i, s.charCodeAt(i)); };
-    ws(0, 'RIFF'); dv.setUint32(4, 36 + pcmData.length, true);
-    ws(8, 'WAVE'); ws(12, 'fmt '); dv.setUint32(16, 16, true);
+    writeAscii(dv, 0, 'RIFF'); dv.setUint32(4, 36 + pcmData.length, true);
+    writeAscii(dv, 8, 'WAVE'); writeAscii(dv, 12, 'fmt '); dv.setUint32(16, 16, true);
     dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
     dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true);
     dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
-    ws(36, 'data'); dv.setUint32(40, pcmData.length, true);
+    writeAscii(dv, 36, 'data'); dv.setUint32(40, pcmData.length, true);
     return { pcmData, blob: new Blob([wav, pcmData], { type: 'audio/wav' }), rbuf };
   };
 
   const getMedia = () => state.isAudioCrop ? elements.audioSource : elements.videoSource;
+
+  const getSeekBounds = (m) => {
+    const st = parseFloat(elements.seekStart.value) || 0;
+    const ed = parseFloat(elements.seekEnd.value);
+    return { st, ed: isNaN(ed) ? (m.duration || 0) : ed };
+  };
 
   const pauseMedia = () => {
     elements.videoSource.pause();
@@ -1582,10 +1633,11 @@
   };
 
   const revokeMediaUrl = (el) => {
-    if (el.src.startsWith('blob:') && el.src !== state.activeAudio?.url && el.src !== elements.videoSource.src) {
+    if (el.src.startsWith('blob:') && el.src !== state.activeAudio?.url && (el === elements.videoSource || el.src !== elements.videoSource.src)) {
       URL.revokeObjectURL(el.src);
     }
     el.removeAttribute('src');
+    if (el.tagName !== 'IMG') el.load();
   };
 
   const switchTab = (isMedia) => {
@@ -1606,23 +1658,23 @@
   };
 
   const seekVideo = (time) => new Promise(resolve => {
-    if (elements.videoSource.currentTime === time) return resolve();
-    let timer;
-    const onSeeked = () => {
+    if (Math.abs(elements.videoSource.currentTime - time) < 0.001) return resolve();
+    let timer = null;
+    const done = () => {
       clearTimeout(timer);
-      if ('requestVideoFrameCallback' in elements.videoSource) {
-        elements.videoSource.requestVideoFrameCallback(() => resolve());
-      } else {
-        requestAnimationFrame(() => requestAnimationFrame(resolve));
-      }
-    };
-    timer = setTimeout(() => {
       elements.videoSource.removeEventListener('seeked', onSeeked);
       resolve();
-    }, 500);
+    };
+    const onSeeked = () => requestAnimationFrame(done);
+    timer = setTimeout(done, 500);
     elements.videoSource.addEventListener('seeked', onSeeked, { once: true });
     elements.videoSource.currentTime = time;
   });
+
+  const updatePosIndicator = () => {
+    const m = getMedia();
+    elements.seekCurrentPos.style.insetInlineStart = `${m.duration > 0 ? (m.currentTime / m.duration) * 100 : 0}%`;
+  };
 
   const updateRangeUI = (syncTotal = true) => {
     if (!(state.isVideo || state.isAudioCrop)) return;
@@ -1658,27 +1710,38 @@
     });
   };
 
+  const zoomMedia = (factor) => {
+    state.scale *= factor;
+    state.x *= factor;
+    state.y *= factor;
+    renderSourceMedia();
+  };
+
+  const setupMediaViewport = (el, w, h) => {
+    const res = parseInt(elements.selResolution.value, 10);
+    state.scale = Math.min(1, res / Math.min(w || res, h || res));
+    state.x = state.y = 0;
+    renderSourceMedia();
+    el.classList.add('loaded');
+  };
+
   const updateModalText = () => {
     if (state.previewIndex < 0) return;
     const item = state.croppedImages[state.previewIndex];
     const fileCount = state.croppedImages.length;
-    const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
+    const audioBytes = state.activeAudio ? state.activeAudio.pcmData.length : 0;
+    const audioLen = audioBytes / 32000;
+    const hasAudio = audioBytes > 0;
+    const estSize = (calcAviSize(state.croppedImages, audioBytes) / 1024).toFixed(1);
 
-    let bottomText = `${item.filename}\nImage ${item.res}x${item.res} ${(item.size/1024).toFixed(1)} KiB`;
-
-    if (audioLen > 0) {
-      const calcFps = (fileCount / audioLen).toFixed(1);
-      const overhead = 15000 + (fileCount * 24) + (Math.ceil(state.activeAudio.pcmData.length / 684) * 24);
-      const estSize = ((state.croppedImages.reduce((s, img) => s + img.blob.size, 0) + state.activeAudio.pcmData.length + overhead) / 1024).toFixed(1);
-      bottomText += `\nAudio ${audioLen.toFixed(1)}s | AVI ${estSize} KiB ${calcFps}fps`;
-      elements.modalFpsGroup.classList.add('hidden-control');
-    } else if (fileCount > 0) {
-      const uiFps = Math.max(1, Math.min(15, parseInt(elements.modalInputFps.value, 10) || 3));
-      const overhead = 15000 + (fileCount * 24);
-      const estSize = ((state.croppedImages.reduce((s, img) => s + img.blob.size, 0) + overhead) / 1024).toFixed(1);
-      bottomText += `\nNo Audio | AVI ~${estSize} KiB (at ${uiFps}fps)`;
-      elements.modalFpsGroup.classList.remove('hidden-control');
+    let bottomText = `${item.filename}\nImage ${item.w}x${item.h} ${(item.blob.size / 1024).toFixed(1)} KiB`;
+    if (hasAudio) {
+      bottomText += `\nAudio ${audioLen.toFixed(1)}s | AVI ${estSize} KiB ${(fileCount / audioLen).toFixed(1)}fps`;
+    } else {
+      const uiFps = clamp(parseInt(elements.modalInputFps.value, 10) || 3, 1, 15);
+      bottomText += `\nNo Audio | AVI ${estSize} KiB (at ${uiFps}fps)`;
     }
+    elements.modalFpsGroup.classList.toggle('hidden-control', hasAudio);
     elements.modalFilesize.textContent = bottomText;
   };
 
@@ -1696,8 +1759,6 @@
 
     elements.btnPrev.style.visibility = state.previewIndex > 0 ? 'visible' : 'hidden';
     elements.btnNext.style.visibility = state.previewIndex < fileCount - 1 ? 'visible' : 'hidden';
-
-    elements.btnUploadVideo.classList.toggle('hidden-control', fileCount === 0);
     elements.modalPreview.classList.add('active');
 
     if (document.activeElement !== elements.modalInputFps) {
@@ -1726,21 +1787,24 @@
     }
   };
 
-  const setActiveAudio = (pcmData, blob, buffer, prefix = 'audio') => {
+  const setActiveAudio = (pcmData, blob, buffer) => {
     clearActiveAudio();
-    blob.name = `${prefix}_${getTimestamp()}.wav`;
-    state.sourceAudioBuffer = buffer;
-    state.activeAudio = { pcmData, blob, buffer, url: URL.createObjectURL(blob) };
-    elements.audioSource.src = state.activeAudio.url;
+    blob.name = `audio_${getTimestamp()}.wav`;
+    state.activeAudio = { pcmData, blob, url: URL.createObjectURL(blob), buffer };
+    if (state.isAudioCrop) {
+      state.currentAudioBuffer = buffer;
+      elements.audioSource.src = state.activeAudio.url;
+    }
   };
 
-  const addCroppedImage = (blob, res, skipRender = false) => {
+  const addCroppedImage = (blob, w, h = w, skipRender = false) => {
     const filename = `badge_${getTimestamp()}.jpg`;
-    state.croppedImages.push({ url: URL.createObjectURL(blob), blob, filename, size: blob.size, res });
+    state.croppedImages.push({ url: URL.createObjectURL(blob), blob, filename, w, h });
     if (!skipRender) renderThumbs();
   };
 
-  const loadMediaFile = (file) => {
+  const loadMediaFile = async (file) => {
+    setUILock(true);
     pauseMedia();
     elements.btnProcess.disabled = true;
     elements.imgSource.classList.remove('loaded');
@@ -1748,68 +1812,66 @@
     revokeMediaUrl(elements.imgSource);
     revokeMediaUrl(elements.videoSource);
     revokeMediaUrl(elements.audioSource);
-    state.tempVideoAudioBuffer = null;
+    state.currentAudioBuffer = null;
     state.isAudioCrop = file.type.startsWith('audio/');
     state.isVideo = file.type.startsWith('video/');
     state.scale = state.initialScale = 1;
     state.x = state.y = state.initialX = state.initialY = state.startX = state.startY = state.pinchDist = 0;
     state.pointers.clear();
-    state.isPanning = false;
-    clearActiveAudio();
     updateMediaModeUI();
 
     const url = URL.createObjectURL(file);
 
-    if (state.isAudioCrop) {
-      file.arrayBuffer().then(decodeAudio).then(ab => {
-        state.sourceAudioBuffer = ab;
+    try {
+      if (state.isAudioCrop) {
+        const ab = await decodeAudio(await file.arrayBuffer());
+        state.currentAudioBuffer = ab;
+        initTimelineUI(ab.duration);
         elements.audioSource.src = url;
         elements.btnProcess.disabled = false;
-      }).catch(e => {
-        URL.revokeObjectURL(url);
-        logDebug(`Audio Decode Error: ${e.message}`);
-      });
-      return;
-    }
+      } else if (state.isVideo) {
+        const audioPromise = file.arrayBuffer().then(decodeAudio).then(ab => {
+          state.currentAudioBuffer = ab;
+        }).catch(e => logDebug(`Video Audio Decode Error: ${e.message}`));
 
-    elements.videoSource.muted = false;
+        elements.videoSource.src = url;
+        const videoPromise = new Promise((resolve, reject) => {
+          elements.videoSource.onloadedmetadata = () => {
+            elements.videoSource.currentTime = 0;
+            initTimelineUI(elements.videoSource.duration);
+            setupMediaViewport(elements.videoSource, elements.videoSource.videoWidth, elements.videoSource.videoHeight);
+            resolve();
+          };
+          elements.videoSource.onerror = () => reject(new Error('Video load failed'));
+        });
 
-    if (state.isVideo) {
-      const audioPromise = file.arrayBuffer().then(decodeAudio).then(ab => {
-        state.tempVideoAudioBuffer = ab;
-        state.sourceAudioBuffer = ab;
-      }).catch(e => logDebug(`Video Audio Decode Error: ${e.message}`));
-
-      elements.videoSource.src = url;
-      const videoPromise = new Promise(resolve => {
-        elements.videoSource.onloadedmetadata = async () => {
-          const res = parseInt(elements.selResolution.value, 10);
-          state.scale = Math.min(1, res / Math.min(elements.videoSource.videoWidth, elements.videoSource.videoHeight));
-          state.x = state.y = 0;
-          elements.videoSource.currentTime = 0;
-          initTimelineUI(elements.videoSource.duration);
-          renderSourceMedia();
-          elements.videoSource.classList.add('loaded');
-          await initCjpegli();
-          resolve();
-        };
-      });
-
-      Promise.all([audioPromise, videoPromise]).then(() => {
+        await Promise.all([audioPromise, videoPromise]);
         elements.btnProcess.disabled = false;
-      });
-    } else {
-      elements.imgSource.src = url;
-      elements.imgSource.onload = async () => {
-        const res = parseInt(elements.selResolution.value, 10);
-        state.scale = Math.min(1, res / Math.min(elements.imgSource.naturalWidth || res, elements.imgSource.naturalHeight || res));
-        state.x = state.y = 0;
-        renderSourceMedia();
-        elements.imgSource.classList.add('loaded');
-        await initCjpegli();
+      } else {
+        await new Promise((resolve, reject) => {
+          elements.imgSource.onload = () => {
+            setupMediaViewport(elements.imgSource, elements.imgSource.naturalWidth, elements.imgSource.naturalHeight);
+            resolve();
+          };
+          elements.imgSource.onerror = () => reject(new Error('Image load failed'));
+          elements.imgSource.src = url;
+        });
         elements.btnProcess.disabled = false;
-      };
+      }
+    } catch (e) {
+      if (state.isAudioCrop) URL.revokeObjectURL(url);
+      else if (state.isVideo) revokeMediaUrl(elements.videoSource);
+      else revokeMediaUrl(elements.imgSource);
+      logDebug(`Media Load Error: ${e.message}`);
+    } finally {
+      setUILock(false);
     }
+  };
+
+  const initPinch = () => {
+    const [p1, p2] = Array.from(state.pointers.values());
+    state.pinchDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    state.initialScale = state.scale;
   };
 
   const handlePointerDown = (e) => {
@@ -1819,28 +1881,24 @@
     elements.cropArea.setPointerCapture(e.pointerId);
     state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (state.pointers.size === 1) {
-      state.isPanning = true; state.startX = e.clientX; state.startY = e.clientY;
+      state.startX = e.clientX; state.startY = e.clientY;
       state.initialX = state.x; state.initialY = state.y;
     } else if (state.pointers.size === 2) {
-      state.isPanning = false;
-      const pts = Array.from(state.pointers.values());
-      state.pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      state.initialScale = state.scale;
+      initPinch();
     }
   };
 
   const handlePointerMove = (e) => {
-    if (!state.pointers.has(e.pointerId) || state.isAudioCrop) return;
+    if (!state.pointers.has(e.pointerId) || elements.btnProcess.disabled || state.isAudioCrop) return;
     state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const pts = Array.from(state.pointers.values());
-    if (pts.length === 1 && state.isPanning) {
+    if (pts.length === 1) {
       state.x = state.initialX + (e.clientX - state.startX);
       state.y = state.initialY + (e.clientY - state.startY);
       renderSourceMedia();
     } else if (pts.length === 2 && state.pinchDist > 0) {
-      const r = (state.initialScale * (Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) / state.pinchDist)) / state.scale;
-      state.scale *= r; state.x *= r; state.y *= r;
-      renderSourceMedia();
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      zoomMedia((state.initialScale * (dist / state.pinchDist)) / state.scale);
     }
   };
 
@@ -1850,57 +1908,87 @@
       const pt = Array.from(state.pointers.values())[0];
       state.startX = pt.x; state.startY = pt.y;
       state.initialX = state.x; state.initialY = state.y;
-      state.isPanning = true;
-    } else {
-      state.isPanning = false;
+    } else if (state.pointers.size === 2) {
+      initPinch();
     }
   };
 
   const handleKeydown = (e) => {
+    if (state.isBusy || e.ctrlKey || e.altKey || e.metaKey) return;
     if (elements.modalPreview.classList.contains('active')) {
       if (['INPUT', 'SELECT'].includes(document.activeElement?.tagName)) return;
       const acts = { Escape: 'btn-close', Delete: 'btn-delete', Backspace: 'btn-delete', ArrowLeft: 'btn-prev', ArrowRight: 'btn-next', ArrowDown: 'btn-download' };
       let targetId = acts[e.key];
-      if (e.key === 'ArrowUp') targetId = (e.shiftKey && state.activeAudio && state.croppedImages.length > 0) ? 'btn-upload-video' : 'btn-upload-image';
+      if (e.key === 'ArrowUp') targetId = e.shiftKey ? 'btn-upload-video' : 'btn-upload-image';
       if (targetId) { simulateClick(targetId); e.preventDefault(); }
       return;
     }
     if (!elements.panelMedia.classList.contains('active') || elements.btnProcess.disabled || state.isAudioCrop || ['INPUT', 'SELECT'].includes(document.activeElement?.tagName)) return;
     const acts = {
-      ArrowUp: () => state.y -= 20, ArrowDown: () => state.y += 20,
-      ArrowLeft: () => state.x -= 20, ArrowRight: () => state.x += 20,
-      PageUp: () => { state.scale *= 1.1; state.x *= 1.1; state.y *= 1.1; },
-      PageDown: () => { state.scale /= 1.1; state.x /= 1.1; state.y /= 1.1; }
+      ArrowUp: () => { state.y -= 20; renderSourceMedia(); },
+      ArrowDown: () => { state.y += 20; renderSourceMedia(); },
+      ArrowLeft: () => { state.x -= 20; renderSourceMedia(); },
+      ArrowRight: () => { state.x += 20; renderSourceMedia(); },
+      PageUp: () => zoomMedia(1.1),
+      PageDown: () => zoomMedia(1 / 1.1)
     };
-    if (acts[e.key]) { acts[e.key](); e.preventDefault(); renderSourceMedia(); }
+    if (acts[e.key]) { acts[e.key](); e.preventDefault(); }
+  };
+
+  const validateForUpload = (images) => {
+    if (!charWrite) {
+      elements.modalPreview.classList.remove('active');
+      simulateClick('tab-badge');
+      return false;
+    }
+    if (!state.badgeWidth || !state.badgeHeight || state.maxBlockSize <= 4) {
+      alert("Error: Badge screen size or block size is unknown. Cannot upload.");
+      return false;
+    }
+    if (images.some(img => img.w !== state.badgeWidth || img.h !== state.badgeHeight)) {
+      alert(`Error: Resolution mismatch in cropped image(s). Expected ${state.badgeWidth}x${state.badgeHeight}px.`);
+      return false;
+    }
+    if (images.some(img => img.blob.size > 40959)) {
+      alert("Error: Image exceeds the maximum size of 40959 bytes.");
+      return false;
+    }
+    return true;
   };
 
   const executeUpload = async (blobToUpload) => {
-    const btns = document.querySelectorAll('.btn-modal');
-    btns.forEach(b => b.disabled = true);
-    elements.progressContainer.classList.add('active');
-    elements.progressBar.value = 0;
-    elements.progressText.textContent = `0%`;
+    setUILock(true, true);
     try {
-      await transferFileToBadge(blobToUpload, (curr, tot) => {
-        const pct = Math.round((curr / tot) * 100);
-        elements.progressBar.value = pct;
-        elements.progressText.textContent = `${pct}%`;
-      });
-      await reqData(BLE_CMD.CTRL, 0x04);
+      await transferFileToBadge(blobToUpload, updateProgress);
+      await checkBadgeStorage();
     } catch (e) {
       logDebug(`Upload Error: ${e.message}`);
     } finally {
-      btns.forEach(b => b.disabled = false);
-      setTimeout(() => elements.progressContainer.classList.remove('active'), 500);
+      setUILock(false);
     }
   };
 
   const initApp = () => {
     const syncPlayIcon = (e) => elements.iconPlay.textContent = e.type === 'play' ? 'pause' : 'play_arrow';
-    ['play', 'pause'].forEach(evt => {
-      elements.videoSource.addEventListener(evt, syncPlayIcon);
-      elements.audioSource.addEventListener(evt, syncPlayIcon);
+    const onTimeUpdate = () => {
+      const m = getMedia();
+      if (!(state.isVideo || state.isAudioCrop) || !m.duration) return;
+      const { st, ed } = getSeekBounds(m);
+      if (m.currentTime >= ed && !m.paused) m.currentTime = st;
+      updatePosIndicator();
+    };
+    const onMediaEnded = () => {
+      const m = getMedia();
+      if (!(state.isVideo || state.isAudioCrop)) return;
+      m.currentTime = getSeekBounds(m).st;
+      m.play();
+    };
+
+    [elements.videoSource, elements.audioSource].forEach(el => {
+      el.addEventListener('play', syncPlayIcon);
+      el.addEventListener('pause', syncPlayIcon);
+      el.addEventListener('timeupdate', onTimeUpdate);
+      el.addEventListener('ended', onMediaEnded);
     });
 
     document.addEventListener('keydown', handleKeydown);
@@ -1912,121 +2000,157 @@
       try { await connectAndInitBadge(); } catch (e) { logDebug(`BLE Connect Error: ${e.message}`); }
     });
     elements.btnDebug.addEventListener('click', () => { state.isDebug = !state.isDebug; elements.btnDebug.classList.toggle('active-primary', state.isDebug); });
-    elements.btnSetLang.addEventListener('click', async () => { try { await sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]); } catch (e) { logDebug(`Command Error: ${e.message}`); } });
-    elements.btnCall.addEventListener('click', async () => { try { await sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]); } catch (e) { logDebug(`Command Error: ${e.message}`); } });
-    elements.btnCheckStorage.addEventListener('click', async () => { try { await reqData(BLE_CMD.CTRL, 0x04); } catch (e) { logDebug(`Command Error: ${e.message}`); } });
+
+    const bindBleCmd = (btn, fn) => btn.addEventListener('click', async () => {
+      try { await fn(); } catch (e) { logDebug(`Command Error: ${e.message}`); }
+    });
+    bindBleCmd(elements.btnSetLang, () => sendCmd(BLE_CMD.SYSTEM, 0x15, [parseInt(elements.selLang.value)]));
+    bindBleCmd(elements.btnCall, () => sendCmd(BLE_CMD.SYSTEM, 0x0B, [0x01]));
+    bindBleCmd(elements.btnCheckStorage, checkBadgeStorage);
+
+    const bindClampInput = (el, min, max, def, onUpdate) => {
+      el.addEventListener('change', () => {
+        el.value = clamp(parseInt(el.value, 10) || def, min, max);
+        onUpdate?.();
+      });
+    };
+    bindClampInput(elements.inputFilesize, 1, 39, 20);
+    bindClampInput(elements.inputQuality, 1, 100, 90);
+    bindClampInput(elements.inputFps, 1, 15, 3);
+    bindClampInput(elements.modalInputFps, 1, 15, 3, updateModalText);
+    elements.modalInputFps.addEventListener('input', updateModalText);
 
     elements.btnOpenFile.addEventListener('click', () => elements.inputFile.click());
     elements.inputFile.addEventListener('change', e => {
       const file = e.target.files[0];
-      if (!file || file.type.includes('svg')) return e.target.value = '';
       e.target.value = '';
+      if (!file || file.type.includes('svg')) return;
       loadMediaFile(file);
     });
 
     elements.btnProcess.addEventListener('click', async () => {
-      if (elements.btnProcess.disabled) return;
-      elements.btnProcess.disabled = true;
-      setUILock(true);
-      const originalBtnHtml = elements.btnProcess.innerHTML;
-      try {
-        const targetSize = parseFloat(elements.inputFilesize.value) || 20;
-        const res = parseInt(elements.selResolution.value, 10);
-        const quality = Math.max(1, Math.min(100, parseInt(elements.inputQuality.value, 10) || 90)) / 100;
-        const st = parseFloat(elements.inputStart.value) || 0;
-        const dur = parseFloat(elements.inputDuration.value) || 0;
+      if (elements.btnProcess.disabled || state.isBusy) return;
+      const targetSize = clamp(parseFloat(elements.inputFilesize.value) || 20, 1, 39);
+      const res = parseInt(elements.selResolution.value, 10);
+      const quality = clamp(parseInt(elements.inputQuality.value, 10) || 90, 1, 100) / 100;
+      const st = parseFloat(elements.inputStart.value) || 0;
+      const dur = parseFloat(elements.inputDuration.value) || 0;
 
+      if (state.isVideo) {
+        const fps = clamp(parseInt(elements.inputFps.value, 10) || 3, 1, 15);
+        const frames = Math.round(dur * fps);
+        if (dur <= 0 || frames <= 0) return;
+        setUILock(true, true);
+        const wasPlaying = !elements.videoSource.paused;
+        const originalTime = elements.videoSource.currentTime;
+        elements.videoSource.pause();
+        const step = 1 / fps;
+        try {
+          for (let i = 0; i < frames; i++) {
+            const t = Math.min(elements.videoSource.duration, st + i * step);
+            await seekVideo(t);
+            const blob = await processSingleFrame(elements.videoSource, res, targetSize, quality);
+            if (blob) addCroppedImage(blob, res, res, true);
+            updateProgress(i + 1, frames);
+          }
+          await seekVideo(originalTime);
+          if (wasPlaying) elements.videoSource.play();
+          if (state.currentAudioBuffer) {
+            const { pcmData, blob, rbuf } = await createPcmWav(state.currentAudioBuffer, st, dur, dur);
+            setActiveAudio(pcmData, blob, rbuf);
+          }
+          renderThumbs();
+        } finally {
+          setUILock(false);
+        }
+        return;
+      }
+
+      setUILock(true);
+      try {
         if (state.isAudioCrop) {
           const parsedTot = parseFloat(elements.inputTotal.value);
           const tot = isNaN(parsedTot) ? dur : parsedTot;
           if (tot <= 0) {
             clearActiveAudio();
-            state.sourceAudioBuffer = null;
+            state.currentAudioBuffer = null;
             initTimelineUI(0);
             renderThumbs();
           } else {
-            const srcBuf = state.sourceAudioBuffer ?? new AudioBuffer({ length: 16, sampleRate: 16000 });
+            const srcBuf = state.currentAudioBuffer ?? new AudioBuffer({ length: 16, sampleRate: 16000 });
             const { pcmData, blob, rbuf } = await createPcmWav(srcBuf, st, dur, tot);
             setActiveAudio(pcmData, blob, rbuf);
+            initTimelineUI(rbuf.duration);
             renderThumbs();
           }
-        } else if (state.isVideo) {
-          const fps = Math.min(15, Math.max(1, parseInt(elements.inputFps.value, 10) || 3));
-          const frames = Math.round(dur * fps);
-          if (dur <= 0 || frames <= 0) return;
-          const wasPlaying = !elements.videoSource.paused;
-          const originalTime = elements.videoSource.currentTime;
-          elements.videoSource.pause();
-          const step = 1 / fps;
-
-          for (let i = 0; i < frames; i++) {
-            const t = Math.min(elements.videoSource.duration, st + i * step);
-            if (t > st + dur + 1e-6) break;
-            await seekVideo(t);
-            const blob = await processSingleFrame(elements.videoSource, res, targetSize, quality);
-            if (blob) addCroppedImage(blob, res, true);
-
-            const pct = Math.round(((i + 1) / frames) * 100);
-            elements.btnProcess.innerHTML = `<span style="font-size: 14px; font-weight: bold;">${pct}%</span>`;
-          }
-
-          await seekVideo(originalTime);
-          if (wasPlaying) elements.videoSource.play();
-          if (state.tempVideoAudioBuffer) {
-            const { pcmData, blob, rbuf } = await createPcmWav(state.tempVideoAudioBuffer, st, dur, dur);
-            setActiveAudio(pcmData, blob, rbuf);
-          }
-          renderThumbs();
         } else {
           const blob = await processSingleFrame(elements.imgSource, res, targetSize, quality);
-          if (blob) addCroppedImage(blob, res);
+          if (blob) addCroppedImage(blob, res, res);
         }
       } finally {
-        elements.btnProcess.innerHTML = originalBtnHtml;
-        elements.btnProcess.disabled = false;
         setUILock(false);
       }
     });
 
     elements.btnImport.addEventListener('click', () => elements.inputImport.click());
     elements.inputImport.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const files = Array.from(e.target.files);
       e.target.value = '';
-      const name = file.name.toLowerCase();
-      if (file.type === 'image/jpeg' || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-        const url = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => { addCroppedImage(file, img.naturalWidth || parseInt(elements.selResolution.value, 10)); URL.revokeObjectURL(url); };
-        img.src = url;
-      } else if (file.type.startsWith('audio/wav') || file.type === 'audio/x-wav' || name.endsWith('.wav')) {
-        try {
-          const ab = await decodeAudio(await file.arrayBuffer());
-          const { pcmData, blob, rbuf } = await createPcmWav(ab, 0, ab.duration, ab.duration);
-          setActiveAudio(pcmData, blob, rbuf);
-          renderThumbs();
-        } catch (err) {
-          logDebug(`WAV Import Error: ${err.message}`);
+      if (files.length === 0) return;
+      setUILock(true, files.length > 1);
+      const defRes = parseInt(elements.selResolution.value, 10);
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const name = file.name.toLowerCase();
+          if (file.type === 'image/jpeg' || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
+            await new Promise((resolve) => {
+              const url = URL.createObjectURL(file);
+              const img = new Image();
+              img.onload = () => {
+                addCroppedImage(file, img.naturalWidth || defRes, img.naturalHeight || defRes, true);
+                URL.revokeObjectURL(url);
+                resolve();
+              };
+              img.onerror = () => {
+                URL.revokeObjectURL(url);
+                resolve();
+              };
+              img.src = url;
+            });
+          } else if (file.type.startsWith('audio/wav') || file.type === 'audio/x-wav' || name.endsWith('.wav')) {
+            try {
+              const ab = await decodeAudio(await file.arrayBuffer());
+              const { pcmData, blob, rbuf } = await createPcmWav(ab, 0, ab.duration, ab.duration);
+              setActiveAudio(pcmData, blob, rbuf);
+              if (state.isAudioCrop) initTimelineUI(rbuf.duration);
+            } catch (err) {
+              logDebug(`WAV Import Error: ${err.message}`);
+            }
+          }
+          if (files.length > 1) updateProgress(i + 1, files.length);
         }
+        renderThumbs();
+      } finally {
+        setUILock(false);
       }
     });
 
-    elements.btnAudioThumb.addEventListener('click', async () => {
+    elements.btnAudioThumb.addEventListener('click', () => {
       pauseMedia();
-      if (!state.activeAudio && state.tempVideoAudioBuffer) {
-        state.sourceAudioBuffer = state.tempVideoAudioBuffer;
-      }
+      revokeMediaUrl(elements.audioSource);
       state.isAudioCrop = true;
       state.isVideo = false;
       switchTab(true);
       updateMediaModeUI();
 
-      if (state.activeAudio?.url) {
+      state.currentAudioBuffer = state.activeAudio?.buffer ?? null;
+      if (state.activeAudio) {
         elements.audioSource.src = state.activeAudio.url;
-      } else if (elements.videoSource.src) {
-        elements.audioSource.src = elements.videoSource.src;
+        initTimelineUI(state.activeAudio.buffer.duration);
+      } else {
+        initTimelineUI(0);
       }
-      initTimelineUI(elements.audioSource.duration || (state.sourceAudioBuffer ? state.sourceAudioBuffer.duration : 0));
       elements.btnProcess.disabled = false;
     });
 
@@ -2037,30 +2161,47 @@
     });
 
     elements.selResolution.addEventListener('change', () => {
-      const s = elements.selResolution.value;
-      elements.cropMask.style.inlineSize = `${s}px`; elements.cropMask.style.blockSize = `${s}px`;
+      const newRes = parseInt(elements.selResolution.value, 10);
+      elements.cropMask.style.inlineSize = `${newRes}px`;
+      elements.cropMask.style.blockSize = `${newRes}px`;
+      if (state.maskRes > 0 && state.maskRes !== newRes) {
+        const hasLoadedMedia = state.isVideo
+          ? elements.videoSource.classList.contains('loaded')
+          : elements.imgSource.classList.contains('loaded');
+        if (!state.isAudioCrop && hasLoadedMedia) {
+          zoomMedia(newRes / state.maskRes);
+        }
+      }
+      state.maskRes = newRes;
     });
 
     elements.cropArea.addEventListener('pointerdown', handlePointerDown);
     elements.cropArea.addEventListener('pointermove', handlePointerMove);
-    ['pointerup', 'pointercancel'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => elements.cropArea.addEventListener(ev, handlePointerUp));
     elements.cropArea.addEventListener('wheel', e => {
       if (elements.btnProcess.disabled || state.isAudioCrop) return;
       e.preventDefault();
-      const f = Math.exp(-e.deltaY * 0.005);
-      state.scale *= f; state.x *= f; state.y *= f;
-      renderSourceMedia();
+      zoomMedia(Math.exp(-e.deltaY * 0.005));
     }, { passive: false });
 
     elements.thumbnailContainer.addEventListener('wheel', e => { e.preventDefault(); elements.thumbnailContainer.scrollLeft += e.deltaY + e.deltaX; }, { passive: false });
 
     elements.modalPreview.addEventListener('pointerdown', e => {
-      if (e.pointerType !== 'mouse') { modalTouchX = e.clientX; modalTouchY = e.clientY; }
+      if (e.pointerType !== 'mouse' && modalTouchId === null) {
+        modalTouchId = e.pointerId;
+        modalTouchX = e.clientX;
+        modalTouchY = e.clientY;
+      }
     });
     elements.modalPreview.addEventListener('pointerup', e => {
-      if (e.pointerType === 'mouse' || state.previewIndex < 0) return;
+      if (e.pointerId !== modalTouchId) return;
+      modalTouchId = null;
+      if (state.previewIndex < 0) return;
       const dx = e.clientX - modalTouchX;
       if (Math.abs(dx) > 50 && Math.abs(e.clientY - modalTouchY) < 50) simulateClick(dx < 0 ? 'btn-next' : 'btn-prev');
+    });
+    elements.modalPreview.addEventListener('pointercancel', e => {
+      if (e.pointerId === modalTouchId) modalTouchId = null;
     });
 
     elements.btnClose.addEventListener('click', () => elements.modalPreview.classList.remove('active'));
@@ -2071,6 +2212,7 @@
       URL.revokeObjectURL(state.croppedImages.splice(state.previewIndex, 1)[0].url);
       renderThumbs();
       if (state.croppedImages.length === 0) {
+        elements.imgPreview.removeAttribute('src');
         elements.modalPreview.classList.remove('active');
         state.previewIndex = -1;
       } else {
@@ -2079,128 +2221,107 @@
     });
 
     elements.btnDownload.addEventListener('click', () => {
-      const a = document.createElement('a');
       const img = state.croppedImages[state.previewIndex];
-      a.href = img.url; a.download = img.filename.replace('.jpg', `_${state.previewIndex}.jpg`); a.click();
+      triggerDownload(img.url, getExportFilename(img, state.previewIndex));
     });
 
     elements.btnDownloadZip.addEventListener('click', async () => {
-      const btns = document.querySelectorAll('.btn-modal');
-      btns.forEach(b => b.disabled = true);
+      const total = state.croppedImages.length + (state.activeAudio ? 1 : 0);
+      setUILock(true, true);
       try {
         const filesToZip = [];
         for (let i = 0; i < state.croppedImages.length; i++) {
           const img = state.croppedImages[i];
-          const uniqueName = img.filename.replace('.jpg', `_${i}.jpg`);
-          filesToZip.push({ name: uniqueName, data: new Uint8Array(await img.blob.arrayBuffer()) });
+          filesToZip.push({ name: getExportFilename(img, i), data: new Uint8Array(await img.blob.arrayBuffer()) });
+          updateProgress(i + 1, total);
         }
-        if (state.activeAudio) filesToZip.push({ name: state.activeAudio.blob.name, data: new Uint8Array(await state.activeAudio.blob.arrayBuffer()) });
-        const a = document.createElement('a');
+        if (state.activeAudio) {
+          filesToZip.push({ name: state.activeAudio.blob.name, data: new Uint8Array(await state.activeAudio.blob.arrayBuffer()) });
+          updateProgress(total, total);
+        }
         const url = URL.createObjectURL(createZip(filesToZip));
-        a.href = url;
-        a.download = `badge_media_${Date.now()}.zip`;
-        a.click();
+        triggerDownload(url, `badge_media_${Date.now()}.zip`);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       } finally {
-        btns.forEach(b => b.disabled = false);
+        setUILock(false);
       }
     });
 
     elements.btnUploadImage.addEventListener('click', async () => {
-      if (!charWrite) { elements.modalPreview.classList.remove('active'); return simulateClick('tab-badge'); }
-      if (!state.badgeWidth || !state.maxBlockSize) return alert("Error: Badge screen size or block size is unknown. Cannot upload.");
       const img = state.croppedImages[state.previewIndex];
-      if (img.res !== state.badgeWidth) return alert(`Error: Resolution mismatch in cropped image. Expected ${state.badgeWidth}px.`);
-      if (img.blob.size > 40959) return alert("Error: Image exceeds the maximum size of 40959 bytes.");
+      if (!img || !validateForUpload([img])) return;
       await executeUpload(img.blob);
     });
 
-    elements.modalInputFps.addEventListener('input', updateModalText);
-
     elements.btnUploadVideo.addEventListener('click', async () => {
-      const btns = document.querySelectorAll('.btn-modal');
-      btns.forEach(b => b.disabled = true);
+      if (!validateForUpload(state.croppedImages)) return;
+      const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
+      const uiFps = clamp(parseInt(elements.modalInputFps.value, 10) || 3, 1, 15);
+      const fps = audioLen > 0 ? Math.max(0.001, state.croppedImages.length / audioLen) : uiFps;
+      if (fps > 15) {
+        alert(`Failed to build AVI: FPS (${fps.toFixed(1)}) exceeds the maximum limit of 15.`);
+        return;
+      }
       try {
-        if (!charWrite) { elements.modalPreview.classList.remove('active'); simulateClick('tab-badge'); return; }
-        if (!state.badgeWidth || !state.maxBlockSize) { alert("Error: Badge screen size or block size is unknown. Cannot upload."); return; }
-        if (state.croppedImages.some(img => img.res !== state.badgeWidth)) { alert(`Error: Resolution mismatch in cropped images. Expected ${state.badgeWidth}px.`); return; }
-        if (state.croppedImages.some(img => img.blob.size > 40959)) { alert("Error: One or more frames exceed the maximum size of 40959 bytes."); return; }
-
-        const audioLen = state.activeAudio ? state.activeAudio.pcmData.length / 32000 : 0;
-        const uiFps = Math.max(1, Math.min(15, parseInt(elements.modalInputFps.value, 10) || 3));
-        const fps = audioLen > 0 ? Math.max(0.001, state.croppedImages.length / audioLen) : uiFps;
-
-        if (fps > 15) throw new Error(`FPS (${fps.toFixed(1)}) exceeds the maximum limit of 15.`);
         const aviBlob = await buildAviFile(state.croppedImages, state.badgeWidth, state.badgeHeight, fps, state.activeAudio?.pcmData);
         await executeUpload(aviBlob);
       } catch (e) {
         alert("Failed to build AVI: " + e.message);
-      } finally {
-        btns.forEach(b => b.disabled = false);
       }
     });
 
-    elements.seekStart.addEventListener('input', () => {
-      elements.seekStart.style.zIndex = 5; elements.seekEnd.style.zIndex = 4;
-      updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekStart.value);
-    });
-    elements.seekEnd.addEventListener('input', () => {
-      elements.seekEnd.style.zIndex = 5; elements.seekStart.style.zIndex = 4;
-      updateRangeUI(); getMedia().currentTime = parseFloat(elements.seekEnd.value);
-    });
+    const handleSeekInput = (isStart) => {
+      elements.seekStart.classList.toggle('is-front', isStart);
+      elements.seekEnd.classList.toggle('is-front', !isStart);
+      updateRangeUI();
+      getMedia().currentTime = parseFloat((isStart ? elements.seekStart : elements.seekEnd).value) || 0;
+      updatePosIndicator();
+    };
+    elements.seekStart.addEventListener('input', () => handleSeekInput(true));
+    elements.seekEnd.addEventListener('input', () => handleSeekInput(false));
 
-    elements.inputStart.addEventListener('input', () => {
+    const syncStartInput = (commit) => {
       const st = parseFloat(elements.inputStart.value);
-      if (!isNaN(st)) {
-        elements.seekStart.value = st;
-        updateRangeUI(false);
-        getMedia().currentTime = st;
-      }
-    });
+      if (!commit && isNaN(st)) return;
+      const clamped = clamp(st || 0, 0, parseFloat(elements.seekEnd.value) || 0);
+      if (commit) elements.inputStart.value = clamped.toFixed(3);
+      elements.seekStart.value = clamped;
+      updateRangeUI(false);
+      getMedia().currentTime = clamped;
+      updatePosIndicator();
+    };
+    elements.inputStart.addEventListener('input', () => syncStartInput(false));
+    elements.inputStart.addEventListener('change', () => syncStartInput(true));
 
-    elements.inputStart.addEventListener('change', () => {
-      let st = parseFloat(elements.inputStart.value) || 0;
-      const ed = parseFloat(elements.seekEnd.value) || 0;
-      if (st > ed) st = ed;
-      elements.inputStart.value = st.toFixed(3);
-      elements.seekStart.value = st;
-      updateRangeUI(true);
-      getMedia().currentTime = st;
-    });
-
-    elements.inputDuration.addEventListener('input', () => {
+    const syncDurationInput = (commit) => {
       const len = parseFloat(elements.inputDuration.value);
-      if (!isNaN(len)) {
-        const st = parseFloat(elements.seekStart.value) || 0;
-        elements.seekEnd.value = st + len;
-        updateRangeUI(false);
-      }
-    });
-
-    elements.inputDuration.addEventListener('change', () => {
+      if (!commit && isNaN(len)) return;
       const st = parseFloat(elements.seekStart.value) || 0;
-      let len = parseFloat(elements.inputDuration.value) || 0;
-      const dur = getMedia().duration || 0;
-      if (st + len > dur) len = Math.max(0, dur - st);
-      elements.inputDuration.value = len.toFixed(3);
-      elements.seekEnd.value = st + len;
-      updateRangeUI(true);
+      const maxLen = Math.max(0, (getMedia().duration || 0) - st);
+      const clamped = clamp(len || 0, 0, maxLen);
+      if (commit) elements.inputDuration.value = clamped.toFixed(3);
+      elements.seekEnd.value = st + clamped;
+      updateRangeUI(commit);
+    };
+    elements.inputDuration.addEventListener('input', () => syncDurationInput(false));
+    elements.inputDuration.addEventListener('change', () => syncDurationInput(true));
+
+    elements.inputTotal.addEventListener('change', () => {
+      const tot = Math.max(0, parseFloat(elements.inputTotal.value) || 0);
+      elements.inputTotal.value = tot.toFixed(3);
     });
 
     elements.btnPlay.addEventListener('click', () => {
       if (state.isAudioCrop && !elements.audioSource.src) return;
       const m = getMedia();
-      m.paused ? m.play() : m.pause();
+      if (m.paused) {
+        const { st, ed } = getSeekBounds(m);
+        if (m.currentTime < st || m.currentTime >= ed) m.currentTime = st;
+        m.play();
+      } else {
+        m.pause();
+      }
     });
-
-    const onTimeUpdate = () => {
-      const m = getMedia();
-      if (!(state.isVideo || state.isAudioCrop) || !m.duration) return;
-      if (m.currentTime >= (parseFloat(elements.seekEnd.value) || m.duration) && !m.paused) m.currentTime = parseFloat(elements.seekStart.value) || 0;
-      elements.seekCurrentPos.style.insetInlineStart = `${(m.currentTime / m.duration) * 100}%`;
-    };
-    elements.videoSource.addEventListener('timeupdate', onTimeUpdate);
-    elements.audioSource.addEventListener('timeupdate', onTimeUpdate);
 
     initCjpegli().then(mod => {
       elements.grpFilesize.classList.toggle('hidden-control', !mod);
