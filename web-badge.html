@@ -859,6 +859,7 @@
       await sendRawPacket(new Uint8Array([PROTO.HEAD_ACK, 0x00, 0x05, cls, id, ...u16be(bodyLen + 3), 0x01]));
     } catch (err) {
       logDebug(`ACK Send Error: ${err.message}`);
+      return;
     }
 
     if (cls === PROTO.CLS_STAT && id === 0x04 && payload.length >= 8) {
@@ -960,12 +961,15 @@
     } catch {
       logDebug('Aux RX characteristic unavailable.');
     }
+    if (!ble.device?.gatt.connected) return;
 
     try {
       const batService = await server.getPrimaryService(BLE_UUID.BATTERY_SVC);
-      ble.batChar = await batService.getCharacteristic(BLE_UUID.BATTERY_CHAR);
-      updateBatteryStatus((await ble.batChar.readValue()).getUint8(0));
-      await ble.batChar.startNotifications();
+      const batChar = await batService.getCharacteristic(BLE_UUID.BATTERY_CHAR);
+      updateBatteryStatus((await batChar.readValue()).getUint8(0));
+      await batChar.startNotifications();
+      if (!ble.device?.gatt.connected) return;
+      ble.batChar = batChar;
       ble.batChar.addEventListener('characteristicvaluechanged', handleBatteryNotification);
     } catch {
       logDebug('Battery service unavailable.');
@@ -993,7 +997,8 @@
       await initializeBadgeSession();
       if (ble.device?.gatt.connected) updateConnectionUi(true);
     } catch (err) {
-      ble.device?.gatt.connected ? ble.device.gatt.disconnect() : handleBadgeDisconnect();
+      if (ble.device?.gatt.connected) ble.device.gatt.disconnect();
+      handleBadgeDisconnect();
       throw err;
     }
   };
@@ -1588,8 +1593,8 @@
     const url = URL.createObjectURL(file);
     try {
       if (state.mode === 'audio') {
-        ui.stageAudio.src = url;
         const decoded = await decodeAudioBuffer(await file.arrayBuffer());
+        ui.stageAudio.src = url;
         state.assets.rawAudio = decoded;
         initializeTimeline(decoded.duration);
       } else if (state.mode === 'video') {
@@ -1706,6 +1711,7 @@
           state.assets.rawAudio = rendered;
           ui.stageAudio.src = state.assets.audioTrack.url;
           initializeTimeline(rendered.duration);
+          ui.btnExtract.disabled = false;
         }
       } catch (err) {
         logDebug(`WAV Import Error: ${err.message}`);
@@ -2044,12 +2050,17 @@
       }
       const { start, end } = getTrimRange();
       if (end <= start) return;
-      if (player.currentTime < start || player.currentTime >= end) player.currentTime = start;
+      if (player.ended || player.currentTime < start || player.currentTime >= Math.min(end, player.duration || end)) {
+        player.currentTime = start;
+      }
       player.play().catch(() => {});
     });
   };
 
   const bindPreviewEvents = () => {
+    ui.modalPreview.addEventListener('cancel', (event) => {
+      if (state.busy) event.preventDefault();
+    });
     ui.modalPreview.addEventListener('close', () => {
       state.previewIdx = -1;
       state.swipe.id = null;
