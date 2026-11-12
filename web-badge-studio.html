@@ -1,0 +1,2823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e1e">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Web Badge Studio</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap">
+  <!-- <script src="cjpegli.js"></script> -->
+  <style>
+    :root {
+      color-scheme: light dark;
+
+      --bg-app: light-dark(#f8f9fa, #121212);
+      --bg-surface: light-dark(#ffffff, #1e1e1e);
+      --bg-stage: light-dark(#e8eaed, #222222);
+      --bg-field: light-dark(#ffffff, #333333);
+      --bg-backdrop: light-dark(rgba(255, 255, 255, 0.85), rgba(0, 0, 0, 0.85));
+
+      --fg-primary: light-dark(#202124, #ffffff);
+      --fg-muted: light-dark(#5f6368, #aaaaaa);
+
+      --color-accent: light-dark(#007bff, #4da3ff);
+      --color-danger: light-dark(#dc3545, #ff453a);
+
+      --fill-hover: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
+      --fill-active: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.2));
+      --fill-danger: light-dark(rgba(220, 53, 69, 0.1), rgba(255, 69, 58, 0.15));
+      --fill-glass: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.15));
+
+      --border-subtle: light-dark(#dadce0, #333333);
+
+      --shadow-sm: 0 2px 4px light-dark(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.4));
+      --shadow-md: 0 2px 8px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
+
+      --size-touch: 40px;
+      --radius-sm: 8px;
+
+      --ease-fast: 0.1s ease;
+      --ease-base: 0.2s ease;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      overflow: hidden;
+      color: var(--fg-primary);
+      font-family: system-ui, sans-serif;
+      background: var(--bg-app);
+      overscroll-behavior: none;
+      user-select: none;
+
+      &[data-pixelated="true"] :is(.stage-media, .preview-image, .thumb-item) {
+        image-rendering: pixelated;
+      }
+
+      &:not([data-connected="true"]) #badge-identity,
+      &:not([data-cjpegli="true"]) #group-max-size,
+      &[data-cjpegli="true"] #group-quality {
+        display: none;
+      }
+    }
+
+    img {
+      -webkit-user-drag: none;
+    }
+
+    #input-media,
+    #input-import {
+      display: none;
+    }
+
+    .material-symbols-outlined {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .icon-label {
+      color: var(--fg-muted);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    :is(.btn, select, input) {
+      margin: 0;
+      padding: 0;
+      color: var(--fg-primary);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.4;
+      appearance: none;
+      outline: none;
+    }
+
+    select {
+      padding-inline: 8px;
+      cursor: pointer;
+    }
+
+    option {
+      color: var(--fg-primary);
+      background: var(--bg-surface);
+    }
+
+    :is(.btn, select, input:not([type="range"]), dialog):focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--size-touch);
+      min-height: var(--size-touch);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: transform var(--ease-fast), background-color var(--ease-base), color var(--ease-base);
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      @media (hover: hover) {
+        &:not(:disabled, .btn-glass):hover {
+          background: var(--fill-hover);
+        }
+      }
+
+      &:not(:disabled, .btn-glass):active {
+        background: var(--fill-active);
+      }
+    }
+
+    .btn-icon {
+      flex-shrink: 0;
+      width: var(--size-touch);
+      height: var(--size-touch);
+      border-radius: 50%;
+
+      &.active {
+        color: var(--color-accent);
+      }
+    }
+
+    .btn-glass {
+      color: var(--fg-primary);
+      background: light-dark(rgba(255, 255, 255, 0.85), rgba(40, 40, 40, 0.75));
+      border: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.15));
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(8px);
+
+      @media (hover: hover) {
+        &:not(:disabled):hover {
+          background: light-dark(rgba(255, 255, 255, 1), rgba(60, 60, 60, 0.85));
+        }
+        &.danger:not(:disabled):hover {
+          background: light-dark(rgba(255, 235, 235, 1), rgba(80, 20, 20, 0.85));
+        }
+      }
+
+      &:not(:disabled):active,
+      &.pressed {
+        transform: scale(0.92);
+        background: light-dark(rgba(240, 240, 240, 0.9), rgba(50, 50, 50, 0.85));
+      }
+
+      &.danger {
+        color: var(--color-danger);
+      }
+    }
+
+    .input-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: var(--size-touch);
+      padding-inline: 12px;
+      background: var(--bg-field);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: text;
+      transition: outline var(--ease-base), border-color var(--ease-base);
+
+      &:has(:is(input, select):focus-visible) {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+
+      & :is(input, select):focus-visible {
+        outline: none;
+      }
+
+      &.loop-chip {
+        background: light-dark(rgba(255, 255, 255, 0.85), rgba(40, 40, 40, 0.75));
+        border-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.15));
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(8px);
+      }
+
+      & .unit-label {
+        color: var(--fg-muted);
+        font-size: 14px;
+        font-weight: 500;
+        pointer-events: none;
+      }
+
+      & input[type="number"] {
+        width: 5ch;
+        height: 100%;
+        color: var(--fg-primary);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        background: transparent;
+        border: none;
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          margin: 0;
+          appearance: none;
+        }
+      }
+
+      & select {
+        width: auto;
+        height: 100%;
+        padding-inline: 4px;
+        color: var(--fg-primary);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+    }
+
+    input[type="range"] {
+      height: 24px;
+      background: transparent;
+      cursor: pointer;
+
+      &::-webkit-slider-runnable-track {
+        height: 6px;
+        background: var(--border-subtle);
+        border-radius: 3px;
+      }
+
+      &::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+        margin-block-start: -7px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 50%;
+        box-shadow: var(--shadow-sm), inset 0 0 0 2px var(--color-accent);
+        appearance: none;
+        transition: transform var(--ease-fast), box-shadow var(--ease-fast);
+      }
+
+      &::-webkit-slider-thumb:active {
+        transform: scale(1.15);
+        box-shadow: var(--shadow-md), inset 0 0 0 3px var(--color-accent);
+      }
+    }
+
+    #range-rotation {
+      flex: 1;
+      margin-inline: 16px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .row-timeline {
+      margin-block-end: 8px;
+    }
+
+    .row-params {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+
+      & > :nth-child(1) { justify-self: start; }
+      & > :nth-child(2) { justify-self: center; }
+      & > .param-slot-end {
+        display: flex;
+        justify-self: end;
+      }
+    }
+
+    .nav-tabs {
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      height: 48px;
+      background: var(--bg-surface);
+      border-block-end: 1px solid var(--border-subtle);
+    }
+
+    .nav-tab {
+      flex: 1;
+      height: 100%;
+      color: var(--fg-muted);
+      border-block-end: 2px solid transparent;
+      transition: color var(--ease-base), border-color var(--ease-base);
+
+      &.active {
+        color: var(--fg-primary);
+        border-block-end-color: var(--fg-primary);
+      }
+    }
+
+    .panel-container {
+      display: grid;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      grid-area: 1 / 1;
+      z-index: 1;
+      opacity: 0;
+      visibility: hidden;
+      overflow: hidden;
+      contain: strict;
+      content-visibility: hidden;
+      transition: opacity var(--ease-base), visibility var(--ease-base);
+
+      &.active {
+        z-index: 2;
+        opacity: 1;
+        visibility: visible;
+        contain: none;
+        content-visibility: visible;
+      }
+    }
+
+    .toolbar {
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 64px;
+      padding-inline: 16px;
+      background: var(--bg-surface);
+      border-block-end: 1px solid var(--border-subtle);
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &.sub-toolbar {
+        height: 56px;
+        border-block-start: none;
+      }
+
+      & .push-end {
+        margin-inline-start: auto;
+      }
+    }
+
+    .asset-dock {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 88px;
+      padding-inline: 16px;
+      background: var(--bg-surface);
+      border-block-start: 1px solid var(--border-subtle);
+      touch-action: pan-x;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      padding-inline: 16px;
+      color: var(--fg-primary);
+      font-size: 14px;
+      background: var(--bg-surface);
+      border-block-start: 1px solid var(--border-subtle);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .status-icon {
+      color: var(--fg-muted);
+    }
+
+    .badge-panel {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 16px;
+      background: var(--bg-surface);
+    }
+
+    .badge-identity {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+
+      & > span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      & .badge-mac {
+        color: var(--fg-muted);
+        font-size: 12px;
+        font-weight: normal;
+      }
+    }
+
+    .command-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    #panel-editor {
+      &[data-mode="audio"] :is(.crop-guide, #group-fps, #toolbar-rotate, .rotate-ring),
+      &:not([data-mode="audio"]) :is(#stage-audio-icon, #group-total),
+      &:not([data-mode="video"]):not([data-mode="audio"]) #trim-panel,
+      &:not([data-mode="image"]) #stage-image,
+      &:not([data-mode="video"]) #stage-video {
+        display: none;
+      }
+    }
+
+    .crop-stage {
+      position: relative;
+      display: flex;
+      flex: 1;
+      background: var(--bg-stage);
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    :is(.stage-media, .crop-guide, .stage-audio-icon, .rotate-ring) {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .stage-media {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translate3d(var(--pan-x, 0px), var(--pan-y, 0px), 0) scale(var(--scale, 1));
+      transition: opacity var(--ease-base);
+      will-change: transform;
+
+      &.ready {
+        opacity: 1;
+      }
+    }
+
+    .crop-guide {
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+        0 0 0 9999px rgba(0, 0, 0, 0.5);
+    }
+
+    .rotate-ring {
+      transform: translate(-50%, -50%) rotate(var(--rotation, 0deg));
+      will-change: transform;
+    }
+
+    .rotate-handle {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-start: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--size-touch);
+      height: var(--size-touch);
+      color: var(--fg-primary);
+      background: light-dark(rgba(255, 255, 255, 0.85), rgba(40, 40, 40, 0.75));
+      border: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.15));
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translate(-50%, -50%);
+      backdrop-filter: blur(8px);
+      cursor: grab;
+      pointer-events: auto;
+      transition: background-color var(--ease-base), box-shadow var(--ease-fast);
+
+      &:active {
+        background: light-dark(rgba(240, 240, 240, 0.9), rgba(50, 50, 50, 0.85));
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        cursor: grabbing;
+      }
+
+      & .material-symbols-outlined {
+        font-size: 20px;
+        transform: rotate(calc(-1 * var(--rotation, 0deg)));
+      }
+    }
+
+    .stage-audio-icon {
+      color: var(--fg-muted);
+      font-size: 96px;
+    }
+
+    .trim-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg-surface);
+      border-block-end: 1px solid var(--border-subtle);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .timeline-track {
+      position: relative;
+      display: flex;
+      flex: 1;
+      align-items: center;
+      height: 24px;
+    }
+
+    :is(.timeline-rail, .timeline-fill, .timeline-playhead) {
+      position: absolute;
+      inset-block-start: 50%;
+    }
+
+    .timeline-rail {
+      width: 100%;
+      height: 6px;
+      margin-block-start: -3px;
+      background: var(--border-subtle);
+      border-radius: 3px;
+    }
+
+    .timeline-fill {
+      inset-inline-start: 0;
+      width: 100%;
+      height: 6px;
+      margin-block-start: -3px;
+      background: var(--color-accent);
+      border-radius: 3px;
+      transform: translateX(var(--fill-x, 0%)) scaleX(var(--fill-w, 0));
+      transform-origin: left;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .timeline-playhead {
+      inset-inline-start: var(--play-x, 0%);
+      z-index: 6;
+      width: 14px;
+      height: 14px;
+      margin-block-start: -7px;
+      background: var(--color-danger);
+      border: 2px solid var(--bg-surface);
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+      transform: translateX(-50%);
+      pointer-events: none;
+      will-change: inset-inline-start;
+    }
+
+    input[type="range"].timeline-thumb {
+      position: absolute;
+      inset-block-start: 50%;
+      z-index: 4;
+      width: 100%;
+      transform: translateY(-50%);
+      pointer-events: none;
+
+      &.top {
+        z-index: 5;
+      }
+
+      &::-webkit-slider-runnable-track {
+        background: transparent;
+      }
+
+      &::-webkit-slider-thumb {
+        width: 12px;
+        height: 28px;
+        margin-block-start: -11px;
+        border-radius: 6px;
+        cursor: ew-resize;
+        pointer-events: auto;
+      }
+    }
+
+    .thumb-list {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      gap: 12px;
+      overflow-inline: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+    }
+
+    .thumb-item {
+      flex-shrink: 0;
+      width: 64px;
+      aspect-ratio: 1;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform var(--ease-base);
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    dialog.modal-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      padding: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      touch-action: none;
+
+      &:not([open]) {
+        display: none;
+      }
+
+      &::backdrop {
+        background: var(--bg-backdrop);
+        backdrop-filter: blur(8px);
+      }
+    }
+
+    #modal-preview {
+      &:not([data-multi="true"]) :is(#btn-upload-video, #group-loop, #btn-download-zip),
+      &[data-has-audio="true"] #group-loop {
+        display: none;
+      }
+      &[data-first="true"] #btn-prev-frame,
+      &[data-last="true"] #btn-next-frame {
+        visibility: hidden;
+      }
+    }
+
+    .preview-bar {
+      position: absolute;
+      inset-inline: 16px;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      pointer-events: none;
+
+      &.top {
+        inset-block-start: 16px;
+      }
+
+      &.bottom {
+        inset-block-end: 16px;
+        align-items: end;
+      }
+
+      & .slot-center {
+        grid-column: 2;
+        pointer-events: auto;
+      }
+
+      & .slot-end {
+        grid-column: 3;
+        justify-self: end;
+        pointer-events: auto;
+      }
+    }
+
+    .preview-text {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+
+      &.counter {
+        max-width: 200px;
+        color: var(--fg-primary);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      &.details {
+        color: var(--fg-muted);
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: pre-line;
+      }
+    }
+
+    .preview-stage {
+      display: grid;
+      grid-template-areas:
+        ". upload ."
+        "prev image next"
+        ". download .";
+      place-items: center;
+      gap: 16px;
+      pointer-events: none;
+
+      & > * {
+        pointer-events: auto;
+      }
+    }
+
+    .preview-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      &.area-upload { grid-area: upload; }
+      &.area-download { grid-area: download; }
+    }
+
+    #btn-prev-frame { grid-area: prev; }
+    #btn-next-frame { grid-area: next; }
+
+    .preview-image {
+      grid-area: image;
+      max-width: 90dvw;
+      max-height: 55dvh;
+      box-shadow: var(--shadow-md);
+      object-fit: contain;
+    }
+
+    .progress-box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 80%;
+      max-width: 320px;
+      padding: 24px;
+      background: var(--bg-surface);
+      border-radius: calc(var(--radius-sm) * 2);
+      box-shadow: var(--shadow-md);
+    }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      appearance: none;
+
+      &::-webkit-progress-bar {
+        background: var(--border-subtle);
+      }
+
+      &::-webkit-progress-value {
+        background: var(--color-accent);
+      }
+    }
+
+    .progress-text {
+      align-self: center;
+      color: var(--fg-primary);
+      font-size: 14px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body data-connected="false" data-cjpegli="false" data-pixelated="false">
+
+<nav class="nav-tabs">
+  <button id="tab-badge" class="btn nav-tab active" title="Badge Control">
+    <span class="material-symbols-outlined">workspace_premium</span>
+  </button>
+  <button id="tab-editor" class="btn nav-tab" title="Media Editor">
+    <span class="material-symbols-outlined">photo_library</span>
+  </button>
+</nav>
+
+<div class="panel-container">
+  <section id="panel-badge" class="panel active">
+    <header class="toolbar">
+      <button id="btn-connect" class="btn btn-icon" title="Connect / Disconnect">
+        <span id="icon-connect" class="material-symbols-outlined">bluetooth</span>
+      </button>
+      <div id="badge-identity" class="status-item badge-identity" title="Connected Badge">
+        <span id="text-name" title="Badge Name"></span>
+        <span id="text-mac" class="badge-mac" title="MAC Address"></span>
+      </div>
+      <button id="btn-debug" class="btn btn-icon push-end" title="Toggle Debug Log">
+        <span class="material-symbols-outlined">bug_report</span>
+      </button>
+    </header>
+
+    <main class="badge-panel">
+      <div class="command-group">
+        <div class="field-group">
+          <button id="btn-set-lang" class="btn btn-icon badge-cmd" title="Set Language" disabled>
+            <span class="material-symbols-outlined">language</span>
+          </button>
+          <label class="input-chip" title="Language">
+            <select id="select-lang" class="badge-cmd" disabled>
+              <option value="1">English</option>
+              <option value="8">日本語</option>
+            </select>
+          </label>
+        </div>
+        <button id="btn-call-badge" class="btn btn-icon badge-cmd" title="Call Badge" disabled>
+          <span class="material-symbols-outlined">e911_emergency</span>
+        </button>
+        <button id="btn-check-storage" class="btn btn-icon badge-cmd" title="Check Storage" disabled>
+          <span class="material-symbols-outlined">sync</span>
+        </button>
+      </div>
+    </main>
+  </section>
+
+  <section id="panel-editor" class="panel" data-mode="image">
+    <header class="toolbar">
+      <button id="btn-open-media" class="btn btn-icon" title="Open Media File">
+        <span class="material-symbols-outlined">folder_open</span>
+      </button>
+      <input id="input-media" type="file" accept="image/*,video/*,audio/*">
+
+      <button id="btn-extract" class="btn btn-icon" title="Extract Media" disabled>
+        <span class="material-symbols-outlined">crop</span>
+      </button>
+
+      <label id="group-resolution" class="input-chip" title="Target Resolution">
+        <span class="material-symbols-outlined icon-label">aspect_ratio</span>
+        <select id="select-resolution" title="Resolution">
+          <option value="240x240">240x240</option>
+          <option value="360x360">360x360</option>
+        </select>
+      </label>
+
+      <label id="group-max-size" class="input-chip" title="Max File Size (KiB)">
+        <span class="material-symbols-outlined icon-label">compress</span>
+        <input id="input-max-size" type="number" value="20" min="1" max="39" step="1" title="Max Size">
+        <span class="unit-label">KiB</span>
+      </label>
+
+      <label id="group-quality" class="input-chip" title="JPEG Quality">
+        <span class="material-symbols-outlined icon-label">high_quality</span>
+        <input id="input-quality" type="number" value="90" min="1" max="100" step="1" title="Quality">
+      </label>
+
+      <div id="group-pixelated" title="Toggle Pixelated Rendering">
+        <button id="btn-toggle-pixelated" class="btn btn-icon" title="Pixelated">
+          <span id="icon-pixelated" class="material-symbols-outlined">grid_off</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="toolbar-rotate" class="toolbar sub-toolbar">
+      <span class="material-symbols-outlined icon-label" title="Rotate">rotate_right</span>
+      <input id="range-rotation" type="range" min="0" max="360" step="1" value="0" title="Rotation Angle">
+      <label class="input-chip" title="Rotation Angle (degrees)">
+        <input id="input-rotation" type="number" min="0" max="360" step="1" value="0">
+        <span class="unit-label">°</span>
+      </label>
+    </div>
+
+    <main id="crop-stage" class="crop-stage" title="Drag to Pan, Scroll or Pinch to Zoom">
+      <img id="stage-image" class="stage-media" decoding="async">
+      <video id="stage-video" class="stage-media" playsinline></video>
+      <audio id="stage-audio"></audio>
+      <span id="stage-audio-icon" class="material-symbols-outlined stage-audio-icon">graphic_eq</span>
+      <div id="crop-guide" class="crop-guide"></div>
+      <div id="rotate-ring" class="rotate-ring">
+        <div id="rotate-handle" class="rotate-handle" title="Drag to Rotate">
+          <span class="material-symbols-outlined">rotate_right</span>
+        </div>
+      </div>
+    </main>
+
+    <div id="trim-panel" class="trim-panel">
+      <div class="field-group row-timeline">
+        <button id="btn-play" class="btn btn-icon" title="Play / Pause">
+          <span id="icon-play" class="material-symbols-outlined">play_arrow</span>
+        </button>
+        <div class="timeline-track">
+          <div class="timeline-rail"></div>
+          <div id="timeline-fill" class="timeline-fill"></div>
+          <div id="timeline-playhead" class="timeline-playhead"></div>
+          <input id="range-start" class="timeline-thumb" type="range" value="0" min="0" max="100" step="0.1" title="Start Handle">
+          <input id="range-end" class="timeline-thumb" type="range" value="100" min="0" max="100" step="0.1" title="End Handle">
+        </div>
+      </div>
+      <div class="row-params">
+        <label class="input-chip" title="Start Time (s)">
+          <span class="material-symbols-outlined icon-label">start</span>
+          <input id="input-start" type="number" value="0.0" min="0" step="0.1" title="Start Time">
+          <span class="unit-label">s</span>
+        </label>
+        <label class="input-chip" title="Clip Length (s)">
+          <span class="material-symbols-outlined icon-label">arrow_range</span>
+          <input id="input-length" type="number" value="0.0" min="0" step="0.1" title="Clip Length">
+          <span class="unit-label">s</span>
+        </label>
+        <div class="param-slot-end">
+          <label id="group-total" class="input-chip" title="Total Duration (s)">
+            <span class="material-symbols-outlined icon-label">horizontal_align_right</span>
+            <input id="input-total" type="number" value="0.0" min="0" step="0.1" title="Total Duration">
+            <span class="unit-label">s</span>
+          </label>
+          <label id="group-fps" class="input-chip" title="Frame Rate (FPS)">
+            <span class="unit-label">FPS</span>
+            <input id="input-fps" type="number" value="5" min="1" max="15" step="1" title="Frame Rate">
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="asset-dock">
+  <button id="btn-import" class="btn btn-icon" title="Import JPEG / WAV">
+    <span class="material-symbols-outlined">library_add</span>
+  </button>
+  <input id="input-import" type="file" accept=".jpg,.jpeg,.wav" multiple>
+  <div id="thumb-list" class="thumb-list"></div>
+  <button id="btn-edit-audio" class="btn btn-icon" title="Edit Audio Track">
+    <span id="icon-edit-audio" class="material-symbols-outlined">music_off</span>
+  </button>
+</footer>
+
+<div class="status-bar">
+  <div class="status-item" title="Battery Level">
+    <span id="icon-battery" class="material-symbols-outlined status-icon">battery_full</span>
+    <span id="text-battery">--%</span>
+  </div>
+  <div class="status-item" title="Display Resolution">
+    <span class="material-symbols-outlined status-icon">aspect_ratio</span>
+    <span id="text-resolution">--x--</span>
+  </div>
+  <div class="status-item" title="Free Storage">
+    <span id="text-storage">-- KiB</span>
+    <span class="material-symbols-outlined status-icon">storage</span>
+  </div>
+</div>
+
+<dialog id="modal-preview" class="modal-overlay" tabindex="-1" data-first="true" data-last="true" data-multi="false" data-has-audio="false">
+  <div class="preview-bar top">
+    <div id="text-counter" class="preview-text counter slot-center" title="Frame Counter"></div>
+    <button id="btn-close-preview" class="btn btn-icon btn-glass slot-end" title="Close Preview">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <div class="preview-stage">
+    <div class="preview-actions area-upload">
+      <button id="btn-upload-image" class="btn btn-icon btn-glass" title="Upload Image">
+        <span class="material-symbols-outlined">image</span>
+      </button>
+      <button id="btn-upload-video" class="btn btn-icon btn-glass" title="Upload AVI Video">
+        <span class="material-symbols-outlined">animated_images</span>
+      </button>
+      <label id="group-loop" class="input-chip loop-chip" title="Loop Duration (s)">
+        <span class="material-symbols-outlined icon-label">laps</span>
+        <input id="input-loop" type="number" value="1.0" min="0.1" step="0.1" title="Loop Duration">
+        <span class="unit-label">s</span>
+      </label>
+    </div>
+
+    <button id="btn-prev-frame" class="btn btn-icon btn-glass" title="Previous Frame">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+
+    <img id="preview-image" class="preview-image" title="Frame Preview">
+
+    <button id="btn-next-frame" class="btn btn-icon btn-glass" title="Next Frame">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+
+    <div class="preview-actions area-download">
+      <button id="btn-download-jpg" class="btn btn-icon btn-glass" title="Download JPEG">
+        <span class="material-symbols-outlined">download</span>
+      </button>
+      <button id="btn-download-zip" class="btn btn-icon btn-glass" title="Download ZIP Archive">
+        <span class="material-symbols-outlined">folder_zip</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="preview-bar bottom">
+    <div id="text-details" class="preview-text details slot-center" title="Media Details"></div>
+    <button id="btn-delete-frame" class="btn btn-icon btn-glass danger slot-end" title="Delete Frame">
+      <span class="material-symbols-outlined">delete</span>
+    </button>
+  </div>
+</dialog>
+
+<dialog id="modal-progress" class="modal-overlay">
+  <div class="progress-box" title="Processing Progress">
+    <progress id="bar-progress" value="0" max="100"></progress>
+    <span id="text-progress" class="progress-text">0%</span>
+  </div>
+</dialog>
+
+<script type="module">
+  const hasCjpegli = Boolean(window.createCjpegli);
+
+  const BLE_UUID = {
+    SERVICE: '7e400001-b5a3-f393-e0a9-e50e24dcca9d',
+    TX: '7e400002-b5a3-f393-e0a9-e50e24dcca9d',
+    RX: '7e400003-b5a3-f393-e0a9-e50e24dcca9d',
+    AUX_RX: '7e400004-b5a3-f393-e0a9-e50e24dcca9d',
+    BATTERY_SVC: 'battery_service',
+    BATTERY_CHAR: 'battery_level'
+  };
+
+  const PROTO = {
+    HEAD_CMD: 0xCD,
+    HEAD_ACK: 0xDC,
+    CLS_SYS: 0x12,
+    CLS_INFO: 0x1A,
+    CLS_STREAM: 0x1F,
+    CLS_STAT: 0x20
+  };
+
+  const SPEC = {
+    BLE_MTU: 487,
+    MAX_JPG_BYTES: 40959,
+    AVI_AUDIO_CHUNK: 684,
+    MIN_FPS: 1,
+    MAX_FPS: 15,
+    DEF_FPS: 5,
+    DEF_LOOP_SEC: 1,
+    SAMPLE_RATE: 16000,
+    BYTE_RATE: 32000
+  };
+
+  const CRC32_TABLE = new Uint32Array(256).map((_, idx) => {
+    let crc = idx;
+    for (let bit = 0; bit < 8; bit++) crc = crc & 1 ? 0xedb88320 ^ (crc >>> 1) : crc >>> 1;
+    return crc;
+  });
+
+  const ui = Object.fromEntries(
+    [...document.querySelectorAll('[id]')].map((el) => [
+      el.id.replace(/-([a-z])/g, (_, ch) => ch.toUpperCase()),
+      el
+    ])
+  );
+
+  const state = {
+    mode: 'image',
+    busy: false,
+    debug: false,
+    pixelated: false,
+
+    badge: { width: 0, height: 0, maxChunk: 0 },
+    assets: { frames: [], rawAudio: null, audioTrack: null },
+
+    previewIdx: -1,
+    stage: {
+      scale: 1,
+      panX: 0,
+      panY: 0,
+      rotation: 0,
+      baseScale: 1,
+      basePanX: 0,
+      basePanY: 0,
+      startX: 0,
+      startY: 0,
+      pinchDist: 0,
+      guideWidth: 0,
+      guideHeight: 0,
+      pointers: new Map()
+    },
+    swipe: { id: null, startX: 0, startY: 0 },
+
+    transformRaf: null,
+    playheadRaf: null,
+    seekRaf: null,
+    pendingSeek: null
+  };
+
+  const ble = {
+    device: null,
+    connecting: false,
+    txChar: null,
+    rxChar: null,
+    batChar: null,
+    txChain: Promise.resolve(),
+    cmdChain: Promise.resolve(),
+    pending: new Map()
+  };
+
+  const encoder = {
+    wasmTask: null,
+    width: 0,
+    height: 0,
+    pamHeadLen: 0,
+    pamBuffer: null
+  };
+
+  const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
+  const roundTenth = (val) => Number.isFinite(val) ? Math.round(val * 10) / 10 : 0;
+
+  const readFloat = (el, fallback = 0) => {
+    const val = parseFloat(el.value);
+    return Number.isNaN(val) ? fallback : val;
+  };
+  const readInt = (el, min, max, fallback) => {
+    const val = parseInt(el.value, 10);
+    return clamp(Number.isNaN(val) ? fallback : val, min, max);
+  };
+
+  const toHex = (val) => val.toString(16).padStart(2, '0').toUpperCase();
+  const u16be = (val) => [(val >>> 8) & 0xFF, val & 0xFF];
+  const u32be = (val) => [(val >>> 24) & 0xFF, (val >>> 16) & 0xFF, (val >>> 8) & 0xFF, val & 0xFF];
+  const readU16be = (buf, pos = 0) => (buf[pos] << 8) | buf[pos + 1];
+  const readU32be = (buf, pos = 0) => ((buf[pos] << 24) | (buf[pos + 1] << 16) | (buf[pos + 2] << 8) | buf[pos + 3]) >>> 0;
+
+  const sumBytes = (buf) => {
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum = (sum + buf[i]) >>> 0;
+    return sum;
+  };
+
+  const getTimestamp = () => {
+    const now = new Date();
+    const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
+    return localIso.replace(/[-:T]/g, '').replace('.', '_').slice(0, 18);
+  };
+  const getIndexedName = (frame, idx) => frame.name.replace(/\.jpg$/i, `_${idx}.jpg`);
+  const formatPacket = (buf) => {
+    const hex = Array.from(buf, toHex).join(' ');
+    return hex.length > 96 ? `${hex.slice(0, 96)}...` : hex;
+  };
+  const logDebug = (msg) => {
+    if (state.debug) console.log(`[${new Date().toISOString()}] ${msg}`);
+  };
+
+  const createBinaryWriter = (byteLength) => {
+    const buffer = new Uint8Array(byteLength);
+    const view = new DataView(buffer.buffer);
+    let pos = 0;
+    return {
+      buffer,
+      get offset() { return pos; },
+      skip: (len) => { pos += len; },
+      patchU32: (at, val) => view.setUint32(at, val, true),
+      bytes: (src) => { buffer.set(src, pos); pos += src.length; },
+      str: (...strs) => { for (const s of strs) for (let i = 0; i < s.length; i++) buffer[pos++] = s.charCodeAt(i); },
+      u16: (...vals) => { for (const v of vals) { view.setUint16(pos, v, true); pos += 2; } },
+      u32: (...vals) => { for (const v of vals) { view.setUint32(pos, v, true); pos += 4; } }
+    };
+  };
+
+  const waitMediaEvent = (target, name) => {
+    if (name === 'loadeddata' && target.readyState >= 2) return Promise.resolve();
+    const { promise, resolve, reject } = Promise.withResolvers();
+    let timer;
+    const onDone = () => {
+      clearTimeout(timer);
+      target.removeEventListener('error', onError);
+      resolve();
+    };
+    const onError = () => {
+      clearTimeout(timer);
+      target.removeEventListener(name, onDone);
+      reject(new Error('Media load failed'));
+    };
+    timer = setTimeout(onError, 15000);
+    target.addEventListener(name, onDone, { once: true });
+    target.addEventListener('error', onError, { once: true });
+    return promise;
+  };
+
+  const seekVideo = (video, targetSec) => {
+    if (Math.abs(video.currentTime - targetSec) <= 0.001) return Promise.resolve();
+    const { promise, resolve, reject } = Promise.withResolvers();
+    let timer;
+    const onDone = () => {
+      clearTimeout(timer);
+      video.removeEventListener('error', onError);
+      resolve();
+    };
+    const onError = () => {
+      clearTimeout(timer);
+      video.removeEventListener('seeked', onDone);
+      reject(new Error('Seek failed'));
+    };
+    timer = setTimeout(onError, 10000);
+    video.addEventListener('seeked', onDone, { once: true });
+    video.addEventListener('error', onError, { once: true });
+    video.currentTime = targetSec;
+    return promise;
+  };
+
+  const updateProgress = (done, total) => {
+    if (total <= 0 || !Number.isFinite(total)) return;
+    const pct = Math.round((done / total) * 100);
+    if (ui.barProgress.value !== pct) {
+      ui.barProgress.value = pct;
+      ui.textProgress.textContent = `${pct}%`;
+    }
+  };
+
+  const runTaskWithBusy = async (task, showModal = false) => {
+    if (state.busy) return;
+    state.busy = true;
+    state.stage.pointers.clear();
+    if (showModal) {
+      updateProgress(0, 1);
+      if (!ui.modalProgress.open) ui.modalProgress.showModal();
+    }
+    try {
+      await task();
+    } finally {
+      state.busy = false;
+      if (ui.modalProgress.open) ui.modalProgress.close();
+      updateProgress(0, 1);
+      if (ui.modalPreview.open) ui.modalPreview.focus();
+    }
+  };
+
+  const triggerButton = (btn) => {
+    if (!btn || btn.disabled || !btn.checkVisibility()) return;
+    btn.classList.add('pressed');
+    setTimeout(() => btn.classList.remove('pressed'), 150);
+    btn.click();
+  };
+
+  const downloadBlob = (blob, filename) => {
+    const url = URL.createObjectURL(blob);
+    Object.assign(document.createElement('a'), { href: url, download: filename }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const registerWaiter = (key, timeoutMs, errMsg, meta = {}) => {
+    ble.pending.get(key)?.reject(new Error('Superseded'));
+    const { promise, resolve, reject } = Promise.withResolvers();
+    promise.catch(() => {});
+    const clear = () => { clearTimeout(timer); ble.pending.delete(key); };
+    const timer = setTimeout(() => { clear(); reject(new Error(errMsg)); }, timeoutMs);
+    const entry = { ...meta, promise, resolve: (val) => { clear(); resolve(val); }, reject: (err) => { clear(); reject(err); }, clear };
+    ble.pending.set(key, entry);
+    return entry;
+  };
+
+  const waitPacketReply = (type, cls, id, timeoutMs) =>
+    registerWaiter(`${type}_${cls}_${id}`, timeoutMs, `${type.toUpperCase()} Timeout (${cls.toString(16)} ${id?.toString(16)})`);
+
+  const buildCommandPacket = (cls, id, payload = []) => new Uint8Array([
+    PROTO.HEAD_CMD, ...u16be(5 + payload.length), cls, 0x01, id, ...u16be(payload.length), ...payload
+  ]);
+
+  const sendRawPacket = (packet) => {
+    const writeChunks = async () => {
+      const txChar = ble.txChar;
+      if (!txChar) throw new Error('Badge disconnected');
+      if (state.debug) logDebug(`[TX] ${formatPacket(packet)}`);
+      for (let pos = 0; pos < packet.length; pos += SPEC.BLE_MTU) {
+        if (ble.txChar !== txChar) throw new Error('Badge disconnected');
+        await txChar.writeValueWithoutResponse(packet.subarray(pos, pos + SPEC.BLE_MTU));
+      }
+    };
+    const next = ble.txChain.catch(() => {}).then(writeChunks);
+    ble.txChain = next;
+    return next;
+  };
+
+  const enqueueCommand = (fn) => {
+    const { promise, resolve, reject } = Promise.withResolvers();
+    ble.cmdChain = ble.cmdChain.catch(() => {}).then(async () => {
+      try { resolve(await fn()); } catch (err) { reject(err); }
+    });
+    return promise;
+  };
+
+  const transmitAndAwait = (packet, createWaiter) => enqueueCommand(async () => {
+    const waiter = createWaiter();
+    try {
+      await sendRawPacket(packet);
+    } catch (err) {
+      waiter.reject(err);
+      throw err;
+    }
+    return waiter.promise;
+  });
+
+  const sendBadgeCommand = (cls, id, payload = []) =>
+    transmitAndAwait(buildCommandPacket(cls, id, payload), () => waitPacketReply('ack', cls, id, 3000));
+
+  const sendStreamPacket = (id, payload, expectedCode) =>
+    transmitAndAwait(buildCommandPacket(PROTO.CLS_STREAM, id, payload), () => registerWaiter('stream', 10000, `Stream Timeout`, { expectedCode }));
+
+  const queryBadgeData = (cls, id, payload = []) => enqueueCommand(async () => {
+    const dataWaiter = waitPacketReply('data', cls, id, 5000);
+    const ackWaiter = cls === PROTO.CLS_STAT ? null : waitPacketReply('ack', cls, id, 3000);
+    try {
+      await sendRawPacket(buildCommandPacket(cls, id, payload));
+      if (ackWaiter) await Promise.race([ackWaiter.promise, dataWaiter.promise]);
+      return await dataWaiter.promise;
+    } finally {
+      ackWaiter?.clear();
+      dataWaiter.clear();
+    }
+  });
+
+  const queryStorageSpace = () => queryBadgeData(PROTO.CLS_STAT, 0x04);
+
+  const handleRxNotification = async (event) => {
+    const view = event.target.value;
+    if (!view || view.byteLength < 8) return;
+    const pkt = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+    if (state.debug) logDebug(`[RX] ${formatPacket(pkt)}`);
+
+    if (pkt[0] === PROTO.HEAD_ACK) {
+      const waiter = ble.pending.get(`ack_${pkt[3]}_${pkt[4]}`);
+      if (!waiter) return;
+      pkt[7] === 0x01 ? waiter.resolve() : waiter.reject(new Error(`ACK Error: ${pkt[7]}`));
+      return;
+    }
+    if (pkt[0] !== PROTO.HEAD_CMD) return;
+
+    const bodyLen = readU16be(pkt, 1);
+    const payloadLen = readU16be(pkt, 6);
+    if (bodyLen !== payloadLen + 5 || pkt.length < 8 + payloadLen) return;
+
+    const cls = pkt[3];
+    const id = pkt[5];
+    const payload = pkt.subarray(8, 8 + payloadLen);
+
+    try {
+      sendRawPacket(new Uint8Array([PROTO.HEAD_ACK, 0x00, 0x05, cls, id, ...u16be(bodyLen + 3), 0x01])).catch((err) => {
+        if (state.debug) logDebug(`ACK Send Error: ${err.message}`);
+      });
+    } catch (err) {
+      if (state.debug) logDebug(`ACK Send Error: ${err.message}`);
+      return;
+    }
+
+    if (cls === PROTO.CLS_STAT && id === 0x04 && payload.length >= 8) {
+      ui.textStorage.textContent = `${(readU32be(payload, 4) / 1024).toFixed(0)} KiB`;
+    }
+
+    ble.pending.get(`data_${cls}_${id}`)?.resolve(payload);
+    if (cls !== PROTO.CLS_STAT) return;
+    if (id !== 0x01 || payload.length < 4) return;
+
+    const streamWaiter = ble.pending.get('stream');
+    if (!streamWaiter) return;
+
+    const code = readU32be(payload, 0);
+    code === streamWaiter.expectedCode ? streamWaiter.resolve() : streamWaiter.reject(new Error(`Stream Mismatch`));
+  };
+
+  const updateBatteryStatus = (pct) => {
+    const level = clamp(pct, 0, 100);
+    ui.textBattery.textContent = `${level}%`;
+    ui.iconBattery.textContent = level >= 95 ? 'battery_full' : `battery_${Math.min(6, Math.floor(level / 15))}_bar`;
+  };
+
+  const handleBatteryNotification = (event) => updateBatteryStatus(event.target.value.getUint8(0));
+
+  const updateConnectionUi = (connected) => {
+    document.body.dataset.connected = connected;
+    document.querySelectorAll('.badge-cmd').forEach((btn) => { btn.disabled = !connected; });
+    ui.btnConnect.classList.toggle('active', connected);
+    ui.iconConnect.textContent = connected ? 'bluetooth_connected' : 'bluetooth';
+  };
+
+  const handleBadgeDisconnect = () => {
+    if (!ble.device) return;
+    if (state.debug) logDebug('Badge disconnected.');
+    ble.connecting = false;
+    updateConnectionUi(false);
+    ble.device.removeEventListener('gattserverdisconnected', handleBadgeDisconnect);
+    ble.rxChar?.removeEventListener('characteristicvaluechanged', handleRxNotification);
+    ble.batChar?.removeEventListener('characteristicvaluechanged', handleBatteryNotification);
+    Object.assign(ble, { device: null, txChar: null, rxChar: null, batChar: null, txChain: Promise.resolve(), cmdChain: Promise.resolve() });
+    Object.assign(state.badge, { width: 0, height: 0, maxChunk: 0 });
+    ui.textName.textContent = '';
+    ui.textMac.textContent = '';
+    ui.iconBattery.textContent = 'battery_full';
+    ui.textBattery.textContent = '--%';
+    ui.textResolution.textContent = '--x--';
+    ui.textStorage.textContent = '-- KiB';
+    ble.pending.forEach((waiter) => waiter.reject(new Error('Badge disconnected')));
+    ble.pending.clear();
+  };
+
+  const initializeBadgeSession = async () => {
+    const now = new Date();
+    const packedTime = ((Math.max(0, now.getFullYear() - 2000) & 0x3F) << 26)
+      | (((now.getMonth() + 1) & 0x0F) << 22)
+      | ((now.getDate() & 0x1F) << 17)
+      | ((now.getHours() & 0x1F) << 12)
+      | ((now.getMinutes() & 0x3F) << 6)
+      | (now.getSeconds() & 0x3F);
+    await sendBadgeCommand(PROTO.CLS_SYS, 0x01, u32be(packedTime));
+
+    const macBytes = await queryBadgeData(PROTO.CLS_INFO, 0x0A);
+    if (macBytes.length >= 6) ui.textMac.textContent = `(${Array.from(macBytes.subarray(0, 6), toHex).join(':')})`;
+
+    const nameBytes = await queryBadgeData(PROTO.CLS_INFO, 0x0C);
+    if (nameBytes.length > 1) ui.textName.textContent = new TextDecoder().decode(nameBytes.subarray(1)).replace(/\0+$/, '');
+
+    const specBytes = await queryBadgeData(PROTO.CLS_STAT, 0x02);
+    if (specBytes.length < 32 || specBytes[0] !== 0x01) throw new Error('Invalid badge specifications');
+    const width = readU16be(specBytes, 2);
+    const height = readU16be(specBytes, 4);
+    const maxChunk = readU16be(specBytes, 30);
+    if (!width || !height || maxChunk <= 4) throw new Error('Invalid badge specifications');
+
+    Object.assign(state.badge, { width, height, maxChunk });
+    const resLabel = `${width}x${height}`;
+    ui.textResolution.textContent = resLabel;
+
+    let opt = [...ui.selectResolution.options].find((o) => o.value === resLabel);
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.value = resLabel;
+      opt.textContent = resLabel;
+      ui.selectResolution.appendChild(opt);
+    }
+    ui.selectResolution.value = resLabel;
+    updateCropGuide();
+
+    await queryStorageSpace();
+  };
+
+  const setupOptionalServices = async (server, primaryService) => {
+    try { await (await primaryService.getCharacteristic(BLE_UUID.AUX_RX)).startNotifications(); } catch {}
+    if (!ble.device?.gatt.connected) return;
+    try {
+      const batService = await server.getPrimaryService(BLE_UUID.BATTERY_SVC);
+      const batChar = await batService.getCharacteristic(BLE_UUID.BATTERY_CHAR);
+      if (!ble.device?.gatt.connected) return;
+      ble.batChar = batChar;
+      const batView = await batChar.readValue();
+      if (!ble.device?.gatt.connected) return;
+      updateBatteryStatus(batView.getUint8(0));
+      batChar.addEventListener('characteristicvaluechanged', handleBatteryNotification);
+      await batChar.startNotifications();
+    } catch {}
+  };
+
+  const connectBadge = async () => {
+    if (!navigator.bluetooth) throw new Error('Web Bluetooth API unavailable');
+    const selected = await navigator.bluetooth.requestDevice({
+      filters: [{ manufacturerData: [{ companyIdentifier: 0xaa01 }] }],
+      optionalServices: [BLE_UUID.SERVICE, BLE_UUID.BATTERY_SVC]
+    });
+    ble.device?.removeEventListener('gattserverdisconnected', handleBadgeDisconnect);
+    ble.device = selected;
+    ble.device.addEventListener('gattserverdisconnected', handleBadgeDisconnect, { once: true });
+
+    try {
+      const server = await ble.device.gatt.connect();
+      const service = await server.getPrimaryService(BLE_UUID.SERVICE);
+      ble.txChar = await service.getCharacteristic(BLE_UUID.TX);
+      ble.rxChar = await service.getCharacteristic(BLE_UUID.RX);
+      ble.rxChar.addEventListener('characteristicvaluechanged', handleRxNotification);
+      await ble.rxChar.startNotifications();
+      await setupOptionalServices(server, service);
+      await initializeBadgeSession();
+      if (ble.device?.gatt.connected) updateConnectionUi(true);
+    } catch (err) {
+      if (ble.device?.gatt.connected) {
+        ble.device.gatt.disconnect();
+      } else {
+        handleBadgeDisconnect();
+      }
+      throw err;
+    }
+  };
+
+  const streamBlobToBadge = async (blob, onProgress) => {
+    const raw = new Uint8Array(await blob.arrayBuffer());
+    const { maxChunk } = state.badge;
+    if (!ble.txChar || maxChunk <= 4) throw new Error('Badge disconnected');
+    const totalLen = raw.length;
+    const chunks = [];
+    for (let pos = 0, idx = 1; pos < totalLen; idx++) {
+      const cap = idx === 1 ? maxChunk - 4 : maxChunk;
+      const len = Math.min(totalLen - pos, cap);
+      chunks.push(raw.subarray(pos, pos + len));
+      pos += len;
+    }
+
+    onProgress?.(0, chunks.length);
+    const startHeader = new Uint8Array([
+      ...u32be(Math.floor(Math.random() * 0xFFFFFFFF)),
+      blob.type === 'video/avi' ? 0x01 : 0x02,
+      0x08, 0, 0, 0, ...u32be(totalLen + 4), 0, 0, 0, 0
+    ]);
+    await sendStreamPacket(0x02, startHeader, 1000);
+
+    let totalSum = 0;
+    const lenByteSum = sumBytes(u32be(totalLen));
+    for (let idx = 1; idx <= chunks.length; idx++) {
+      const slice = chunks[idx - 1];
+      const isFirst = idx === 1;
+      const headSize = isFirst ? 6 : 2;
+      const packet = new Uint8Array(headSize + slice.length + 4);
+      packet.set(u16be(idx), 0);
+      if (isFirst) packet.set(u32be(totalLen), 2);
+      packet.set(slice, headSize);
+      const sliceSum = sumBytes(slice);
+      totalSum = (totalSum + sliceSum) >>> 0;
+      const checksum = (isFirst ? sliceSum + lenByteSum + 1 : sliceSum + idx) >>> 0;
+      packet.set(u32be(checksum), headSize + slice.length);
+      await sendStreamPacket(0x01, packet, 1000 + idx);
+      onProgress?.(idx, chunks.length);
+    }
+    await sendStreamPacket(0x03, u32be((totalSum + lenByteSum) >>> 0), 0x0002);
+  };
+
+  const calculateAviSize = (frames, pcmLen) => {
+    const hasAudio = pcmLen > 0;
+    let chunkCount = frames.length;
+    let videoBytes = 0;
+    let audioCursor = 0;
+    for (let i = 0; i < frames.length; i++) {
+      const size = frames[i].blob.size;
+      videoBytes += size + (size & 1);
+      if (hasAudio) {
+        const target = Math.floor((pcmLen * (i + 1)) / frames.length) & ~1;
+        chunkCount += Math.ceil((target - audioCursor) / SPEC.AVI_AUDIO_CHUNK);
+        audioCursor = target;
+      }
+    }
+    return (hasAudio ? 334 : 232) + videoBytes + pcmLen + chunkCount * 24;
+  };
+
+  const buildAviBlob = async (frames, width, height, fps, pcmBytes) => {
+    const videoChunks = await Promise.all(frames.map(async (frame) => {
+      const bytes = new Uint8Array(await frame.blob.arrayBuffer());
+      const pad = bytes.length & 1;
+      return { bytes, pad, size: bytes.length + pad, tag: '00dc' };
+    }));
+    const hasAudio = Boolean(pcmBytes?.length);
+    const pcmLen = hasAudio ? pcmBytes.length : 0;
+    const moviChunks = [];
+    let audioPos = 0;
+
+    for (let i = 0; i < videoChunks.length; i++) {
+      moviChunks.push(videoChunks[i]);
+      if (!hasAudio) continue;
+      const targetPos = Math.floor((pcmLen * (i + 1)) / videoChunks.length) & ~1;
+      while (audioPos < targetPos) {
+        const len = Math.min(SPEC.AVI_AUDIO_CHUNK, targetPos - audioPos);
+        const pad = len & 1;
+        moviChunks.push({ bytes: pcmBytes.subarray(audioPos, audioPos + len), pad, size: len + pad, tag: '01wb' });
+        audioPos += len;
+      }
+    }
+
+    const usecPerFrame = Math.round(1000000 / fps);
+    const scale = 1000;
+    const rate = Math.max(1, Math.round(fps * scale));
+    const maxVideoSize = videoChunks.reduce((max, c) => Math.max(max, c.size), 0);
+    const maxAudioSize = hasAudio ? SPEC.AVI_AUDIO_CHUNK : 0;
+    const maxByteRate = Math.floor(maxVideoSize * fps) + (hasAudio ? SPEC.BYTE_RATE : 0);
+    const moviDataBytes = moviChunks.reduce((sum, c) => sum + c.size, 0);
+    const writer = createBinaryWriter((hasAudio ? 334 : 232) + moviDataBytes + moviChunks.length * 24);
+
+    writer.str('RIFF');
+    const riffSizePos = writer.offset;
+    writer.u32(0);
+    writer.str('AVI ', 'LIST');
+    const hdrlSizePos = writer.offset;
+    writer.u32(0);
+    writer.str('hdrl', 'avih');
+    writer.u32(56, usecPerFrame, maxByteRate, 0, 0x0910, videoChunks.length, 0, hasAudio ? 2 : 1, maxVideoSize + maxAudioSize, width, height);
+    writer.skip(16);
+    writer.str('LIST');
+    const vStrlPos = writer.offset;
+    writer.u32(0);
+    writer.str('strl', 'strh');
+    writer.u32(56);
+    writer.str('vids', 'MJPG');
+    writer.u32(0);
+    writer.u16(0, 0);
+    writer.u32(0, scale, rate, 0, videoChunks.length, maxVideoSize, 0xFFFFFFFF, 0);
+    writer.u16(0, 0, width, height);
+    writer.str('strf');
+    writer.u32(40, 40, width, height);
+    writer.u16(1, 24);
+    writer.str('MJPG');
+    writer.u32(maxVideoSize, 0, 0, 0, 0);
+    writer.patchU32(vStrlPos, writer.offset - vStrlPos - 4);
+
+    if (hasAudio) {
+      writer.str('LIST');
+      const aStrlPos = writer.offset;
+      writer.u32(0);
+      writer.str('strl', 'strh');
+      writer.u32(56);
+      writer.str('auds');
+      writer.u32(0, 0);
+      writer.u16(0, 0);
+      writer.u32(0, 1, SPEC.SAMPLE_RATE, 0, pcmLen / 2, maxAudioSize, 0xFFFFFFFF, 2);
+      writer.skip(8);
+      writer.str('strf');
+      writer.u32(18);
+      writer.u16(1, 1);
+      writer.u32(SPEC.SAMPLE_RATE, SPEC.BYTE_RATE);
+      writer.u16(2, 16, 0);
+      writer.patchU32(aStrlPos, writer.offset - aStrlPos - 4);
+    }
+
+    writer.patchU32(hdrlSizePos, writer.offset - hdrlSizePos - 4);
+    writer.str('LIST');
+    const moviSizePos = writer.offset;
+    writer.u32(0);
+    const moviStart = writer.offset;
+    writer.str('movi');
+    const indexList = [];
+
+    for (const chunk of moviChunks) {
+      const offset = writer.offset - moviStart;
+      writer.str(chunk.tag);
+      writer.u32(chunk.bytes.length);
+      writer.bytes(chunk.bytes);
+      if (chunk.pad) writer.skip(1);
+      indexList.push({ tag: chunk.tag, len: chunk.bytes.length, offset });
+    }
+
+    writer.patchU32(moviSizePos, writer.offset - moviSizePos - 4);
+    writer.str('idx1');
+    writer.u32(indexList.length * 16);
+    for (const idx of indexList) {
+      writer.str(idx.tag);
+      writer.u32(0x10, idx.offset, idx.len);
+    }
+    writer.patchU32(riffSizePos, writer.offset - 8);
+    return new Blob([writer.buffer.subarray(0, writer.offset)], { type: 'video/avi' });
+  };
+
+  const buildZipBlob = (entries) => {
+    let localLen = 0;
+    let centralLen = 0;
+    const textEnc = new TextEncoder();
+    const now = new Date();
+    const dosDate = ((Math.max(1980, now.getFullYear()) - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+
+    const records = entries.map((item) => {
+      const nameBytes = textEnc.encode(item.name);
+      let crc = ~0 >>> 0;
+      for (let i = 0; i < item.data.length; i++) crc = CRC32_TABLE[(crc ^ item.data[i]) & 0xFF] ^ (crc >>> 8);
+      localLen += 30 + nameBytes.length + item.data.length;
+      centralLen += 46 + nameBytes.length;
+      return { data: item.data, nameBytes, crc: (~crc) >>> 0, offset: 0 };
+    });
+
+    const writer = createBinaryWriter(localLen + centralLen + 22);
+    for (const rec of records) {
+      rec.offset = writer.offset;
+      writer.u32(0x04034b50);
+      writer.u16(20, 0x0800, 0, dosTime, dosDate);
+      writer.u32(rec.crc, rec.data.length, rec.data.length);
+      writer.u16(rec.nameBytes.length, 0);
+      writer.bytes(rec.nameBytes);
+      writer.bytes(rec.data);
+    }
+
+    const centralStart = writer.offset;
+    for (const rec of records) {
+      writer.u32(0x02014b50);
+      writer.u16(20, 20, 0x0800, 0, dosTime, dosDate);
+      writer.u32(rec.crc, rec.data.length, rec.data.length);
+      writer.u16(rec.nameBytes.length, 0, 0, 0, 0);
+      writer.u32(0, rec.offset);
+      writer.bytes(rec.nameBytes);
+    }
+
+    writer.u32(0x06054b50);
+    writer.u16(0, 0, records.length, records.length);
+    writer.u32(centralLen, centralStart);
+    writer.u16(0);
+    return new Blob([writer.buffer.subarray(0, writer.offset)], { type: 'application/zip' });
+  };
+
+  const drawMediaToContext = (ctx, visualEl, width, height, stageTransform) => {
+    ctx.imageSmoothingEnabled = !state.pixelated;
+    if (!state.pixelated) ctx.imageSmoothingQuality = 'high';
+
+    const srcWidth = visualEl.videoWidth || visualEl.naturalWidth || width;
+    const srcHeight = visualEl.videoHeight || visualEl.naturalHeight || height;
+    const { scale, panX, panY, rotation = 0 } = stageTransform;
+    const drawWidth = Math.round(srcWidth * scale);
+    const drawHeight = Math.round(srcHeight * scale);
+
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, width, height);
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(width / 2, height / 2, (width + 16) / 2, (height + 16) / 2, 0, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.translate(width / 2, height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(Math.round(panX), Math.round(panY));
+
+    ctx.drawImage(visualEl, Math.round(-drawWidth / 2), Math.round(-drawHeight / 2), drawWidth, drawHeight);
+    ctx.restore();
+  };
+
+  const getCjpegliInstance = async () => {
+    try {
+      encoder.wasmTask ??= window.createCjpegli();
+      return await encoder.wasmTask;
+    } catch (err) {
+      encoder.wasmTask = null;
+      return null;
+    }
+  };
+
+  const encodeJpegBlob = async (canvas, width, height, maxKiB, quality) => {
+    if (!hasCjpegli) {
+      return canvas.convertToBlob({ type: 'image/jpeg', quality });
+    }
+    const wasm = await getCjpegliInstance();
+    if (!wasm) {
+      throw new Error('cjpegli initialization failed');
+    }
+
+    if (encoder.width !== width || encoder.height !== height || !encoder.pamBuffer) {
+      const head = new TextEncoder().encode(`P7\nWIDTH ${width}\nHEIGHT ${height}\nDEPTH 3\nMAXVAL 255\nTUPLTYPE RGB\nENDHDR\n`);
+      encoder.pamHeadLen = head.length;
+      encoder.pamBuffer = new Uint8Array(head.length + width * height * 3);
+      encoder.pamBuffer.set(head);
+      encoder.width = width;
+      encoder.height = height;
+    }
+
+    try {
+      const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
+      const rgba = ctx.getImageData(0, 0, width, height).data;
+      const pam = encoder.pamBuffer;
+      let dst = encoder.pamHeadLen;
+
+      for (let i = 0; i < rgba.length; i += 4) {
+        pam[dst++] = rgba[i];
+        pam[dst++] = rgba[i + 1];
+        pam[dst++] = rgba[i + 2];
+      }
+
+      wasm.FS.writeFile('in.pam', pam);
+      wasm.callMain(['in.pam', 'out.jpg', '-p', '0', '--target_size', String(maxKiB * 1024), '--std_quant']);
+      const data = wasm.FS.readFile('out.jpg');
+      return data.byteLength > 0 ? new Blob([data], { type: 'image/jpeg' }) : null;
+    } catch (err) {
+      encoder.wasmTask = null;
+      throw new Error('cjpegli encoding failed');
+    } finally {
+      try { wasm.FS.unlink('in.pam'); } catch {}
+      try { wasm.FS.unlink('out.jpg'); } catch {}
+    }
+  };
+
+  const decodeAudioBuffer = (arrayBuffer) => new OfflineAudioContext(1, 1, SPEC.SAMPLE_RATE).decodeAudioData(arrayBuffer);
+
+  const hasTimeline = () => state.mode === 'audio' || state.mode === 'video';
+  const getActiveMediaPlayer = () => state.mode === 'audio' ? ui.stageAudio : ui.stageVideo;
+  const getActiveVisualMedia = () => state.mode === 'video' ? ui.stageVideo : ui.stageImage;
+  const getTimelineDuration = () => parseFloat(ui.rangeEnd.max) || 0;
+
+  const getTargetResolution = () => {
+    const [width, height] = ui.selectResolution.value.split('x').map(Number);
+    return { width, height };
+  };
+
+  const getTrimRange = () => ({
+    start: readFloat(ui.rangeStart),
+    end: readFloat(ui.rangeEnd)
+  });
+
+  const getClipMetrics = () => {
+    const pcmLen = state.assets.audioTrack?.pcmBytes.length ?? 0;
+    const hasAudio = pcmLen > 0;
+    const duration = hasAudio ? pcmLen / SPEC.BYTE_RATE : Math.max(0.1, roundTenth(readFloat(ui.inputLoop, SPEC.DEF_LOOP_SEC)));
+    const fps = duration > 0 ? state.assets.frames.length / duration : 0;
+    return { hasAudio, pcmLen, duration, fps };
+  };
+
+  const pauseMediaPlayback = () => {
+    ui.stageAudio.pause();
+    ui.stageVideo.pause();
+    ui.iconPlay.textContent = 'play_arrow';
+  };
+
+  const resetMediaElements = (...els) => {
+    for (const el of els) {
+      if (el.src?.startsWith('blob:') && el.src !== state.assets.audioTrack?.url) URL.revokeObjectURL(el.src);
+      el.removeAttribute('src');
+      if (el.tagName !== 'IMG') el.load();
+    }
+  };
+
+  const applyRotationUi = () => {
+    let r = state.stage.rotation;
+    if (r < 0) r = (r % 360) + 360;
+    if (r >= 360) r = r % 360;
+    state.stage.rotation = r;
+    const displayVal = Math.floor(r);
+    if (ui.rangeRotation.value !== String(displayVal)) ui.rangeRotation.value = displayVal;
+    if (document.activeElement !== ui.inputRotation) ui.inputRotation.value = displayVal;
+    applyStageTransform();
+  };
+
+  const clearStageMedia = () => {
+    pauseMediaPlayback();
+    if (state.seekRaf) { cancelAnimationFrame(state.seekRaf); state.seekRaf = null; }
+    if (state.transformRaf) { cancelAnimationFrame(state.transformRaf); state.transformRaf = null; }
+    if (state.playheadRaf) { cancelAnimationFrame(state.playheadRaf); state.playheadRaf = null; }
+    state.pendingSeek = null;
+    state.stage.pointers.clear();
+    ui.stageImage.classList.remove('ready');
+    ui.stageVideo.classList.remove('ready');
+    resetMediaElements(ui.stageAudio, ui.stageVideo, ui.stageImage);
+    state.assets.rawAudio = null;
+  };
+
+  const releaseAudioTrack = () => {
+    if (!state.assets.audioTrack) return;
+    URL.revokeObjectURL(state.assets.audioTrack.url);
+    state.assets.audioTrack = null;
+  };
+
+  const renderAudioTrack = async (srcBuffer, startSec, lenSec, totalSec = lenSec) => {
+    const start = roundTenth(startSec);
+    const len = roundTenth(lenSec);
+    const total = roundTenth(totalSec);
+    const sampleCount = Math.max(1, Math.round(total * SPEC.SAMPLE_RATE));
+    const offlineCtx = new OfflineAudioContext(1, sampleCount, SPEC.SAMPLE_RATE);
+
+    const safeStart = Math.max(0, start);
+    const safeLen = srcBuffer ? Math.max(0, Math.min(len, srcBuffer.duration - safeStart)) : 0;
+
+    if (safeLen > 0) {
+      const source = offlineCtx.createBufferSource();
+      source.buffer = srcBuffer;
+      source.connect(offlineCtx.destination);
+      source.start(0, safeStart, safeLen);
+    }
+
+    const rendered = await offlineCtx.startRendering();
+    const floats = rendered.getChannelData(0);
+    const pcm16 = new Int16Array(floats.length);
+    for (let i = 0; i < floats.length; i++) {
+      const s = clamp(floats[i], -1, 1);
+      pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    const pcmBytes = new Uint8Array(pcm16.buffer);
+
+    const wavHead = createBinaryWriter(44);
+    wavHead.str('RIFF');
+    wavHead.u32(36 + pcmBytes.length);
+    wavHead.str('WAVE', 'fmt ');
+    wavHead.u32(16);
+    wavHead.u16(1, 1);
+    wavHead.u32(SPEC.SAMPLE_RATE, SPEC.BYTE_RATE);
+    wavHead.u16(2, 16);
+    wavHead.str('data');
+    wavHead.u32(pcmBytes.length);
+
+    releaseAudioTrack();
+    const blob = new Blob([wavHead.buffer, pcmBytes], { type: 'audio/wav' });
+    blob.name = `audio_${getTimestamp()}.wav`;
+
+    state.assets.audioTrack = {
+      blob,
+      buffer: rendered,
+      pcmBytes,
+      url: URL.createObjectURL(blob)
+    };
+    return rendered;
+  };
+
+  const resetStageTransform = () => {
+    Object.assign(state.stage, { scale: 1, panX: 0, panY: 0, baseScale: 1, basePanX: 0, basePanY: 0, startX: 0, startY: 0, pinchDist: 0 });
+    state.stage.pointers.clear();
+    applyStageTransform();
+  };
+
+  const switchPanel = (toEditor) => {
+    pauseMediaPlayback();
+    ui.panelBadge.classList.toggle('active', !toEditor);
+    ui.panelEditor.classList.toggle('active', toEditor);
+    ui.tabBadge.classList.toggle('active', !toEditor);
+    ui.tabEditor.classList.toggle('active', toEditor);
+  };
+
+  const updateEditorModeUi = () => { ui.panelEditor.dataset.mode = state.mode; };
+
+  const updatePlayheadPosition = () => {
+    if (!hasTimeline() || state.playheadRaf) return;
+    state.playheadRaf = requestAnimationFrame(() => {
+      const duration = getTimelineDuration();
+      const pct = duration > 0 ? clamp((getActiveMediaPlayer().currentTime / duration) * 100, 0, 100) : 0;
+      const currentPct = `${pct}%`;
+      if (ui.timelinePlayhead.style.getPropertyValue('--play-x') !== currentPct) {
+        ui.timelinePlayhead.style.setProperty('--play-x', currentPct);
+      }
+      state.playheadRaf = null;
+    });
+  };
+
+  const seekActivePlayer = (sec, isDragging = false) => {
+    const player = getActiveMediaPlayer();
+    if (!player.src) return;
+    const targetSec = roundTenth(sec);
+
+    if (!isDragging) {
+      state.pendingSeek = null;
+      player.currentTime = targetSec;
+      updatePlayheadPosition();
+      return;
+    }
+
+    state.pendingSeek = targetSec;
+    if (!state.seekRaf) {
+      state.seekRaf = requestAnimationFrame(() => {
+        if (state.pendingSeek !== null) {
+          player.currentTime = state.pendingSeek;
+          state.pendingSeek = null;
+        }
+        state.seekRaf = null;
+      });
+    }
+  };
+
+  const syncTrimFields = () => {
+    if (!hasTimeline()) return;
+    const duration = getTimelineDuration();
+    let start = roundTenth(readFloat(ui.rangeStart));
+    let end = roundTenth(readFloat(ui.rangeEnd));
+    if (start > end) {
+      ui.rangeStart.classList.contains('top') ? (ui.rangeEnd.value = end = start) : (ui.rangeStart.value = start = end);
+    }
+    if (start === end) {
+      if (end <= 0) {
+        ui.rangeEnd.classList.add('top');
+        ui.rangeStart.classList.remove('top');
+      } else if (duration > 0 && start >= duration) {
+        ui.rangeEnd.classList.remove('top');
+        ui.rangeStart.classList.add('top');
+      }
+    }
+    const len = roundTenth(end - start);
+    const fillX = `${duration > 0 ? (start / duration) * 100 : 0}%`;
+    const fillW = duration > 0 ? len / duration : 0;
+
+    if (ui.timelineFill.style.getPropertyValue('--fill-x') !== fillX) ui.timelineFill.style.setProperty('--fill-x', fillX);
+    if (ui.timelineFill.style.getPropertyValue('--fill-w') !== String(fillW)) ui.timelineFill.style.setProperty('--fill-w', fillW);
+
+    const lenStr = len.toFixed(1);
+    if (document.activeElement !== ui.inputStart) ui.inputStart.value = start.toFixed(1);
+    if (document.activeElement !== ui.inputLength) ui.inputLength.value = lenStr;
+    if (document.activeElement !== ui.inputTotal) ui.inputTotal.value = lenStr;
+  };
+
+  const initializeTimeline = (duration) => {
+    const maxDur = duration > 0 && Number.isFinite(duration) ? Math.max(0.1, roundTenth(duration)) : 0;
+    ui.rangeStart.max = ui.rangeEnd.max = maxDur;
+    ui.rangeStart.value = 0;
+    ui.rangeEnd.value = maxDur;
+    ui.timelinePlayhead.style.setProperty('--play-x', '0%');
+    syncTrimFields();
+  };
+
+  const applyStageTransform = () => {
+    if (state.mode === 'audio' || state.transformRaf) return;
+    state.transformRaf = requestAnimationFrame(() => {
+      const { scale, panX, panY, rotation = 0 } = state.stage;
+      const el = getActiveVisualMedia();
+      el.style.setProperty('--scale', scale);
+      el.style.setProperty('--pan-x', `${Math.round(panX)}px`);
+      el.style.setProperty('--pan-y', `${Math.round(panY)}px`);
+      el.style.setProperty('--rotation', `${rotation}deg`);
+      ui.rotateRing.style.setProperty('--rotation', `${rotation}deg`);
+      state.transformRaf = null;
+    });
+  };
+
+  const zoomStageBy = (factor) => {
+    if (!Number.isFinite(factor) || factor <= 0) return;
+    const nextScale = clamp(state.stage.scale * factor, 0.001, 1000);
+    const ratio = nextScale / state.stage.scale;
+    state.stage.scale = nextScale;
+    state.stage.panX *= ratio;
+    state.stage.panY *= ratio;
+    applyStageTransform();
+  };
+
+  const updateGestureOrigin = () => {
+    const { stage } = state;
+    const pts = [...stage.pointers.values()];
+    if (pts.length === 1) {
+      Object.assign(stage, { basePanX: stage.panX, basePanY: stage.panY, startX: pts[0].x, startY: pts[0].y });
+      return;
+    }
+    if (pts.length === 2) {
+      stage.baseScale = stage.scale;
+      stage.pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    }
+  };
+
+  const updateCropGuide = () => {
+    const { width, height } = getTargetResolution();
+    const { guideWidth } = state.stage;
+    ui.cropGuide.style.width = `${width}px`;
+    ui.cropGuide.style.height = `${height}px`;
+    ui.rotateRing.style.width = `${width}px`;
+    ui.rotateRing.style.height = `${height}px`;
+    if (guideWidth > 0 && guideWidth !== width && state.mode !== 'audio' && getActiveVisualMedia().classList.contains('ready')) {
+      zoomStageBy(width / guideWidth);
+      if (state.stage.pointers.size) updateGestureOrigin();
+    }
+    state.stage.guideWidth = width;
+    state.stage.guideHeight = height;
+  };
+
+  const fitMediaToStage = (el, srcWidth, srcHeight) => {
+    const { width, height } = getTargetResolution();
+    state.stage.scale = clamp(Math.min(1, Math.max(width / (srcWidth || width), height / (srcHeight || height))), 0.001, 1000);
+    applyStageTransform();
+    el.classList.add('ready');
+  };
+
+  const updatePreviewDetails = () => {
+    if (state.previewIdx < 0) return;
+    const frame = state.assets.frames[state.previewIdx];
+    if (!frame) return;
+    const count = state.assets.frames.length;
+    const { hasAudio, pcmLen, duration, fps } = getClipMetrics();
+    const isMulti = count > 1 || hasAudio;
+
+    let details = `${frame.name}\nImage ${frame.width}x${frame.height} ${(frame.blob.size / 1024).toFixed(1)} KiB`;
+    if (isMulti) {
+      const aviKiB = (calculateAviSize(state.assets.frames, pcmLen) / 1024).toFixed(1);
+      const audioLabel = hasAudio ? `Audio ${duration.toFixed(1)}s` : `Loop ${duration.toFixed(1)}s`;
+      details += `\n${audioLabel} | AVI ${aviKiB} KiB ${fps.toFixed(1)}fps`;
+    }
+
+    ui.modalPreview.dataset.multi = isMulti;
+    ui.modalPreview.dataset.hasAudio = hasAudio;
+    ui.textDetails.textContent = details;
+  };
+
+  const openPreviewModal = (idx) => {
+    const count = state.assets.frames.length;
+    if (state.busy || idx < 0 || idx >= count) return;
+    pauseMediaPlayback();
+    state.previewIdx = idx;
+
+    ui.previewImage.src = state.assets.frames[idx].url;
+    ui.textCounter.textContent = `${idx + 1} / ${count}`;
+
+    ui.modalPreview.dataset.first = idx === 0;
+    ui.modalPreview.dataset.last = idx === count - 1;
+    updatePreviewDetails();
+
+    if (!ui.modalPreview.open) ui.modalPreview.showModal();
+    ui.modalPreview.focus();
+  };
+
+  const renderThumbList = () => {
+    ui.thumbList.replaceChildren(
+      ...state.assets.frames.map((frame, idx) =>
+        Object.assign(document.createElement('img'), {
+          className: 'thumb-item',
+          title: 'Preview Frame',
+          src: frame.url,
+          onclick: () => openPreviewModal(idx)
+        })
+      )
+    );
+    const hasAudio = Boolean(state.assets.audioTrack);
+    ui.btnEditAudio.classList.toggle('active', hasAudio);
+    ui.iconEditAudio.textContent = hasAudio ? 'music_note' : 'music_off';
+    ui.thumbList.scrollLeft = ui.thumbList.scrollWidth;
+  };
+
+  const appendFrame = (blob, width, height, deferRender = false) => {
+    state.assets.frames.push({
+      blob,
+      width,
+      height,
+      name: `badge_${getTimestamp()}.jpg`,
+      url: URL.createObjectURL(blob)
+    });
+    if (!deferRender) renderThumbList();
+  };
+
+  const loadMediaFile = (file) => runTaskWithBusy(async () => {
+    clearStageMedia();
+    ui.btnExtract.disabled = true;
+    state.mode = file.type.startsWith('audio/') ? 'audio' : file.type.startsWith('video/') ? 'video' : 'image';
+    resetStageTransform();
+    updateEditorModeUi();
+
+    const url = URL.createObjectURL(file);
+    try {
+      if (state.mode === 'audio') {
+        const decoded = await decodeAudioBuffer(await file.arrayBuffer());
+        ui.stageAudio.src = url;
+        state.assets.rawAudio = decoded;
+        initializeTimeline(decoded.duration);
+        ui.btnExtract.disabled = false;
+        return;
+      }
+      if (state.mode === 'video') {
+        const audioTask = file.arrayBuffer().then(decodeAudioBuffer).catch(() => null);
+        ui.stageVideo.src = url;
+        const videoWait = waitMediaEvent(ui.stageVideo, 'loadeddata');
+        const videoTask = videoWait.then(() => {
+          if (!ui.stageVideo.videoWidth || !ui.stageVideo.videoHeight) throw new Error('Video track unavailable');
+          fitMediaToStage(ui.stageVideo, ui.stageVideo.videoWidth, ui.stageVideo.videoHeight);
+        });
+        const [decodedAudio] = await Promise.all([audioTask, videoTask]);
+        state.assets.rawAudio = decodedAudio;
+        initializeTimeline(Number.isFinite(ui.stageVideo.duration) ? ui.stageVideo.duration : (decodedAudio?.duration || 0));
+        ui.btnExtract.disabled = false;
+        return;
+      }
+
+      ui.stageImage.src = url;
+      await ui.stageImage.decode();
+      if (!ui.stageImage.naturalWidth || !ui.stageImage.naturalHeight) throw new Error('Image unavailable');
+      fitMediaToStage(ui.stageImage, ui.stageImage.naturalWidth, ui.stageImage.naturalHeight);
+      ui.btnExtract.disabled = false;
+    } catch (err) {
+      clearStageMedia();
+      initializeTimeline(0);
+      state.mode = 'image';
+      updateEditorModeUi();
+      URL.revokeObjectURL(url);
+      alert(`Error loading media: ${err.message}`);
+    }
+  });
+
+  const extractVideoSequence = async (width, height, maxKiB, quality, startSec, lenSec) => {
+    if (lenSec <= 0) return;
+    const fps = readInt(ui.inputFps, SPEC.MIN_FPS, SPEC.MAX_FPS, SPEC.DEF_FPS);
+    const totalFrames = Math.max(1, Math.round(lenSec * fps));
+
+    await runTaskWithBusy(async () => {
+      pauseMediaPlayback();
+
+      const osVideo = document.createElement('video');
+      osVideo.muted = true;
+      osVideo.playsInline = true;
+      osVideo.src = ui.stageVideo.src;
+      const waitTask = waitMediaEvent(osVideo, 'loadeddata');
+      osVideo.load();
+      await waitTask;
+
+      const canvas = new OffscreenCanvas(width, height);
+      const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: hasCjpegli });
+      const stepSec = 1 / fps;
+      const timeOffset = stepSec / 2;
+      let added = 0;
+
+      for (let i = 0; i < totalFrames; i++) {
+        const dur = Number.isFinite(osVideo.duration) ? osVideo.duration : Number.MAX_VALUE;
+        const targetSec = Math.min(dur, startSec + i * stepSec + timeOffset);
+        await seekVideo(osVideo, targetSec);
+        drawMediaToContext(ctx, osVideo, width, height, state.stage);
+
+        const blob = await encodeJpegBlob(canvas, width, height, maxKiB, quality);
+        if (blob) {
+          appendFrame(blob, width, height, true);
+          added++;
+        }
+        updateProgress(i + 1, totalFrames);
+      }
+
+      osVideo.removeAttribute('src');
+      osVideo.load();
+
+      if (added > 0 && state.assets.rawAudio) {
+        try { await renderAudioTrack(state.assets.rawAudio, startSec, lenSec); } catch {}
+      }
+      renderThumbList();
+    }, true);
+  };
+
+  const extractAudioTrack = async (startSec, lenSec) => {
+    const totalSec = roundTenth(readFloat(ui.inputTotal, lenSec));
+    pauseMediaPlayback();
+    if (totalSec <= 0) {
+      resetMediaElements(ui.stageAudio);
+      releaseAudioTrack();
+      state.assets.rawAudio = null;
+      initializeTimeline(0);
+      renderThumbList();
+      return;
+    }
+    const srcBuffer = state.assets.rawAudio ?? new AudioBuffer({ length: 1, numberOfChannels: 1, sampleRate: SPEC.SAMPLE_RATE });
+    const rendered = await renderAudioTrack(srcBuffer, startSec, lenSec, totalSec);
+    resetMediaElements(ui.stageAudio);
+    state.assets.rawAudio = rendered;
+    ui.stageAudio.src = state.assets.audioTrack.url;
+    initializeTimeline(rendered.duration);
+    renderThumbList();
+  };
+
+  const isWavFile = (file) => file.name.toLowerCase().endsWith('.wav') || file.type === 'audio/x-wav' || file.type.startsWith('audio/wav');
+
+  const importAssetFile = async (file, fallbackWidth, fallbackHeight) => {
+    const lower = file.name.toLowerCase();
+    if (file.type === 'image/jpeg' || lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+      try {
+        const bmp = await createImageBitmap(file);
+        appendFrame(file, bmp.width || fallbackWidth, bmp.height || fallbackHeight, true);
+        bmp.close();
+      } catch (err) {
+        throw new Error(`Failed to decode image ${file.name}`);
+      }
+      return;
+    }
+
+    if (!isWavFile(file)) return;
+
+    try {
+      const decoded = await decodeAudioBuffer(await file.arrayBuffer());
+      const editingTrack = state.mode === 'audio' && (!ui.stageAudio.src || ui.stageAudio.src === state.assets.audioTrack?.url);
+      const rendered = await renderAudioTrack(decoded, 0, Math.max(0.1, decoded.duration));
+
+      if (!editingTrack) return;
+      pauseMediaPlayback();
+      resetMediaElements(ui.stageAudio);
+      state.assets.rawAudio = rendered;
+      ui.stageAudio.src = state.assets.audioTrack.url;
+      initializeTimeline(rendered.duration);
+      ui.btnExtract.disabled = false;
+    } catch (err) {
+      throw new Error(`Failed to decode audio ${file.name}`);
+    }
+  };
+
+  const handleStagePointerDown = (event) => {
+    if (state.busy || ui.btnExtract.disabled || state.mode === 'audio' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    event.preventDefault();
+    document.activeElement?.blur();
+    try { ui.cropStage.setPointerCapture(event.pointerId); } catch {}
+    state.stage.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    updateGestureOrigin();
+  };
+
+  const handleStagePointerMove = (event) => {
+    const { stage } = state;
+    if (state.busy || ui.btnExtract.disabled || state.mode === 'audio' || !stage.pointers.has(event.pointerId)) return;
+    stage.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const pts = [...stage.pointers.values()];
+
+    if (pts.length === 1) {
+      const dx = event.clientX - stage.startX;
+      const dy = event.clientY - stage.startY;
+      const rad = -(stage.rotation || 0) * (Math.PI / 180);
+      stage.panX = stage.basePanX + (dx * Math.cos(rad) - dy * Math.sin(rad));
+      stage.panY = stage.basePanY + (dx * Math.sin(rad) + dy * Math.cos(rad));
+      applyStageTransform();
+      return;
+    }
+
+    if (pts.length === 2 && stage.pinchDist > 0) {
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      zoomStageBy((stage.baseScale * (dist / stage.pinchDist)) / stage.scale);
+    }
+  };
+
+  const handleStagePointerUp = (event) => {
+    if (state.stage.pointers.delete(event.pointerId)) updateGestureOrigin();
+  };
+
+  const handleGlobalKeyDown = (event) => {
+    if (state.busy) return;
+    if (event.key === 'Enter' && event.target.tagName === 'INPUT') {
+      event.target.blur();
+      if (ui.modalPreview.open) ui.modalPreview.focus();
+      return;
+    }
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (['INPUT', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+    if (ui.modalPreview.open) {
+      const previewKeyMap = {
+        ArrowUp: event.shiftKey ? ui.btnUploadVideo : ui.btnUploadImage,
+        ArrowDown: event.shiftKey ? ui.btnDownloadZip : ui.btnDownloadJpg,
+        ArrowLeft: ui.btnPrevFrame,
+        ArrowRight: ui.btnNextFrame,
+        Backspace: ui.btnDeleteFrame,
+        Delete: ui.btnDeleteFrame
+      };
+      if (!previewKeyMap[event.key]) return;
+      triggerButton(previewKeyMap[event.key]);
+      event.preventDefault();
+      return;
+    }
+
+    if (ui.panelEditor.dataset.mode === 'audio' || ui.btnExtract.disabled) return;
+
+    const stageKeyMap = {
+      ArrowUp: () => { state.stage.panY -= 20; applyStageTransform(); },
+      ArrowDown: () => { state.stage.panY += 20; applyStageTransform(); },
+      ArrowLeft: () => { state.stage.panX -= 20; applyStageTransform(); },
+      ArrowRight: () => { state.stage.panX += 20; applyStageTransform(); },
+      PageUp: () => zoomStageBy(1.1),
+      PageDown: () => zoomStageBy(1 / 1.1)
+    };
+
+    if (!stageKeyMap[event.key]) return;
+    stageKeyMap[event.key]();
+    if (state.stage.pointers.size) updateGestureOrigin();
+    event.preventDefault();
+  };
+
+  const validateFramesForUpload = (frames) => {
+    if (!frames.length) return false;
+    if (!ble.txChar || ble.connecting) {
+      if (ui.modalPreview.open) ui.modalPreview.close();
+      switchPanel(false);
+      return false;
+    }
+    const { width, height, maxChunk } = state.badge;
+    if (!width || !height || maxChunk <= 4) {
+      alert('Error: Badge specifications unknown. Please reconnect.');
+      return false;
+    }
+    if (frames.some((f) => f.width !== width || f.height !== height)) {
+      alert(`Error: Image resolution must be ${width}x${height}px.`);
+      return false;
+    }
+    if (frames.some((f) => f.blob.size <= 0 || f.blob.size > SPEC.MAX_JPG_BYTES)) {
+      alert(`Error: Image size must be between 1 and ${SPEC.MAX_JPG_BYTES} bytes.`);
+      return false;
+    }
+    return true;
+  };
+
+  const uploadBlobToBadge = async (blob) => {
+    try {
+      await streamBlobToBadge(blob, updateProgress);
+      await queryStorageSpace();
+    } catch (err) {
+      alert(`Upload Error: ${err.message}`);
+    }
+  };
+
+  const bindBadgeEvents = () => {
+    ui.tabBadge.addEventListener('click', () => switchPanel(false));
+    ui.tabEditor.addEventListener('click', () => switchPanel(true));
+
+    ui.btnConnect.addEventListener('click', async () => {
+      if (ble.connecting) return;
+      if (ble.device?.gatt.connected) {
+        ble.device.gatt.disconnect();
+        return;
+      }
+      ble.connecting = true;
+      try {
+        await connectBadge();
+      } catch (err) {
+        if (err.name !== 'NotFoundError') alert(`Connection Error: ${err.message}`);
+      } finally {
+        ble.connecting = false;
+      }
+    });
+
+    ui.btnDebug.addEventListener('click', () => {
+      state.debug = !state.debug;
+      ui.btnDebug.classList.toggle('active', state.debug);
+    });
+
+    const bindCommand = (btn, task) => btn.addEventListener('click', async () => {
+      try { await task(); } catch (err) { alert(`Command Error: ${err.message}`); }
+    });
+    bindCommand(ui.btnSetLang, () => sendBadgeCommand(PROTO.CLS_SYS, 0x15, [parseInt(ui.selectLang.value, 10)]));
+    bindCommand(ui.btnCallBadge, () => sendBadgeCommand(PROTO.CLS_SYS, 0x0B, [0x01]));
+    bindCommand(ui.btnCheckStorage, queryStorageSpace);
+  };
+
+  const bindEditorEvents = () => {
+    const syncPlayIcon = (event) => {
+      if (event.target !== getActiveMediaPlayer()) return;
+      ui.iconPlay.textContent = event.type === 'play' ? 'pause' : 'play_arrow';
+    };
+    const handleTimeUpdate = (event) => {
+      const player = getActiveMediaPlayer();
+      if (state.busy || event.target !== player || !hasTimeline() || !getTimelineDuration()) return;
+
+      updatePlayheadPosition();
+
+      const { start, end } = getTrimRange();
+      if (end <= start) {
+        player.pause();
+        return;
+      }
+      if (player.currentTime < end || player.paused) return;
+      player.currentTime = start;
+      updatePlayheadPosition();
+    };
+    const handleMediaEnded = (event) => {
+      const player = getActiveMediaPlayer();
+      if (state.busy || event.target !== player || !hasTimeline()) return;
+      const { start, end } = getTrimRange();
+      if (end <= start) return;
+      player.currentTime = start;
+      updatePlayheadPosition();
+      player.play().catch(() => {});
+    };
+
+    for (const player of [ui.stageVideo, ui.stageAudio]) {
+      player.addEventListener('play', syncPlayIcon);
+      player.addEventListener('pause', syncPlayIcon);
+      player.addEventListener('timeupdate', handleTimeUpdate);
+      player.addEventListener('ended', handleMediaEnded);
+    }
+
+    const bindClampedInt = (el, min, max, fallback) => {
+      el.addEventListener('change', () => { el.value = readInt(el, min, max, fallback); });
+    };
+    bindClampedInt(ui.inputMaxSize, 1, 39, 20);
+    bindClampedInt(ui.inputQuality, 1, 100, 90);
+    bindClampedInt(ui.inputFps, SPEC.MIN_FPS, SPEC.MAX_FPS, SPEC.DEF_FPS);
+
+    ui.inputLoop.addEventListener('input', updatePreviewDetails);
+    ui.inputLoop.addEventListener('change', () => {
+      ui.inputLoop.value = Math.max(0.1, roundTenth(readFloat(ui.inputLoop, SPEC.DEF_LOOP_SEC))).toFixed(1);
+      updatePreviewDetails();
+    });
+
+    ui.btnOpenMedia.addEventListener('click', () => {
+      if (state.busy) return;
+      pauseMediaPlayback();
+      ui.inputMedia.value = '';
+      ui.inputMedia.click();
+    });
+    ui.inputMedia.addEventListener('change', (event) => {
+      const [file] = event.target.files;
+      if (!state.busy && file && !file.type.includes('svg')) loadMediaFile(file);
+    });
+
+    ui.btnExtract.addEventListener('click', async () => {
+      if (ui.btnExtract.disabled || state.busy) return;
+      const maxKiB = readInt(ui.inputMaxSize, 1, 39, 20);
+      const quality = readInt(ui.inputQuality, 1, 100, 90) / 100;
+      const { width, height } = getTargetResolution();
+      const { start: startSec, end } = getTrimRange();
+      const lenSec = roundTenth(end - startSec);
+
+      try {
+        if (state.mode === 'video') {
+          await extractVideoSequence(width, height, maxKiB, quality, startSec, lenSec);
+          return;
+        }
+        await runTaskWithBusy(async () => {
+          if (state.mode === 'audio') {
+            await extractAudioTrack(startSec, lenSec);
+            return;
+          }
+          const canvas = new OffscreenCanvas(width, height);
+          const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: hasCjpegli });
+          drawMediaToContext(ctx, ui.stageImage, width, height, state.stage);
+
+          const blob = await encodeJpegBlob(canvas, width, height, maxKiB, quality);
+          if (!blob) return;
+
+          appendFrame(blob, width, height);
+        });
+      } catch (err) {
+        alert(`Extraction Error: ${err.message}`);
+      }
+    });
+
+    ui.btnImport.addEventListener('click', () => {
+      if (state.busy) return;
+      pauseMediaPlayback();
+      ui.inputImport.value = '';
+      ui.inputImport.click();
+    });
+    ui.inputImport.addEventListener('change', async (event) => {
+      const rawFiles = [...event.target.files];
+      if (state.busy || !rawFiles.length) return;
+
+      const lastWav = rawFiles.findLast(isWavFile);
+      const files = rawFiles.filter((f) => !isWavFile(f) || f === lastWav);
+      const { width, height } = getTargetResolution();
+
+      await runTaskWithBusy(async () => {
+        for (let i = 0; i < files.length; i++) {
+          try {
+            await importAssetFile(files[i], width, height);
+          } catch (err) {
+            alert(`Error importing file: ${err.message}`);
+          }
+          if (files.length > 1) updateProgress(i + 1, files.length);
+        }
+        renderThumbList();
+      }, files.length > 1);
+    });
+
+    ui.btnEditAudio.addEventListener('click', () => {
+      if (state.busy) return;
+      clearStageMedia();
+      state.mode = 'audio';
+      switchPanel(true);
+      updateEditorModeUi();
+
+      const track = state.assets.audioTrack;
+      state.assets.rawAudio = track?.buffer ?? null;
+      if (track) ui.stageAudio.src = track.url;
+      initializeTimeline(track ? track.buffer.duration : 0);
+      ui.btnExtract.disabled = false;
+    });
+
+    ui.btnTogglePixelated.addEventListener('click', () => {
+      state.pixelated = !state.pixelated;
+      document.body.dataset.pixelated = state.pixelated;
+      ui.iconPixelated.textContent = state.pixelated ? 'grid_on' : 'grid_off';
+      const media = getActiveVisualMedia();
+      if (media) {
+        const d = media.style.display;
+        media.style.display = 'none';
+        void media.offsetHeight;
+        media.style.display = d;
+      }
+    });
+
+    ui.selectResolution.addEventListener('change', updateCropGuide);
+
+    let isRotating = false;
+
+    ui.rotateHandle.addEventListener('pointerdown', (event) => {
+      if (state.busy || state.mode === 'audio' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      isRotating = true;
+      event.stopPropagation();
+      event.preventDefault();
+      try { ui.rotateHandle.setPointerCapture(event.pointerId); } catch {}
+    });
+
+    ui.rotateHandle.addEventListener('pointermove', (event) => {
+      if (!isRotating) return;
+      event.stopPropagation();
+      const rect = ui.rotateRing.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      let deg = (Math.atan2(event.clientY - centerY, event.clientX - centerX) * 180 / Math.PI) + 90;
+      if (deg < 0) deg += 360;
+      state.stage.rotation = deg;
+      applyRotationUi();
+    });
+
+    const handleRotateEnd = (event) => {
+      if (!isRotating) return;
+      isRotating = false;
+      event.stopPropagation();
+      try { ui.rotateHandle.releasePointerCapture(event.pointerId); } catch {}
+    };
+
+    ui.rotateHandle.addEventListener('pointerup', handleRotateEnd);
+    ui.rotateHandle.addEventListener('pointercancel', handleRotateEnd);
+
+    const handleRotationInput = (val, useSnap) => {
+      let deg = parseFloat(val) || 0;
+      if (useSnap) {
+        const rem = deg % 30;
+        if (rem <= 2) deg -= rem;
+        else if (30 - rem <= 2) deg += (30 - rem);
+      }
+      state.stage.rotation = Math.floor(deg);
+      applyRotationUi();
+    };
+
+    ui.rangeRotation.addEventListener('input', (e) => handleRotationInput(e.target.value, true));
+    ui.inputRotation.addEventListener('input', (e) => handleRotationInput(e.target.value, false));
+
+    ui.cropStage.addEventListener('pointerdown', handleStagePointerDown);
+    ui.cropStage.addEventListener('pointermove', handleStagePointerMove);
+    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) ui.cropStage.addEventListener(type, handleStagePointerUp);
+
+    ui.cropStage.addEventListener('wheel', (event) => {
+      if (state.busy || ui.btnExtract.disabled || state.mode === 'audio') return;
+      event.preventDefault();
+      zoomStageBy(Math.exp(-event.deltaY * 0.005));
+      if (state.stage.pointers.size) updateGestureOrigin();
+    }, { passive: false });
+
+    ui.thumbList.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      ui.thumbList.scrollLeft += event.deltaX + event.deltaY;
+    }, { passive: false });
+
+    const handleThumbSlide = (isStart, commit) => {
+      if (state.busy) return;
+      pauseMediaPlayback();
+      ui.rangeStart.classList.toggle('top', isStart);
+      ui.rangeEnd.classList.toggle('top', !isStart);
+      syncTrimFields();
+      seekActivePlayer(readFloat(isStart ? ui.rangeStart : ui.rangeEnd), !commit);
+    };
+    ui.rangeStart.addEventListener('input', () => handleThumbSlide(true, false));
+    ui.rangeStart.addEventListener('change', () => handleThumbSlide(true, true));
+    ui.rangeEnd.addEventListener('input', () => handleThumbSlide(false, false));
+    ui.rangeEnd.addEventListener('change', () => handleThumbSlide(false, true));
+
+    const bindTimeField = (el, applyFn) => {
+      const handle = (commit) => {
+        if (state.busy) return;
+        const val = parseFloat(el.value);
+        if (!commit && Number.isNaN(val)) return;
+        pauseMediaPlayback();
+        applyFn(val || 0, commit);
+      };
+      el.addEventListener('input', () => handle(false));
+      el.addEventListener('change', () => handle(true));
+    };
+
+    bindTimeField(ui.inputStart, (val, commit) => {
+      const maxDur = getTimelineDuration();
+      const len = readFloat(ui.inputLength);
+      const clamped = clamp(roundTenth(val), 0, maxDur);
+      if (commit) ui.inputStart.value = clamped.toFixed(1);
+      ui.rangeStart.value = clamped;
+      ui.rangeEnd.value = clamp(roundTenth(clamped + len), clamped, maxDur);
+      syncTrimFields();
+      seekActivePlayer(clamped, !commit);
+    });
+
+    bindTimeField(ui.inputLength, (val, commit) => {
+      const start = readFloat(ui.rangeStart);
+      const maxLen = Math.max(0, roundTenth(getTimelineDuration() - start));
+      const clamped = clamp(roundTenth(val), 0, maxLen);
+      if (commit) ui.inputLength.value = clamped.toFixed(1);
+      ui.rangeEnd.value = roundTenth(start + clamped);
+      syncTrimFields();
+      seekActivePlayer(readFloat(ui.rangeEnd), !commit);
+    });
+
+    ui.inputTotal.addEventListener('change', () => {
+      if (state.busy) return;
+      const len = readFloat(ui.inputLength);
+      ui.inputTotal.value = Math.max(len, roundTenth(readFloat(ui.inputTotal, len))).toFixed(1);
+    });
+
+    ui.btnPlay.addEventListener('click', () => {
+      const player = getActiveMediaPlayer();
+      if (state.busy || !player.src) return;
+      if (!player.paused) {
+        player.pause();
+        return;
+      }
+      const { start, end } = getTrimRange();
+      if (end <= start) return;
+      if (player.ended || player.currentTime < start || player.currentTime >= Math.min(end, player.duration || end)) player.currentTime = start;
+      player.play().catch(() => {});
+    });
+  };
+
+  const bindPreviewEvents = () => {
+    ui.modalPreview.addEventListener('cancel', (event) => {
+      if (state.busy) event.preventDefault();
+    });
+    ui.modalPreview.addEventListener('close', () => {
+      state.previewIdx = -1;
+      state.swipe.id = null;
+    });
+    ui.modalPreview.addEventListener('pointerdown', (event) => {
+      if (state.busy || event.pointerType === 'mouse' || state.swipe.id !== null || event.target.closest('button, input')) return;
+      Object.assign(state.swipe, { id: event.pointerId, startX: event.clientX, startY: event.clientY });
+    });
+    ui.modalPreview.addEventListener('pointerup', (event) => {
+      if (event.pointerId !== state.swipe.id) return;
+      state.swipe.id = null;
+      if (state.busy || state.previewIdx < 0) return;
+
+      const dx = event.clientX - state.swipe.startX;
+      const dy = event.clientY - state.swipe.startY;
+
+      if (Math.abs(dx) <= 50 || Math.abs(dy) >= 50) return;
+      triggerButton(dx < 0 ? ui.btnNextFrame : ui.btnPrevFrame);
+    });
+    ui.modalPreview.addEventListener('pointercancel', (event) => {
+      if (event.pointerId === state.swipe.id) state.swipe.id = null;
+    });
+
+    ui.btnClosePreview.addEventListener('click', () => {
+      if (!state.busy && ui.modalPreview.open) ui.modalPreview.close();
+    });
+    ui.btnPrevFrame.addEventListener('click', () => {
+      if (!state.busy && state.previewIdx > 0) openPreviewModal(state.previewIdx - 1);
+    });
+    ui.btnNextFrame.addEventListener('click', () => {
+      if (!state.busy && state.previewIdx < state.assets.frames.length - 1) openPreviewModal(state.previewIdx + 1);
+    });
+
+    ui.btnDeleteFrame.addEventListener('click', () => {
+      if (state.busy || state.previewIdx < 0) return;
+      const [removed] = state.assets.frames.splice(state.previewIdx, 1);
+      if (removed) URL.revokeObjectURL(removed.url);
+      renderThumbList();
+
+      if (!state.assets.frames.length) {
+        ui.previewImage.removeAttribute('src');
+        if (ui.modalPreview.open) ui.modalPreview.close();
+        return;
+      }
+      openPreviewModal(Math.min(state.previewIdx, state.assets.frames.length - 1));
+    });
+
+    ui.btnDownloadJpg.addEventListener('click', () => {
+      if (state.busy) return;
+      const frame = state.assets.frames[state.previewIdx];
+      if (frame) downloadBlob(frame.blob, getIndexedName(frame, state.previewIdx));
+    });
+
+    ui.btnDownloadZip.addEventListener('click', () => {
+      if (state.busy) return;
+      runTaskWithBusy(async () => {
+        try {
+          const totalItems = state.assets.frames.length + (state.assets.audioTrack ? 1 : 0);
+          const entries = [];
+          for (let i = 0; i < state.assets.frames.length; i++) {
+            const frame = state.assets.frames[i];
+            entries.push({ data: new Uint8Array(await frame.blob.arrayBuffer()), name: getIndexedName(frame, i) });
+            updateProgress(i + 1, totalItems);
+          }
+          if (state.assets.audioTrack) {
+            entries.push({ data: new Uint8Array(await state.assets.audioTrack.blob.arrayBuffer()), name: state.assets.audioTrack.blob.name });
+            updateProgress(totalItems, totalItems);
+          }
+          downloadBlob(buildZipBlob(entries), `badge_bundle_${Date.now()}.zip`);
+        } catch (err) {
+          alert(`Download Error: ${err.message}`);
+        }
+      }, true);
+    });
+
+    ui.btnUploadImage.addEventListener('click', async () => {
+      if (state.busy) return;
+      const frame = state.assets.frames[state.previewIdx];
+      if (!frame || !validateFramesForUpload([frame])) return;
+      await runTaskWithBusy(() => uploadBlobToBadge(frame.blob), true);
+    });
+
+    ui.btnUploadVideo.addEventListener('click', async () => {
+      if (state.busy || !validateFramesForUpload(state.assets.frames)) return;
+      const { fps } = getClipMetrics();
+      if (fps <= 0 || fps > SPEC.MAX_FPS) {
+        alert(`Failed to build AVI: Frame rate (${fps.toFixed(1)}fps) exceeds the ${SPEC.MAX_FPS}fps limit.`);
+        return;
+      }
+      const { width, height } = state.badge;
+      await runTaskWithBusy(async () => {
+        let aviBlob;
+        try {
+          aviBlob = await buildAviBlob(state.assets.frames, width, height, fps, state.assets.audioTrack?.pcmBytes);
+        } catch (err) {
+          alert(`Failed to build AVI: ${err.message}`);
+          return;
+        }
+        await uploadBlobToBadge(aviBlob);
+      }, true);
+    });
+  };
+
+  document.addEventListener('keydown', handleGlobalKeyDown);
+  ui.modalProgress.addEventListener('cancel', (event) => event.preventDefault());
+
+  bindBadgeEvents();
+  bindEditorEvents();
+  bindPreviewEvents();
+
+  document.body.dataset.cjpegli = hasCjpegli;
+  if (hasCjpegli) getCjpegliInstance();
+  updateCropGuide();
+</script>
+</body>
+</html>
