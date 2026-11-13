@@ -4,6 +4,8 @@ Try it from [here](https://usokawa.github.io/web-badge-studio/web-badge-studio.h
 
 _(Note: iOS / Safari / Firefox are not supported due to lack of Web Bluetooth support.)_
 
+[User Manual](help.en.html) / [取扱説明書](help.ja.html)
+
 <img src="pictures/screenshot1.png" width="33%" alt="Screen Shot 1"><img src="pictures/screenshot2.png" width="33%" alt="Screen Shot 2"><img src="pictures/screenshot3.png" width="33%" alt="Screen Shot 3">
 
 ## Supported badges
@@ -20,7 +22,3 @@ _(Note: iOS / Safari / Firefox are not supported due to lack of Web Bluetooth su
 * BJ-1 360x360 4MiB
 
 This may be compatible with badges that use the SuperBand app ([Google](https://play.google.com/store/apps/details?id=com.legend.smartwatch.electronicbadge.android) / [Apple](https://apps.apple.com/app/superband/id1514892138)).
-
-## How to use
-
-(TBD)

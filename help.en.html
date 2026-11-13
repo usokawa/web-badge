@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
+  <title>Web Badge Studio - User Manual</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg-app: light-dark(#f8f9fa, #121212);
+      --bg-surface: light-dark(#ffffff, #1e1e1e);
+      --fg-primary: light-dark(#202124, #ffffff);
+      --fg-muted: light-dark(#5f6368, #aaaaaa);
+      --border-subtle: light-dark(#dadce0, #333333);
+      --link-color: light-dark(#007bff, #4da3ff);
+      --radius-sm: 8px;
+    }
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      font-family: system-ui, sans-serif;
+      color: var(--fg-primary);
+      background: var(--bg-app);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .lang-toggle {
+      text-align: right;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .lang-toggle a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+    .lang-toggle a:hover {
+      text-decoration: underline;
+    }
+    .lang-toggle .active {
+      color: var(--fg-muted);
+      font-weight: bold;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-block: 0 32px;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-block: 32px 16px;
+      padding-block-end: 8px;
+      color: var(--fg-primary);
+      border-block-end: 1px solid var(--border-subtle);
+    }
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+    .material-symbols-outlined {
+      flex-shrink: 0;
+      color: var(--fg-muted);
+      font-size: 24px;
+    }
+    .desc {
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="lang-toggle">
+      <a href="web-badge-studio.ja.html">日本語</a> / <span class="active">English</span>
+    </div>
+
+    <h1>Web Badge Studio User Manual</h1>
+
+    <h2>Navigation</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">workspace_premium</span><span class="desc">Switch to the panel for controlling the digital pin badge.</span></li>
+      <li><span class="material-symbols-outlined">photo_library</span><span class="desc">Switch to the media editor panel to modify images, videos, and audio.</span></li>
+    </ul>
+
+    <h2>Badge Control</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">bluetooth</span><span class="desc">Connect or disconnect your device and the digital pin badge via Bluetooth.</span></li>
+      <li><span class="material-symbols-outlined">bug_report</span><span class="desc">Toggle the visibility of the developer debug log.</span></li>
+      <li><span class="material-symbols-outlined">language</span><span class="desc">Change the language setting of the digital pin badge to the selected language.</span></li>
+      <li><span class="material-symbols-outlined">e911_emergency</span><span class="desc">Call the digital pin badge.</span></li>
+      <li><span class="material-symbols-outlined">sync</span><span class="desc">Check and update the available storage space of the digital pin badge.</span></li>
+    </ul>
+
+    <h2>Media Editor</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">folder_open</span><span class="desc">Open a media file (image, video, or audio) to load into the app.</span></li>
+      <li><span class="material-symbols-outlined">crop</span><span class="desc">Extract the media within the preview frame to create images or audio.</span></li>
+      <li><span class="material-symbols-outlined">aspect_ratio</span><span class="desc">Select the target resolution to match the screen size of the digital pin badge.</span></li>
+      <!-- <li><span class="material-symbols-outlined">compress</span><span class="desc">Specify the maximum file size for JPEG encoding.</span></li> -->
+      <li><span class="material-symbols-outlined">high_quality</span><span class="desc">Specify the image quality (JPEG quality) for saving images.</span></li>
+      <li><span class="material-symbols-outlined">grid_off</span><span class="desc">Disable image smoothing to ensure pixel art remains crisp and clear without blurring.</span></li>
+      <li><span class="material-symbols-outlined">rotate_right</span><span class="desc">Adjust the rotation angle of the loaded image or video.</span></li>
+    </ul>
+
+    <h2>Trim Panel</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">play_arrow</span><span class="desc">Play or pause the loaded video or audio.</span></li>
+      <li><span class="material-symbols-outlined">start</span><span class="desc">Specify the exact start time (in seconds) for media extraction.</span></li>
+      <li><span class="material-symbols-outlined">arrow_range</span><span class="desc">Specify the length of the clip (in seconds) to extract from the start time.</span></li>
+      <li><span class="material-symbols-outlined">horizontal_align_right</span><span class="desc">Specify the total duration of the audio track. If the duration exceeds the clip length, silence will be added to fill the gap. Set the duration to 0 and extract to delete the audio data.</span></li>
+    </ul>
+
+    <h2>Asset Dock</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">library_add</span><span class="desc">Add pre-made JPEG images or WAV audio files directly.</span></li>
+      <li><span class="material-symbols-outlined">music_off</span><span class="desc">Switch to the audio track editing mode. The icon will change when audio data is added.</span></li>
+    </ul>
+
+    <h2>Status Bar</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">battery_full</span><span class="desc">Display the current battery level of the digital pin badge.</span></li>
+      <li><span class="material-symbols-outlined">aspect_ratio</span><span class="desc">Display the screen resolution of the digital pin badge.</span></li>
+      <li><span class="material-symbols-outlined">storage</span><span class="desc">Display the available storage space of the digital pin badge.</span></li>
+    </ul>
+
+    <h2>Preview & Upload</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">close</span><span class="desc">Close the preview window and return to the previous screen.</span></li>
+      <li><span class="material-symbols-outlined">image</span><span class="desc">Upload the currently displayed single image to the digital pin badge.</span></li>
+      <li><span class="material-symbols-outlined">animated_images</span><span class="desc">Generate a video using all the added images and audio, and upload it to the digital pin badge.</span></li>
+      <li><span class="material-symbols-outlined">laps</span><span class="desc">Specify the loop duration for the video (this can only be set when there is no audio data).</span></li>
+      <li><span class="material-symbols-outlined">chevron_left</span><span class="desc">View the previous image.</span></li>
+      <li><span class="material-symbols-outlined">chevron_right</span><span class="desc">View the next image.</span></li>
+      <li><span class="material-symbols-outlined">download</span><span class="desc">Download the currently displayed image to your device as a JPEG file.</span></li>
+      <li><span class="material-symbols-outlined">folder_zip</span><span class="desc">Download all the added images and audio together as a single ZIP archive.</span></li>
+      <li><span class="material-symbols-outlined">delete</span><span class="desc">Remove the currently displayed image.</span></li>
+    </ul>
+  </div>
+</body>
+</html>

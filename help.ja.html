@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
+  <title>Web Badge Studio - 取扱説明書</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg-app: light-dark(#f8f9fa, #121212);
+      --bg-surface: light-dark(#ffffff, #1e1e1e);
+      --fg-primary: light-dark(#202124, #ffffff);
+      --fg-muted: light-dark(#5f6368, #aaaaaa);
+      --border-subtle: light-dark(#dadce0, #333333);
+      --link-color: light-dark(#007bff, #4da3ff);
+      --radius-sm: 8px;
+    }
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      font-family: system-ui, sans-serif;
+      color: var(--fg-primary);
+      background: var(--bg-app);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .lang-toggle {
+      text-align: right;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .lang-toggle a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+    .lang-toggle a:hover {
+      text-decoration: underline;
+    }
+    .lang-toggle .active {
+      color: var(--fg-muted);
+      font-weight: bold;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-block: 0 32px;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-block: 32px 16px;
+      padding-block-end: 8px;
+      color: var(--fg-primary);
+      border-block-end: 1px solid var(--border-subtle);
+    }
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+    .material-symbols-outlined {
+      flex-shrink: 0;
+      color: var(--fg-muted);
+      font-size: 24px;
+    }
+    .desc {
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="lang-toggle">
+      <span class="active">日本語</span> / <a href="web-badge-studio.en.html">English</a>
+    </div>
+
+    <h1>Web Badge Studio 取扱説明書</h1>
+
+    <h2>ナビゲーション</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">workspace_premium</span><span class="desc">デジタル缶バッジを操作するための画面へ切り替えます。</span></li>
+      <li><span class="material-symbols-outlined">photo_library</span><span class="desc">画像や動画、音声を編集するための画面へ切り替えます。</span></li>
+    </ul>
+
+    <h2>バッジ操作</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">bluetooth</span><span class="desc">お使いの端末とデジタル缶バッジをBluetoothで接続、または切断します。</span></li>
+      <li><span class="material-symbols-outlined">bug_report</span><span class="desc">開発者向けのデバッグログの表示と非表示を切り替えます。</span></li>
+      <li><span class="material-symbols-outlined">language</span><span class="desc">デジタル缶バッジの言語設定を、選択した言語に変更します。</span></li>
+      <li><span class="material-symbols-outlined">e911_emergency</span><span class="desc">デジタル缶バッジを呼び出します。</span></li>
+      <li><span class="material-symbols-outlined">sync</span><span class="desc">デジタル缶バッジの空き容量を確認して更新します。</span></li>
+    </ul>
+
+    <h2>メディア編集</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">folder_open</span><span class="desc">メディアファイル（画像・動画・音声）を選択してアプリに読み込みます。</span></li>
+      <li><span class="material-symbols-outlined">crop</span><span class="desc">プレビュー画面の枠に合わせてメディアを切り出し、画像や音声を作成します。</span></li>
+      <li><span class="material-symbols-outlined">aspect_ratio</span><span class="desc">デジタル缶バッジの画面サイズに合わせて、切り出す解像度を選択します。</span></li>
+      <!-- <li><span class="material-symbols-outlined">compress</span><span class="desc">画像を保存する際の最大ファイルサイズを指定します。</span></li> -->
+      <li><span class="material-symbols-outlined">high_quality</span><span class="desc">画像を保存する際の画質（JPEG品質）を指定します。</span></li>
+      <li><span class="material-symbols-outlined">grid_off</span><span class="desc">ドット絵などのピクセルアートがぼやけずにくっきりと表示されるように、画像補間を無効にします。</span></li>
+      <li><span class="material-symbols-outlined">rotate_right</span><span class="desc">読み込んだ画像や動画の回転角度を調整します。</span></li>
+    </ul>
+
+    <h2>切り出し設定</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">play_arrow</span><span class="desc">読み込んだ動画や音声の再生と一時停止を切り替えます。</span></li>
+      <li><span class="material-symbols-outlined">start</span><span class="desc">動画や音声の切り出しを開始する時間を秒単位で指定します。</span></li>
+      <li><span class="material-symbols-outlined">arrow_range</span><span class="desc">開始位置からどれくらいの長さ（秒）を切り出すかを指定します。</span></li>
+      <li><span class="material-symbols-outlined">horizontal_align_right</span><span class="desc">音声トラック全体の長さを指定します。切り出した音声よりも長い時間を指定した場合は、残りの部分が無音で埋められます。0を指定して切り出すと音声データを削除できます。</span></li>
+    </ul>
+
+    <h2>素材置き場</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">library_add</span><span class="desc">すでに作成済みの画像（JPEG）や音声（WAV）ファイルを直接追加します。</span></li>
+      <li><span class="material-symbols-outlined">music_off</span><span class="desc">音声トラックの編集モードに切り替えます。音声データが追加されるとアイコンが変化します。</span></li>
+    </ul>
+
+    <h2>ステータス</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">battery_full</span><span class="desc">デジタル缶バッジの現在のバッテリー残量を表示します。</span></li>
+      <li><span class="material-symbols-outlined">aspect_ratio</span><span class="desc">デジタル缶バッジのディスプレイ解像度を表示します。</span></li>
+      <li><span class="material-symbols-outlined">storage</span><span class="desc">デジタル缶バッジの空き容量を表示します。</span></li>
+    </ul>
+
+    <h2>プレビューと送信</h2>
+    <ul>
+      <li><span class="material-symbols-outlined">close</span><span class="desc">プレビュー画面を閉じて元の画面に戻ります。</span></li>
+      <li><span class="material-symbols-outlined">image</span><span class="desc">現在表示している1枚の画像をデジタル缶バッジに送信します。</span></li>
+      <li><span class="material-symbols-outlined">animated_images</span><span class="desc">追加したすべての画像と音声から動画を作成し、デジタル缶バッジに送信します。</span></li>
+      <li><span class="material-symbols-outlined">laps</span><span class="desc">動画を再生する際の1ループの長さを指定します（音声データがない場合のみ設定できます）。</span></li>
+      <li><span class="material-symbols-outlined">chevron_left</span><span class="desc">前の画像を表示します。</span></li>
+      <li><span class="material-symbols-outlined">chevron_right</span><span class="desc">次の画像を表示します。</span></li>
+      <li><span class="material-symbols-outlined">download</span><span class="desc">現在表示している画像をJPEGファイルとしてお使いの端末にダウンロードします。</span></li>
+      <li><span class="material-symbols-outlined">folder_zip</span><span class="desc">追加したすべての画像と音声を、1つのZIPファイルにまとめてダウンロードします。</span></li>
+      <li><span class="material-symbols-outlined">delete</span><span class="desc">現在表示している画像を削除します。</span></li>
+    </ul>
+  </div>
+</body>
+</html>
