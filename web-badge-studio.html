@@ -1330,7 +1330,7 @@
     transmitAndAwait(buildCommandPacket(cls, id, payload), () => waitPacketReply('ack', cls, id, 3000));
 
   const sendStreamPacket = (id, payload, expectedCode) =>
-    transmitAndAwait(buildCommandPacket(PROTO.CLS_STREAM, id, payload), () => registerWaiter('stream', 10000, `Stream Timeout`, { expectedCode }));
+    transmitAndAwait(buildCommandPacket(PROTO.CLS_STREAM, id, payload), () => registerWaiter('stream', 15000, `Stream Timeout`, { expectedCode }));
 
   const queryBadgeData = (cls, id, payload = []) => enqueueCommand(async () => {
     const dataWaiter = waitPacketReply('data', cls, id, 5000);
@@ -1390,7 +1390,22 @@
     if (!streamWaiter) return;
 
     const code = readU32be(payload, 0);
-    code === streamWaiter.expectedCode ? streamWaiter.resolve() : streamWaiter.reject(new Error(`Stream Mismatch`));
+    if (code === streamWaiter.expectedCode) {
+      streamWaiter.resolve();
+      return;
+    }
+
+    let errMsg = `Stream Error Code: ${code}`;
+
+    if (code === 3) {
+      errMsg = 'Battery is too low for file transfer.';
+    } else if (code === 4) {
+      errMsg = 'Cannot transfer files while charging.';
+    } else if (code >= 100000000 && code < 200000000) {
+      errMsg = `Insufficient storage. Need ${((code - 100000000) / 1024).toFixed(1)} KiB more space.`;
+    }
+
+    streamWaiter.reject(new Error(errMsg));
   };
 
   const updateBatteryStatus = (pct) => {
