@@ -2340,9 +2340,13 @@
       return;
     }
     if (event.ctrlKey || event.altKey || event.metaKey) return;
-    if (['INPUT', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+    const activeIsInput = ['INPUT', 'SELECT'].includes(document.activeElement?.tagName);
 
     if (ui.modalPreview.open) {
+      if (activeIsInput && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace', 'Delete'].includes(event.key)) {
+        return;
+      }
       const previewKeyMap = {
         ArrowUp: event.shiftKey ? ui.btnUploadVideo : ui.btnUploadImage,
         ArrowDown: event.shiftKey ? ui.btnDownloadZip : ui.btnDownloadJpg,
@@ -2359,19 +2363,36 @@
 
     if (ui.panelEditor.dataset.mode === 'audio' || ui.btnExtract.disabled) return;
 
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+
     const stageKeyMap = {
-      ArrowUp: () => { state.stage.panY -= 20; applyStageTransform(); },
-      ArrowDown: () => { state.stage.panY += 20; applyStageTransform(); },
-      ArrowLeft: () => { state.stage.panX -= 20; applyStageTransform(); },
-      ArrowRight: () => { state.stage.panX += 20; applyStageTransform(); },
-      PageUp: () => zoomStageBy(1.1),
-      PageDown: () => zoomStageBy(1 / 1.1)
+      ArrowUp: () => { state.stage.panY -= 8; applyStageTransform(); },
+      ArrowDown: () => { state.stage.panY += 8; applyStageTransform(); },
+      ArrowLeft: () => { state.stage.panX -= 8; applyStageTransform(); },
+      ArrowRight: () => { state.stage.panX += 8; applyStageTransform(); },
+      PageUp: () => zoomStageBy(1.05),
+      PageDown: () => zoomStageBy(1 / 1.05),
+      a: () => { state.stage.panX -= 1; applyStageTransform(); },
+      d: () => { state.stage.panX += 1; applyStageTransform(); },
+      w: () => { state.stage.panY -= 1; applyStageTransform(); },
+      s: () => { state.stage.panY += 1; applyStageTransform(); },
+      q: () => { state.stage.rotation -= 1; applyRotationUi(); },
+      e: () => { state.stage.rotation += 1; applyRotationUi(); },
+      z: () => zoomStageBy(1.01),
+      x: () => zoomStageBy(1 / 1.01),
+      c: () => triggerButton(ui.btnExtract)
     };
 
-    if (!stageKeyMap[event.key]) return;
-    stageKeyMap[event.key]();
-    if (state.stage.pointers.size) updateGestureOrigin();
-    event.preventDefault();
+    if (stageKeyMap[key]) {
+      const isNavKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(event.key);
+      if (activeIsInput && isNavKey) {
+        return;
+      }
+      stageKeyMap[key]();
+      if (state.stage.pointers.size) updateGestureOrigin();
+      event.preventDefault();
+      return;
+    }
   };
 
   const validateFramesForUpload = (frames) => {
