@@ -1059,7 +1059,7 @@
     CLS_SYS: 0x12,
     CLS_INFO: 0x1A,
     CLS_STREAM: 0x1F,
-    CLS_STAT: 0x20
+    CLS_STORAGE: 0x20
   };
 
   const SPEC = {
@@ -1334,7 +1334,7 @@
 
   const queryBadgeData = (cls, id, payload = []) => enqueueCommand(async () => {
     const dataWaiter = waitPacketReply('data', cls, id, 5000);
-    const ackWaiter = cls === PROTO.CLS_STAT ? null : waitPacketReply('ack', cls, id, 3000);
+    const ackWaiter = cls === PROTO.CLS_STORAGE ? null : waitPacketReply('ack', cls, id, 3000);
     try {
       await sendRawPacket(buildCommandPacket(cls, id, payload));
       if (ackWaiter) await Promise.race([ackWaiter.promise, dataWaiter.promise]);
@@ -1345,7 +1345,12 @@
     }
   });
 
-  const queryStorageSpace = () => queryBadgeData(PROTO.CLS_STAT, 0x04);
+  const updateStorageSpace = async () => {
+    const payload = await queryBadgeData(PROTO.CLS_STORAGE, 0x04);
+    if (payload.length >= 8) {
+      ui.textStorage.textContent = `${(readU32be(payload, 4) / 1024).toFixed(0)} KiB`;
+    }
+  };
 
   const handleRxNotification = async (event) => {
     const view = event.target.value;
@@ -1378,12 +1383,8 @@
       return;
     }
 
-    if (cls === PROTO.CLS_STAT && id === 0x04 && payload.length >= 8) {
-      ui.textStorage.textContent = `${(readU32be(payload, 4) / 1024).toFixed(0)} KiB`;
-    }
-
     ble.pending.get(`data_${cls}_${id}`)?.resolve(payload);
-    if (cls !== PROTO.CLS_STAT) return;
+    if (cls !== PROTO.CLS_STORAGE) return;
     if (id !== 0x01 || payload.length < 4) return;
 
     const streamWaiter = ble.pending.get('stream');
@@ -1459,7 +1460,7 @@
     const nameBytes = await queryBadgeData(PROTO.CLS_INFO, 0x0C);
     if (nameBytes.length > 1) ui.textName.textContent = new TextDecoder().decode(nameBytes.subarray(1)).replace(/\0+$/, '');
 
-    const specBytes = await queryBadgeData(PROTO.CLS_STAT, 0x02);
+    const specBytes = await queryBadgeData(PROTO.CLS_STORAGE, 0x02);
     if (specBytes.length < 32 || specBytes[0] !== 0x01) throw new Error('Invalid badge specifications');
     const width = readU16be(specBytes, 2);
     const height = readU16be(specBytes, 4);
@@ -1480,7 +1481,7 @@
     ui.selectResolution.value = resLabel;
     updateCropGuide();
 
-    await queryStorageSpace();
+    await updateStorageSpace();
   };
 
   const setupOptionalServices = async (server, primaryService) => {
@@ -1530,6 +1531,10 @@
   };
 
   const streamBlobToBadge = async (blob, onProgress) => {
+    const tokenPayload = await queryBadgeData(PROTO.CLS_STORAGE, 0x03);
+    if (tokenPayload.length < 6) throw new Error('Invalid transfer token response');
+    const streamToken = readU32be(tokenPayload, 2);
+
     const raw = new Uint8Array(await blob.arrayBuffer());
     const { maxChunk } = state.badge;
     if (!ble.txChar || maxChunk <= 4) throw new Error('Badge disconnected');
@@ -1544,7 +1549,7 @@
 
     onProgress?.(0, chunks.length);
     const startHeader = new Uint8Array([
-      ...u32be(Math.floor(Math.random() * 0xFFFFFFFF)),
+      ...u32be(streamToken),
       blob.type === 'video/avi' ? 0x01 : 0x02,
       0x08, 0, 0, 0, ...u32be(totalLen + 4), 0, 0, 0, 0
     ]);
@@ -2404,15 +2409,15 @@
     }
     const { width, height, maxChunk } = state.badge;
     if (!width || !height || maxChunk <= 4) {
-      alert('Error: Badge specifications unknown. Please reconnect.');
+      alert('Badge specifications unknown. Please reconnect.');
       return false;
     }
     if (frames.some((f) => f.width !== width || f.height !== height)) {
-      alert(`Error: Image resolution must be ${width}x${height}px.`);
+      alert(`Image resolution must be ${width}x${height}px.`);
       return false;
     }
     if (frames.some((f) => f.blob.size <= 0 || f.blob.size > SPEC.MAX_JPG_BYTES)) {
-      alert(`Error: Image size must be between 1 and ${SPEC.MAX_JPG_BYTES} bytes.`);
+      alert(`Image size must be between 1 and ${SPEC.MAX_JPG_BYTES} bytes.`);
       return false;
     }
     return true;
@@ -2421,9 +2426,9 @@
   const uploadBlobToBadge = async (blob) => {
     try {
       await streamBlobToBadge(blob, updateProgress);
-      await queryStorageSpace();
+      await updateStorageSpace();
     } catch (err) {
-      alert(`Upload Error: ${err.message}`);
+      alert(`Upload failed: ${err.message}`);
     }
   };
 
@@ -2441,7 +2446,7 @@
       try {
         await connectBadge();
       } catch (err) {
-        if (err.name !== 'NotFoundError') alert(`Connection Error: ${err.message}`);
+        if (err.name !== 'NotFoundError') alert(`Connection failed: ${err.message}`);
       } finally {
         ble.connecting = false;
       }
@@ -2453,11 +2458,11 @@
     });
 
     const bindCommand = (btn, task) => btn.addEventListener('click', async () => {
-      try { await task(); } catch (err) { alert(`Command Error: ${err.message}`); }
+      try { await task(); } catch (err) { alert(`Command failed: ${err.message}`); }
     });
     bindCommand(ui.btnSetLang, () => sendBadgeCommand(PROTO.CLS_SYS, 0x15, [parseInt(ui.selectLang.value, 10)]));
     bindCommand(ui.btnCallBadge, () => sendBadgeCommand(PROTO.CLS_SYS, 0x0B, [0x01]));
-    bindCommand(ui.btnCheckStorage, queryStorageSpace);
+    bindCommand(ui.btnCheckStorage, updateStorageSpace);
   };
 
   const bindEditorEvents = () => {
@@ -2549,7 +2554,7 @@
           appendFrame(blob, width, height);
         });
       } catch (err) {
-        alert(`Extraction Error: ${err.message}`);
+        alert(`Extraction failed: ${err.message}`);
       }
     });
 
@@ -2811,7 +2816,7 @@
           }
           downloadBlob(buildZipBlob(entries), `badge_bundle_${Date.now()}.zip`);
         } catch (err) {
-          alert(`Download Error: ${err.message}`);
+          alert(`Download failed: ${err.message}`);
         }
       }, true);
     });

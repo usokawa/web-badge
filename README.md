@@ -1,5 +1,11 @@
 # Web Badge Studio
 
+[![GitHub license](https://img.shields.io/github/license/usokawa/web-badge-studio?style=flat)](https://github.com/usokawa/web-badge-studio/blob/main/LICENSE.md)
+![Language: JavaScript](https://img.shields.io/badge/Language-JavaScript-blue.svg?style=flat)
+[![GitHub stars](https://img.shields.io/github/stars/usokawa/web-badge-studio?style=flat)](https://github.com/usokawa/web-badge-studio/stargazers)
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-usokawa-ea4aaa?style=flat&logo=github-sponsors)](https://github.com/sponsors/usokawa)
+![Platform: Web](https://img.shields.io/badge/Platform-Web-lightgrey.svg?style=flat)
+
 Try it from [here](https://usokawa.github.io/web-badge-studio/web-badge-studio.html)!
 
 _(Note: iOS / Safari / Firefox are not supported due to lack of Web Bluetooth support.)_
